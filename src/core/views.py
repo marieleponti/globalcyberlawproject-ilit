@@ -13,13 +13,7 @@ def use_of_force(request):
     return render(request, 'core/uof.html')
 
 
-import pandas as pd
-import plotly.graph_objects as go
-from django.conf import settings
-from django.shortcuts import render
-
-
-def sankey_uof(request):
+def uof_sankey(request):
     # Cargar los datos
     uof_data = settings.BASE_DIR / 'data' / 'uof-aug2025.csv'
     df = pd.read_csv(uof_data)
@@ -97,14 +91,13 @@ def sankey_uof(request):
             'showactive': True,
             'x': 0.5,
             'xanchor': 'center',
-            'y': 1.05,
+            'y': 1.25,
             'yanchor': 'top',
             'bgcolor': 'white',
             'bordercolor': '#cccccc',
             'borderwidth': 1
         }]
     )
-
     # Generación del HTML con configuración responsive
     sankey_html = fig.to_html(
         full_html=False,
@@ -114,7 +107,6 @@ def sankey_uof(request):
         },
         include_plotlyjs='cdn'
     )
-
     # Contenedor con estilos optimizados
     sankey_html = f"""
     <div style="
@@ -128,5 +120,169 @@ def sankey_uof(request):
         {sankey_html}
     </div>
     """
-
     return render(request, 'core/uof_sankey.html', {'uof_sankey': sankey_html})
+
+
+def uof_demscore_sankey(request):
+    # 1. Cargar todos los datos
+    uof_data = settings.BASE_DIR / 'data' / 'uof-aug2025.csv'
+    dem_score_data = settings.BASE_DIR / 'data' / 'democracy-index-eiu.csv'
+
+    # Leer datos de uso de fuerza
+    df_uof = pd.read_csv(uof_data)
+    column_names = list(df_uof.columns)
+    target_columns = column_names[2:18]  # Columnas Q2-Q17
+
+    # Leer y procesar datos de democracia
+    df_dem = pd.read_csv(dem_score_data)
+    df_dem = df_dem.rename(columns={'Year': 'year', 'Code': 'iso', 'Democracy score': 'dem_score'})
+    df_uof = df_uof.rename(columns={'ISO': 'iso'})
+    most_recent_year = df_dem['year'].max()
+    df_dem = df_dem[df_dem['year'] == most_recent_year]
+
+    # 2. Preparar todos los Sankeys para cada pregunta
+    sankey_figs = []
+
+    for question in target_columns:
+        # Merge de datos para esta pregunta
+        merged_df = pd.merge(
+            df_uof,
+            df_dem[['iso', 'dem_score']],
+            on='iso',
+            how='inner'
+        ).dropna()
+
+        if merged_df.empty:
+            continue  # Saltar si no hay datos
+
+        # Crear rangos de democracia
+        bins = [0, 2, 4, 5, 6, 7, 8, 9, 10]
+        labels = ['[0-2)', '[2-4)', '[4-5)', '[5-6)', '[6-7)', '[7-8)', '[8-9)', '[9-10]']
+        merged_df['score_range'] = pd.cut(
+            merged_df['dem_score'],
+            bins=bins,
+            right=False,
+            labels=labels
+        )
+        merged_df.loc[merged_df['dem_score'] == 10, 'score_range'] = '[9-10]'
+
+        # Preparar nodos y enlaces
+        countries = merged_df['iso'].unique().tolist()
+        ranges = sorted(merged_df['score_range'].unique().tolist())
+        responses = merged_df[question].unique().tolist()
+
+        nodes = countries + ranges + responses
+        node_indices = {node: idx for idx, node in enumerate(nodes)}
+
+        # Crear enlaces
+        links = []
+
+        # Etapa 1: País → Rango de democracia
+        stage1_counts = merged_df.groupby(['iso', 'score_range']).size().reset_index(name='count')
+        for _, row in stage1_counts.iterrows():
+            links.append({
+                'source': node_indices[row['iso']],
+                'target': node_indices[row['score_range']],
+                'value': row['count']
+            })
+
+        # Etapa 2: Rango → Respuesta
+        stage2_counts = merged_df.groupby(['score_range', question]).size().reset_index(name='count')
+        for _, row in stage2_counts.iterrows():
+            links.append({
+                'source': node_indices[row['score_range']],
+                'target': node_indices[row[question]],
+                'value': row['count']
+            })
+
+        # Crear figura Sankey para esta pregunta
+        fig = go.Sankey(
+            arrangement="perpendicular",
+            node=dict(
+                pad=25,
+                thickness=20,
+                line=dict(color='black', width=0.5),
+                label=nodes,
+                color=['#1f77b4'] * len(countries) +  # Azul países
+                      ['#ff7f0e'] * len(ranges) +  # Naranja rangos
+                      ['#2ca02c'] * len(responses)  # Verde respuestas
+            ),
+            link=dict(
+                source=[link['source'] for link in links],
+                target=[link['target'] for link in links],
+                value=[link['value'] for link in links],
+                color='rgba(150, 150, 150, 0.3)'
+            ),
+            visible=(question == target_columns[0])  # Solo primera visible
+        )
+
+        sankey_figs.append(fig)
+
+    # 3. Crear figura final con todos los Sankeys
+    fig = go.Figure(data=sankey_figs)
+
+    # Configurar menú desplegable
+    buttons = []
+    for i, question in enumerate(target_columns):
+        visibility = [False] * len(target_columns)
+        visibility[i] = True
+
+        buttons.append(
+            dict(
+                args=[{'visible': visibility},
+                      # {'title': f"Country → Democracy Score → {question}"}
+                      ],
+                label=question,
+                method="update"
+            )
+        )
+
+    fig.update_layout(
+        # title_text=f"Country → Democracy Score → {target_columns[0]}",
+        font_size=12,
+        height=800,
+        width=1200,
+        margin=dict(l=50, r=50, b=100, t=100, pad=20),
+        plot_bgcolor='white',
+        updatemenus=[{
+            'buttons': buttons,
+            'direction': 'down',
+            'showactive': True,
+            'x': 0.5,
+            'xanchor': 'center',
+            'y': 1.15,
+            'yanchor': 'top',
+            'bgcolor': 'white',
+            'bordercolor': '#cccccc',
+            'borderwidth': 1
+        }]
+    )
+
+    # 4. Generar HTML
+    sankey_html = fig.to_html(
+        full_html=False,
+        config={
+            'responsive': True,
+            'displayModeBar': True
+        },
+        include_plotlyjs='cdn'
+    )
+
+    # Contenedor con estilos
+    sankey_html = f"""
+    <div style="
+        width: 100%;
+        overflow: auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    ">
+        {sankey_html}
+    </div>
+    """
+
+    return render(request, 'core/uof_demscore_sankey.html', {
+        'uof_demscore_sankey': sankey_html
+    })

@@ -1,3 +1,4 @@
+import pycountry
 from django.shortcuts import render
 import plotly.graph_objects as go
 import pandas as pd
@@ -286,3 +287,32 @@ def uof_demscore_sankey(request):
     return render(request, 'core/uof_demscore_sankey.html', {
         'uof_demscore_sankey': sankey_html
     })
+
+
+def uof_scatter(request):
+    uof_data = settings.BASE_DIR / 'data' / 'uof-aug2025.csv'
+    df = pd.read_csv(uof_data)
+
+    # Initialize figure
+    fig = go.Figure()
+
+    scatter_uof_all = fig.to_html()
+
+    context = {
+        'uof_scatter': scatter_uof_all
+    }
+    return render(request, 'core/uof_scatter.html', context)
+
+def uof_by_state_scatter(request):
+    uof_data = settings.BASE_DIR / 'data' / 'uof-aug2025.csv'
+    df = pd.read_csv(uof_data)
+
+    # Initialize figure
+    fig = go.Figure()
+
+    scatter_uof_by_state = fig.to_html()
+
+    context = {
+        'uof_by_state_scatter': scatter_uof_by_state
+    }
+    return render(request, 'core/uof_by_state_scatter.html', context)

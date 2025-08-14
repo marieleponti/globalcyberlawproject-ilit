@@ -1,4 +1,4 @@
-import pycountry
+import plotly.express as px
 from django.shortcuts import render
 import plotly.graph_objects as go
 import pandas as pd
@@ -290,29 +290,216 @@ def uof_demscore_sankey(request):
 
 
 def uof_scatter(request):
+    # 1. Cargar todos los datos
     uof_data = settings.BASE_DIR / 'data' / 'uof-aug2025.csv'
+    # Leer datos de uso de fuerza
     df = pd.read_csv(uof_data)
+    column_names = list(df.columns)
+    preguntas = column_names[2:18]
 
-    # Initialize figure
-    fig = go.Figure()
+    fig = px.scatter(
+        df,
+        y='State',  # Nombre del país (ahora en eje Y)
+        x=preguntas[0],  # Primera pregunta por defecto (ahora en eje X)
+        hover_data=['ISO'],  # Mostrar código ISO al pasar el mouse
+        title=f'',
+        labels={'State': 'Country', preguntas[0]: 'Response'}
+    )
 
-    scatter_uof_all = fig.to_html()
+    # Personalizar diseño
+    fig.update_layout(
+        hovermode='closest',
+        plot_bgcolor='rgba(0,0,0,0)',
+        yaxis = {'categoryorder': 'total ascending'},
+        margin = dict(l=100, r=50, t=50, b=100),  # Ajustar márgenes
+        height = 800
+    )
 
-    context = {
-        'uof_scatter': scatter_uof_all
-    }
-    return render(request, 'core/uof_scatter.html', context)
+    # Crear botones para el dropdown
+    botones = []
+    for pregunta in preguntas:
+        botones.append({
+            'method': 'update',
+            'label': pregunta,
+            'args': [
+                {'x': [df[pregunta]],  # Ahora actualizamos el eje X en lugar del Y
+                 'title': f'',
+                 'labels': {'State': 'País', pregunta: 'Respuesta'}}
+            ]
+        })
+
+    # Añadir dropdown menu
+    fig.update_layout(
+        updatemenus=[{
+            'buttons': botones,
+            'direction': 'down',
+            'showactive': True,
+            'x': 0.1,
+            'xanchor': 'left',
+            'y': 1.35,
+            'yanchor': 'top'
+        }]
+    )
+    # Convertir figura a HTML para Django
+    plot_div = fig.to_html()
+    return render(request, 'core/uof_scatter.html', {'uof_scatter': plot_div})
+
+# Scatter plot of countries and responses with countries on x axis
+# def uof_scatter(request):
+#     # 1. Cargar todos los datos
+#     uof_data = settings.BASE_DIR / 'data' / 'uof-aug2025.csv'
+#     # Leer datos de uso de fuerza
+#     df = pd.read_csv(uof_data)
+#     column_names = list(df.columns)
+#     preguntas = column_names[2:18]
+#
+#     fig = px.scatter(
+#         df,
+#         x='State',  # Nombre del país
+#         y=preguntas[0],  # Primera pregunta por defecto
+#         hover_data=['ISO'],  # Mostrar código ISO al pasar el mouse
+#         title=f'',
+#         labels={'State': 'Country', preguntas[0]: 'Response'}
+#     )
+#
+#     # Personalizar diseño
+#     fig.update_layout(
+#         hovermode='closest',
+#         plot_bgcolor='rgba(0,0,0,0)',
+#         xaxis={'categoryorder': 'total descending'}
+#     )
+#
+#     # Crear botones para el dropdown
+#     botones = []
+#     for pregunta in preguntas:
+#         botones.append({
+#             'method': 'update',
+#             'label': pregunta,
+#             'args': [
+#                 {'y': [df[pregunta]],  # Actualizar eje Y
+#                  'title': f'',
+#                  'labels': {'State': 'País', pregunta: 'Respuesta'}}
+#             ]
+#         })
+#
+#     # Añadir dropdown menu
+#     fig.update_layout(
+#         updatemenus=[{
+#             'buttons': botones,
+#             'direction': 'down',
+#             'showactive': True,
+#             'x': 0.1,
+#             'xanchor': 'left',
+#             'y': 1.35,
+#             'yanchor': 'top'
+#         }]
+#     )
+#     # Convertir figura a HTML para Django
+#     plot_div = fig.to_html()
+#     return render(request, 'core/uof_scatter.html', {'uof_scatter': plot_div})
+
 
 def uof_by_state_scatter(request):
+    # 1. Cargar todos los datos
     uof_data = settings.BASE_DIR / 'data' / 'uof-aug2025.csv'
     df = pd.read_csv(uof_data)
+    column_names = list(df.columns)
+    preguntas = column_names[2:18]
+    estados = df['State'].unique()
 
-    # Initialize figure
-    fig = go.Figure()
+    # Crear figura inicial con el primer estado
+    estado_inicial = estados[0]
+    df_filtrado = df[df['State'] == estado_inicial]
 
-    scatter_uof_by_state = fig.to_html()
+    # Transformar los datos para mostrar todas las preguntas
+    df_melted = df_filtrado.melt(id_vars=['State', 'ISO'], value_vars=preguntas,
+                                 var_name='Question', value_name='Response')
 
-    context = {
-        'uof_by_state_scatter': scatter_uof_by_state
-    }
-    return render(request, 'core/uof_by_state_scatter.html', context)
+    fig = px.scatter(
+        df_melted,
+        x='Response',
+        y='Question',
+        color='Question',
+        title=f'Responses for {estado_inicial}',
+        labels={'Response': 'Response Value', 'Question': 'Question'},
+        height=600,
+        hover_data=['State']  # Mostrar estado en tooltip
+    )
+
+    # Personalizar diseño
+    fig.update_layout(
+        hovermode='closest',
+        plot_bgcolor='rgba(0,0,0,0)',
+        xaxis={'categoryorder': 'total descending'},
+        margin=dict(l=150, r=50, t=80, b=100),  # Más margen izquierdo para preguntas largas
+        showlegend=False,
+        transition={'duration': 500}  # Animación suave
+    )
+
+    # Mejorar visualización de puntos
+    fig.update_traces(
+        marker=dict(size=12, line=dict(width=1, color='DarkSlateGrey')),
+        selector=dict(mode='markers')
+    )
+
+    # Crear botones para el dropdown de estados
+    botones = []
+    for estado in estados:
+        df_estado = df[df['State'] == estado]
+        df_melted_estado = df_estado.melt(
+            id_vars=['State', 'ISO'],
+            value_vars=preguntas,
+            var_name='Question',
+            value_name='Response'
+        )
+
+        botones.append({
+            'method': 'update',
+            'label': estado,
+            'args': [
+                {'x': [df_melted_estado['Response']],
+                 'y': [df_melted_estado['Question']],
+                 'hover_data': [[estado] * len(df_melted_estado)]},
+                {'title': f'Responses for {estado}'}
+            ]
+        })
+
+    # Añadir dropdown menu para estados
+    fig.update_layout(
+        updatemenus=[
+            {
+                'buttons': botones,
+                'direction': 'down',
+                'showactive': True,
+                'x': 0.3,
+                'xanchor': 'left',
+                'y': 1.15,
+                'yanchor': 'top',
+                'bgcolor': '#f8f9fa',  # Fondo claro para el dropdown
+                'borderwidth': 1
+            }
+        ]
+    )
+
+    # Añadir anotaciones para mejor contexto
+    fig.update_layout(
+        annotations=[
+            dict(
+                text="Select State:",
+                x=0,
+                xref="paper",
+                y=1.1,
+                yref="paper",
+                align="left",
+                showarrow=False
+            )
+        ]
+    )
+
+    # Convertir figura a HTML para Django
+    plot_div = fig.to_html(full_html=False, config={'responsive': True})
+    return render(request, 'core/uof_by_state_scatter.html', {
+        'uof_by_state_scatter': plot_div,
+        'states_count': len(estados),
+        'questions_count': len(preguntas)
+    })

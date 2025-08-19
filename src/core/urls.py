@@ -9,6 +9,5 @@ urlpatterns = [
     path('uof-demscore-sankey', views.uof_demscore_sankey, name='uof_demscore_sankey'),
     path('uof-scatter', views.uof_scatter, name='uof_scatter'),
     path('uof-by-state-scatter', views.uof_by_state_scatter, name='uof_by_state_scatter'),
-    path('uof-sovereignty-parallel-categories', views.uof_sov_parallel_categories, name='uof_sov_parallel_categories'),
-
+    path('uof-sovereignty-parallel-categories', views.uof_sov_parallel_categories, name='uof_sov_parallel_categories')
 ]

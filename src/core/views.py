@@ -3,6 +3,8 @@ from django.shortcuts import render
 import plotly.graph_objects as go
 import pandas as pd
 from nat_state_vis_app import settings
+import textwrap
+import json
 
 
 # Create your views here.
@@ -349,61 +351,6 @@ def uof_scatter(request):
     return render(request, 'core/uof_scatter.html', {'uof_scatter': plot_div})
 
 
-# Scatter plot of countries and responses with countries on x axis
-# def uof_scatter(request):
-#     # 1. Cargar todos los datos
-#     uof_data = settings.BASE_DIR / 'data' / 'uof-aug2025.csv'
-#     # Leer datos de uso de fuerza
-#     df = pd.read_csv(uof_data)
-#     column_names = list(df.columns)
-#     preguntas = column_names[2:18]
-#
-#     fig = px.scatter(
-#         df,
-#         x='State',  # Nombre del país
-#         y=preguntas[0],  # Primera pregunta por defecto
-#         hover_data=['ISO'],  # Mostrar código ISO al pasar el mouse
-#         title=f'',
-#         labels={'State': 'Country', preguntas[0]: 'Response'}
-#     )
-#
-#     # Personalizar diseño
-#     fig.update_layout(
-#         hovermode='closest',
-#         plot_bgcolor='rgba(0,0,0,0)',
-#         xaxis={'categoryorder': 'total descending'}
-#     )
-#
-#     # Crear botones para el dropdown
-#     botones = []
-#     for pregunta in preguntas:
-#         botones.append({
-#             'method': 'update',
-#             'label': pregunta,
-#             'args': [
-#                 {'y': [df[pregunta]],  # Actualizar eje Y
-#                  'title': f'',
-#                  'labels': {'State': 'País', pregunta: 'Respuesta'}}
-#             ]
-#         })
-#
-#     # Añadir dropdown menu
-#     fig.update_layout(
-#         updatemenus=[{
-#             'buttons': botones,
-#             'direction': 'down',
-#             'showactive': True,
-#             'x': 0.1,
-#             'xanchor': 'left',
-#             'y': 1.35,
-#             'yanchor': 'top'
-#         }]
-#     )
-#     # Convertir figura a HTML para Django
-#     plot_div = fig.to_html()
-#     return render(request, 'core/uof_scatter.html', {'uof_scatter': plot_div})
-
-
 def uof_by_state_scatter(request):
     # 1. Cargar todos los datos
     uof_data = settings.BASE_DIR / 'data' / 'uof-aug2025.csv'
@@ -527,12 +474,23 @@ def uof_sov_parallel_categories(request):
     # Solo una traza inicial
     fig.add_trace(go.Parcats(
         dimensions=[
-            {'label': 'Country', 'values': df_uof['State']},
-            {'label': questions_uof[0], 'values': df_uof[questions_uof[0]]},
-            {'label': questions_sov[1], 'values': df_sov[questions_sov[1]]}
+            {
+                'label': 'Country',
+                'values': df_uof['State']
+             },
+            {
+                'label': questions_uof[0],
+                'values': df_uof[questions_uof[0]]
+            },
+            {
+                'label': questions_sov[1],
+                'values': df_sov[questions_sov[1]]}
         ],
         line={'color': df_uof.index, 'colorscale': 'Viridis'},
-        arrangement='freeform'
+        arrangement='freeform',
+        # Configuración para ocultar etiquetas en nodos y mostrarlas en leyenda
+        # Añadir información para la leyenda
+        hoverinfo='count+probability',
     ))
 
     # 3. Menús desplegables optimizados
@@ -582,7 +540,6 @@ def uof_sov_parallel_categories(request):
                 'bgcolor': 'white',
                 'bordercolor': '#cccccc',
                 'borderwidth': 1,
-                # 'title': 'Select Question 1 (Use of Force):'
             },
             {
                 'buttons': buttons_q2,
@@ -595,7 +552,6 @@ def uof_sov_parallel_categories(request):
                 'bgcolor': 'white',
                 'bordercolor': '#cccccc',
                 'borderwidth': 1,
-                # 'title': 'Select Question 2 (Sovereignty):'
             }
         ]
     )
@@ -616,140 +572,10 @@ def uof_sov_parallel_categories(request):
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         padding: 20px;
         margin-bottom: 20px;
-    ">
+         ">
         {plot_html}
     </div>
     """
     return render(request, 'core/uof_sov_parallel_categories.html', {
         'uof_sov_parallel_categories': plot_html
     })
-# def uof_sov_parallel_categories(request):
-#     # 1. Cargar los datos
-#     uof_data = settings.BASE_DIR / 'data' / 'uof-aug2025.csv'
-#     sovereignty_data = settings.BASE_DIR / 'data' / 'sovereignty-aug2025.csv'
-#     df_uof = pd.read_csv(uof_data)
-#     df_sov = pd.read_csv(sovereignty_data)
-#
-#     # Obtener nombres de columnas (preguntas)
-#     uof_column_names = list(df_uof.columns)
-#     sov_column_names = list(df_sov.columns)
-#     questions_uof = uof_column_names[2:18]  # Columnas Q2-Q17
-#     questions_sov = sov_column_names[2:35]
-#
-#     # 2. Preparar los datos para el diagrama
-#     # Crear una copia del dataframe para no modificar el original
-#     plot_df_uof = df_uof.copy()
-#     plot_df_sov = df_sov.copy()
-#
-#     # 3. Crear la figura con categorías paralelas
-#     fig = go.Figure()
-#
-#     # Añadir trazas para cada combinación de preguntas (inicialmente invisibles)
-#     for i, q1 in enumerate(questions_uof):
-#         for j, q2 in enumerate(questions_sov):
-#             visible = (i == 0 and j == 1)  # Solo primera combinación visible inicialmente
-#
-#             # truncated_q1 = q1[:3] if len(q1) > 3 else q1
-#             # truncated_q2 = q2[:3] if len(q2) > 3 else q2
-#
-#             fig.add_trace(go.Parcats(
-#                 dimensions=[
-#                     {'label': 'Country', 'values': plot_df_uof['State']},
-#                     {'label': 'Question 1', 'values': plot_df_uof[q1]},
-#                     {'label': 'Question 2', 'values': plot_df_sov[q2]}
-#                 ],
-#                 line={'color': plot_df_uof.index, 'colorscale': 'Viridis'},
-#                 arrangement='freeform',
-#                 visible=visible
-#             ))
-#
-#     # 4. Crear menús desplegables para seleccionar preguntas
-#     # Menú para pregunta 1
-#     buttons_q1 = []
-#     for i, q1 in enumerate(questions_uof):
-#         buttons_q1.append(
-#             dict(
-#                 args=[{'dimensions[1].label': q1,
-#                        'dimensions[1].values': [plot_df_uof[q1]] * len(questions_uof)}],
-#                 label=q1,
-#                 method="restyle"
-#             )
-#         )
-#
-#     # Menú para pregunta 2
-#     buttons_q2 = []
-#     for j, q2 in enumerate(questions_sov):
-#         buttons_q2.append(
-#             dict(
-#                 args=[{'dimensions[2].label': q2,
-#                        'dimensions[2].values': [plot_df_sov[q2]] * len(questions_sov)}],
-#                 label=q2,
-#                 method="restyle"
-#             )
-#         )
-#
-#     # 5. Configurar el layout de la figura
-#     fig.update_layout(
-#         title='',
-#         font_size=12,
-#         height=800,
-#         width=1200,
-#         margin=dict(l=50, r=50, b=100, t=100, pad=20),
-#         plot_bgcolor='white',
-#         updatemenus=[
-#             {
-#                 'buttons': buttons_q1,
-#                 'direction': 'down',
-#                 'showactive': True,
-#                 'x': 0.25,
-#                 'xanchor': 'center',
-#                 'y': 1.25,
-#                 'yanchor': 'top',
-#                 'bgcolor': 'white',
-#                 'bordercolor': '#cccccc',
-#                 'borderwidth': 1,
-#                 'title': 'Select Question 1 from issue area Use of Force:'
-#             },
-#             {
-#                 'buttons': buttons_q2,
-#                 'direction': 'down',
-#                 'showactive': True,
-#                 'x': 0.25,
-#                 'xanchor': 'center',
-#                 'y': 1.15,
-#                 'yanchor': 'top',
-#                 'bgcolor': 'white',
-#                 'bordercolor': '#cccccc',
-#                 'borderwidth': 1,
-#                 'title': 'Select Question 2 from issue area Sovereignty:'
-#             }
-#         ]
-#     )
-#     # 6. Generar HTML
-#     plot_html = fig.to_html(
-#         full_html=False,
-#         config={
-#             'responsive': True,
-#             'displayModeBar': True
-#         },
-#         include_plotlyjs='cdn'
-#     )
-#
-#     # Contenedor con estilos
-#     plot_html = f"""
-#     <div style="
-#         width: 100%;
-#         overflow: auto;
-#         background: white;
-#         border-radius: 8px;
-#         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-#         padding: 20px;
-#         margin-bottom: 20px;
-#     ">
-#         {plot_html}
-#     </div>
-#     """
-#
-#     return render(request, 'core/uof_sov_parallel_categories.html', {
-#         'uof_sov_parallel_categories': plot_html
-#     })

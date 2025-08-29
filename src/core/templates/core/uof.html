@@ -1,9 +1,9 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-  <div>
-      <h1>Use of Force</h1>
-  </div>
+<div>
+    <h1>Use of Force</h1>
+</div>
 
 <div class="uof-into-header">
     <div class="header-wrapper">
@@ -11,21 +11,40 @@
         <span class="uof-into-label">Questions</span>
 
         <div class="questions">
-            <strong> <p>1. Does prohibition of use of force apply to cyber operations? </p>
-            <strong> <p>1.1 Can a stand-alone cyber operation violate the prohibition on the use of force?</p>
-            <strong> <p>2. Must a State intend for a cyber operation to amount to a use of force for there to be a violation of the prohibition on the use of force?</p>
-            <strong> <p>2.1 Must the cyber operation have a coercive character (or effect) to qualify as a use of force?</p>
-            <strong> <p>3. Does the State apply a “scale and effects” test to assess whether an action constitutes a use of force?</p>
-            <strong> <p>4. Does the state apply a totality of circumstances or similar context-based test to assess uses of force?</p>
-            <strong> <p>5. Does the state weigh the actual consequences of an action to assess whether it amounts to a use of force?</p>
-            <strong> <p>6. Does the State only recognize a use of force in cyber contexts by analogy to consequences caused by kinetic force (e.g., injury, death, damage or destruction)?</p>
-            <strong> <p>6.1 Are kinetic-like effects a required consequence of a cyber operation to qualify as a use of force (versus a factor among others to be considered)?    </p>
-            <strong> <p>6.2 Does the State recognize a “small” or de minimus effects exception to the prohibition on the use of force?</p>
-            <strong> <p>6.3 Can non-violent effects alone qualify as “force” (e.g., substantial economic harm, losses of functionality, etc.)?</p>
-            <strong> <p>6.4 Can indirect effects from a cyber operation (i.e., those that are secondary or knock-on from the immediate effects) qualify as a use of force?    </p>
-            <strong> <p>7. Does the State recognize an accumulation theory of use of force?   </p>
-            <strong> <p>8. Does the State consider a use of force to be the equivalent of an armed attack (per Article 51 of the UN Charter) subject to the same threshold?    </p>
-            <strong> <p>9. Can a cyber operation amount to a prohibited threat of a use of force?    </p>
+            <strong><p>1. Does prohibition of use of force apply to cyber operations? </p>
+                <strong><p>1.1 Can a stand-alone cyber operation violate the prohibition on the use of force?</p>
+                    <strong><p>2. Must a State intend for a cyber operation to amount to a use of force for there to be
+                        a violation of the prohibition on the use of force?</p>
+                        <strong><p>2.1 Must the cyber operation have a coercive character (or effect) to qualify as a
+                            use of force?</p>
+                            <strong><p>3. Does the State apply a “scale and effects” test to assess whether an action
+                                constitutes a use of force?</p>
+                                <strong><p>4. Does the state apply a totality of circumstances or similar context-based
+                                    test to assess uses of force?</p>
+                                    <strong><p>5. Does the state weigh the actual consequences of an action to assess
+                                        whether it amounts to a use of force?</p>
+                                        <strong><p>6. Does the State only recognize a use of force in cyber contexts by
+                                            analogy to consequences caused by kinetic force (e.g., injury, death, damage
+                                            or destruction)?</p>
+                                            <strong><p>6.1 Are kinetic-like effects a required consequence of a cyber
+                                                operation to qualify as a use of force (versus a factor among others to
+                                                be considered)? </p>
+                                                <strong><p>6.2 Does the State recognize a “small” or de minimus effects
+                                                    exception to the prohibition on the use of force?</p>
+                                                    <strong><p>6.3 Can non-violent effects alone qualify as “force”
+                                                        (e.g., substantial economic harm, losses of functionality,
+                                                        etc.)?</p>
+                                                        <strong><p>6.4 Can indirect effects from a cyber operation
+                                                            (i.e., those that are secondary or knock-on from the
+                                                            immediate effects) qualify as a use of force? </p>
+                                                            <strong><p>7. Does the State recognize an accumulation
+                                                                theory of use of force? </p>
+                                                                <strong><p>8. Does the State consider a use of force to
+                                                                    be the equivalent of an armed attack (per Article 51
+                                                                    of the UN Charter) subject to the same
+                                                                    threshold? </p>
+                                                                    <strong><p>9. Can a cyber operation amount to a
+                                                                        prohibited threat of a use of force? </p>
         </div>
     </div>
 </div>
@@ -34,7 +53,6 @@
     <div class="container">
         <h2 class="section-title">Visualizations</h2>
         <div class="vis-grid">
-            <!-- Vis 1 -->
             <div class="vis-card">
                 <h3 class="vis-title">Use of Force</h3>
                 <div class="vis-meta">Sankey Diagram</div>
@@ -42,43 +60,55 @@
                 <a href="{% url 'uof_sankey' %}" class="vis-link">Read more →</a>
             </div>
 
-            <!-- Vis 2 -->
             <div class="vis-card">
-                   <h3 class="vis-title">Use of Force and Democracy Index Score</h3>
+                <h3 class="vis-title">Use of Force and Democracy Index Score</h3>
                 <div class="vis-meta">Sankey Diagram</div>
                 <p class="vis-desc">Relationship democracy index score -> use of force responses.</p>
                 <a href="{% url 'uof_demscore_sankey' %}" class="vis-link">Read more →</a>
             </div>
 
-            <!-- Vis 3 -->
-            <div class="vis-card">
-                     <h3 class="vis-title">Use of Force: Article 51 and NATO membership</h3>
-                <div class="vis-meta">Sankey diagram</div>
-                <p class="vis-desc">Does the State consider
-                    a use of force to be the equivalent of an armed attack (per Article 51 of the UN Charter)
-                    subject to the same threshold?</p>
-                <a href="" class="vis-link">Read more →</a>
-            </div>
 
-            <!-- Vis 4 -->
             <div class="vis-card">
-                   <h3 class="vis-title">Use of Force</h3>
+                <h3 class="vis-title">Use of Force</h3>
                 <div class="vis-meta">Scatter Plot</div>
                 <p class="vis-desc">Overall responses to issue area.</p>
                 <a href="{% url 'uof_scatter' %}" class="vis-link">Read more →</a>
             </div>
 
-            <!-- Vis 5 -->
             <div class="vis-card">
-                   <h3 class="vis-title">Use of Force: By Country</h3>
+                <h3 class="vis-title">Use of Force: By Country</h3>
                 <div class="vis-meta">Scatter Plot</div>
                 <p class="vis-desc">Country profile for issue area.</p>
                 <a href="{% url 'uof_by_state_scatter' %}" class="vis-link">Read more →</a>
             </div>
 
-            <!-- Vis 6 -->
             <div class="vis-card">
-                    <h3 class="vis-title">Use of Force and Sovereignty Comparison </h3>
+                <h3 class="vis-title">Use of Force: Article 51 and NATO membership</h3>
+                <div class="vis-meta">Sankey diagram</div>
+                <p class="vis-desc">Does the State consider
+                    a use of force to be the equivalent of an armed attack (per Article 51 of the UN Charter)
+                    subject to the same threshold?</p>
+                <a href="{% url 'uof_q8_nato_sankey' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Use of Force: Article 51 and NATO membership</h3>
+                <div class="vis-meta">Sunburst diagram</div>
+                <p class="vis-desc">Does the State consider
+                    a use of force to be the equivalent of an armed attack (per Article 51 of the UN Charter)
+                    subject to the same threshold?</p>
+                <a href="{% url 'uof_q8_nato_sunburst' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Use of Force: EU States to EU Comparison</h3>
+                <div class="vis-meta">Table</div>
+                <p class="vis-desc">Comparison of how the EU responses compare to its member states</p>
+                <a href="{% url 'uof_eu_states_to_eu' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Use of Force and Sovereignty Comparison </h3>
                 <div class="vis-meta">Parallel Categories Diagram</div>
                 <p class="vis-desc">Comparison of question responses from issue areas Use of Force and Sovereignty.</p>
                 <a href="{% url 'uof_sov_parallel_categories' %}" class="vis-link">Read more →</a>

@@ -1,6 +1,9 @@
 # utils/sankey_utils.py
 import pandas as pd
 import plotly.graph_objects as go
+from dash import Dash, dcc, html
+from dash.dcc import Input
+from dash.html import Output
 
 
 def create_uof_sankey_figure(df):
@@ -210,3 +213,147 @@ def create_demscore_sankey_buttons(target_columns):
             method="update"
         ))
     return buttons
+
+
+def create_uof_art51_nato_sankey(df_force, df_nato):
+    ## clean extra spaces and capitalization differences
+    df_nato.columns = df_nato.columns.str.strip().str.capitalize()
+    df_force.columns = df_force.columns.str.strip().str.capitalize()
+
+    ## merge on key column
+    merged_df = pd.merge(df_force, df_nato, on='Iso', how='inner')
+
+    ## define answers for Q8
+    ## hardcode for the specific Q8 column
+    valid_answers = ['Yes', 'No', 'Silent', 'Ambiguous']
+    key_question = df_force.columns[15]
+
+    ## node labels
+    countries = merged_df['Iso'].unique().tolist()
+    nato_status = sorted(merged_df['Nato (y/n)'].unique().tolist())
+    responses = valid_answers
+
+    nodes = countries + nato_status + responses
+    node_indices = {node: idx for idx, node in enumerate(nodes)}
+
+    ## prepare links
+    links = []
+
+    ## Stage 1: State → NATO
+    stage1_counts = merged_df.groupby(['Iso', 'Nato (y/n)']).size().reset_index(name='count')
+    for _, row in stage1_counts.iterrows():
+        links.append({
+            'source': node_indices[row['Iso']],
+            'target': node_indices[row['Nato (y/n)']],
+            'value': row['count'],
+            'color': 'rgba(100, 149, 237, 0.6)'  # Cornflower blue
+        })
+
+    ## Stage 2: NATO → Response to Q8
+    stage2_counts = merged_df.groupby(['Nato (y/n)', key_question]).size().reset_index(name='count')
+    for _, row in stage2_counts.iterrows():
+        if row[key_question] in valid_answers:
+            links.append({
+                'source': node_indices[row['Nato (y/n)']],
+                'target': node_indices[row[key_question]],
+                'value': row['count'],
+                'color': 'rgba(255, 165, 0, 0.6)'  # Orange
+            })
+
+    ## Build Sankey link dict
+
+    ##source is the starting node index of link
+    ##target is the ending node index of link
+    ## value is the flow size thickness of link
+    ## color is the color of link
+    sankey_links = dict(
+        source=[link['source'] for link in links],
+        target=[link['target'] for link in links],
+        value=[link['value'] for link in links],
+        color=[link['color'] for link in links]
+    )
+
+    colors = sankey_links['color'].copy()
+    ## -----Actual Dash app portion begins after this
+    ##
+    ##
+
+    # Dash App
+    # app = Dash(__name__)
+    #
+    # ## top portion of the page
+    # ## dropdown will show you which thread is highlighted
+    # app.layout = html.Div([
+    #     html.H2("Highlightable NATO Question 8 Sankey"),
+    #     dcc.Dropdown(
+    #         id='highlight-dropdown',
+    #         options=[{'label': node, 'value': node} for node in nodes],
+    #         placeholder="Select a node to highlight"
+    #     ),
+    #     dcc.Graph(id='sankey-graph')
+    # ])
+    #
+    # ## app.callback function tells the app that it is interactive
+    # ## output and input dictate the figure can be changeable and what changes it, respectively
+    # @app.callback(
+    #     Output('sankey-graph', 'figure'),
+    #     Input('highlight-dropdown', 'value')
+    # )
+    fig = go.Figure(data=[go.Sankey(
+        node=dict(
+            pad=15,
+            thickness=20,
+            label=nodes,
+            color="blue"
+        ),
+        link=dict(
+            source=sankey_links['source'],
+            target=sankey_links['target'],
+            value=sankey_links['value'],
+            color=colors
+        )
+    )])
+
+    ## title
+    fig.update_layout(title_text="NATO Countries with Answer to Question 8", font_size=14)
+    return fig
+
+    def update_sankey(selected_node):
+        # Default link colors
+        colors = sankey_links['color'].copy()
+
+        ## this is the highlighting logic of the app
+        ## portion that will show red for clicked option in the dropdown
+        ## if -> none means that if not clicked, then no change
+        ## currently only highlights from stage 1 but not fully
+        if selected_node is not None:
+            idx = node_indices[selected_node]
+            for i, (src, tgt) in enumerate(zip(sankey_links['source'], sankey_links['target'])):
+                if src == idx or tgt == idx:
+                    colors[i] = 'rgba(255,0,0,0.8)'  # Highlighted red
+                else:
+                    colors[i] = 'rgba(200,200,200,0.2)'  # Fade others
+
+        ## creates the sankey basically
+
+        fig = go.Figure(data=[go.Sankey(
+            node=dict(
+                pad=15,
+                thickness=20,
+                label=nodes,
+                color="blue"
+            ),
+            link=dict(
+                source=sankey_links['source'],
+                target=sankey_links['target'],
+                value=sankey_links['value'],
+                color=colors
+            )
+        )])
+
+        ## title
+        fig.update_layout(title_text="NATO Countries with Answer to Question 8", font_size=14)
+        return fig
+
+    # if __name__ == '__main__':
+    #     app.run(debug=True, port=8051)

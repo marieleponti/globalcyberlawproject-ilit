@@ -9,5 +9,8 @@ urlpatterns = [
     path('uof-demscore-sankey', views.uof_demscore_sankey, name='uof_demscore_sankey'),
     path('uof-scatter', views.uof_scatter, name='uof_scatter'),
     path('uof-by-state-scatter', views.uof_by_state_scatter, name='uof_by_state_scatter'),
-    path('uof-sovereignty-parallel-categories', views.uof_sov_parallel_categories, name='uof_sov_parallel_categories')
+    path('uof-sovereignty-parallel-categories', views.uof_sov_parallel_categories, name='uof_sov_parallel_categories'),
+    path('uof-eu-states-to-eu', views.eu_comparison_view, name='uof_eu_states_to_eu'),
+    path('uof-art51-nato-sunburst', views.uof_q8_nato_sunburst, name='uof_q8_nato_sunburst'),
+    path('uof-art51-nato-sankey', views.uof_q8_nato_sankey, name='uof_q8_nato_sankey'),
 ]

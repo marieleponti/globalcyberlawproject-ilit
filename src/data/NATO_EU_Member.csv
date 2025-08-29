@@ -1,0 +1,61 @@
+State,Region,ISO,NATO (Y/N),Nato Membership,EU Membership,Collective (Y/N),Count
+Albania,Europe,ALB,Y,NATO Member,Non-EU,N,1
+Belgium,Europe,BEL,Y,NATO Member,EU Member,N,1
+Bulgaria,Europe,BGR,Y,NATO Member,EU Member,N,1
+Canada,North America,CAN,Y,NATO Member,Non-EU,N,1
+Croatia,Europe,HRV,Y,NATO Member,EU Member,N,1
+Czech Republic,Europe,CZE,Y,NATO Member,Non-EU,N,1
+Denmark,Europe,DNK,Y,NATO Member,EU Member,N,1
+Estonia,Europe,EST,Y,NATO Member,EU Member,N,1
+Finland,Europe,FIN,Y,NATO Member,EU Member,N,1
+France,Europe,FRA,Y,NATO Member,EU Member,N,1
+Germany,Europe,DEU,Y,NATO Member,EU Member,N,1
+Greece,Europe,GRC,Y,NATO Member,EU Member,N,1
+Hungary,Europe,HUN,Y,NATO Member,EU Member,N,1
+Iceland,Europe,ISL,Y,NATO Member,Non-EU,N,1
+Italy,Europe,ITA,Y,NATO Member,EU Member,N,1
+Latvia,Europe,LVA,Y,NATO Member,EU Member,N,1
+Lithuania,Europe,LTU,Y,NATO Member,EU Member,N,1
+Luxembourg,Europe,LUX,Y,NATO Member,EU Member,N,1
+Montenegro,Europe,MNE,Y,NATO Member,Non-EU,N,1
+Netherlands,Europe,NLD,Y,NATO Member,EU Member,N,1
+North Macedonia,Europe,MKD,Y,NATO Member,Non-EU,N,1
+Norway,Europe,NOR,Y,NATO Member,Non-EU,N,1
+Poland,Europe,POL,Y,NATO Member,EU Member,N,1
+Portugal,Europe,PRT,Y,NATO Member,EU Member,N,1
+Romania,Europe,ROU,Y,NATO Member,EU Member,N,1
+Slovakia,Europe,SVK,Y,NATO Member,EU Member,N,1
+Slovenia,Europe,SVN,Y,NATO Member,EU Member,N,1
+Spain,Europe,ESP,Y,NATO Member,EU Member,N,1
+Sweden,Europe,SWE,Y,NATO Member,EU Member,N,1
+Turkey,Europe,TUR,Y,NATO Member,Non-EU,N,1
+United Kingdom,Europe,GBR,Y,NATO Member,Non-EU,N,1
+United States,North America,USA,Y,NATO Member,Non-EU,N,1
+African Union (AU),Africa,AU,N,Non-NATO Member,Non-EU,Y,1
+Australia,Australia,AUS,N,Non-NATO Member,Non-EU,N,1
+Austria,Europe,AUT,N,Non-NATO Member,EU Member,N,1
+Bolivia,South America,BOL,N,Non-NATO Member,Non-EU,N,1
+Brazil,South America,BRA,N,Non-NATO Member,Non-EU,N,1
+Chile,South America,CHL,N,Non-NATO Member,Non-EU,N,1
+China,Asia,CHN,N,Non-NATO Member,Non-EU,N,1
+Colombia,South America,COL,N,Non-NATO Member,Non-EU,N,1
+Costa Rica,North America,CRI,N,Non-NATO Member,Non-EU,N,1
+Cuba,North America,CUB,N,Non-NATO Member,Non-EU,N,1
+Ecuador,South America,ECU,N,Non-NATO Member,Non-EU,N,1
+European Union,Europe,EUN,N,Non-NATO Member,Non-EU,Y,1
+Guyana,South America,GUY,N,Non-NATO Member,Non-EU,N,1
+Guatemala,North America,GTM,N,Non-NATO Member,Non-EU,N,1
+Iran,Asia,IRN,N,Non-NATO Member,Non-EU,N,1
+Ireland,Europe,IRL,N,Non-NATO Member,EU Member,N,1
+Israel,Asia,ISR,N,Non-NATO Member,Non-EU,N,1
+Japan,Asia,JPN,N,Non-NATO Member,Non-EU,N,1
+Kazakhstan,Asia,KAZ,N,Non-NATO Member,Non-EU,N,1
+Kenya,Africa,KEN,N,Non-NATO Member,Non-EU,N,1
+Korea,Asia,KOR,N,Non-NATO Member,Non-EU,N,1
+New Zealand,Australia,NZL,N,Non-NATO Member,Non-EU,N,1
+Pakistan,Asia,PAK,N,Non-NATO Member,Non-EU,N,1
+Peru,South America,PER,N,Non-NATO Member,Non-EU,N,1
+Russia Federation,Europe,RUS,N,Non-NATO Member,Non-EU,N,1
+Singapore,Asia,SGP,N,Non-NATO Member,Non-EU,N,1
+Switzerland,Europe,CHE,N,Non-NATO Member,Non-EU,N,1
+Thailand,Asia,THA,N,Non-NATO Member,Non-EU,N,1

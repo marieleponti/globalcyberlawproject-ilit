@@ -1,4 +1,4 @@
-# utils/parallel_categories_utils.py
+# parallel categories graph utils
 import plotly.graph_objects as go
 
 

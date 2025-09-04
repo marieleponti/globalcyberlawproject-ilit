@@ -2,10 +2,7 @@ import plotly.graph_objects as go
 import plotly.offline as opy
 from nat_state_vis_app import settings
 from django.shortcuts import render
-from core.utils.data_loader import (
-    load_uof_data, load_sovereignty_data, load_democracy_data,
-    get_uof_questions, get_sovereignty_questions
-)
+from core.utils.data_loader import (load_uof_data, load_sovereignty_data, load_democracy_data, get_uof_questions, get_sovereignty_questions)
 from core.utils.sankey_utils import create_uof_sankey_figure, create_uof_demscore_sankey_figure
 from core.utils.scatter_utils import create_uof_scatter_figure, create_uof_by_state_scatter_figure
 from core.utils.html_utils import generate_sankey_html, generate_plot_html, generate_error_html
@@ -15,6 +12,7 @@ from core.utils.members_comparison_utils import create_eu_comparison_table
 from core.utils.sunburst_utils import create_uofq8_sunburst_figure
 from core.utils.data_loader import load_nato_data
 from core.utils.sankey_utils import create_uof_art51_nato_sankey
+from core.utils.sankey_utils import create_uof_art51_nato_trace_sankey
 
 
 # Create your views here.
@@ -142,3 +140,18 @@ def uof_q8_nato_sankey(request):
         return render(request, 'core/uof_q8_nato_sankey.html', {
             'uof_q8_sankey': generate_error_html(str(e))
         })
+
+def uof_q8_nato_trace_sankey(request):
+    try:
+        df_uof = load_uof_data()
+        df_nato = load_nato_data()
+        fig = create_uof_art51_nato_trace_sankey(df_uof, df_nato)
+        sankey_html = generate_plot_html(fig)
+        return render(request, 'core/uof_q8_nato_trace_sankey.html', {
+            'uof_q8_trace_sankey': sankey_html
+        })
+    except Exception as e:
+        return render(request, 'core/uof_q8_nato_trace_sankey.html', {
+            'uof_q8_trace_sankey': generate_error_html(str(e))
+        })
+

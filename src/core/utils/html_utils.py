@@ -1,5 +1,4 @@
 # utils/html_utils.py
-
 def generate_sankey_html(fig):
     """Genera HTML con estilos para gráficos Sankey"""
     sankey_html = fig.to_html(

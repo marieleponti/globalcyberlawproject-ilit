@@ -1,3 +1,4 @@
+# member comparison table utils
 import pandas as pd
 import plotly.graph_objects as go
 from django.core.cache import cache

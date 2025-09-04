@@ -1,9 +1,11 @@
-# utils/sankey_utils.py
+# sankey utils
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash, dcc, html
 from dash.dcc import Input
 from dash.html import Output
+import matplotlib.colors as mcolors
+import random
 
 
 def create_uof_sankey_figure(df):
@@ -216,30 +218,37 @@ def create_demscore_sankey_buttons(target_columns):
 
 
 def create_uof_art51_nato_sankey(df_force, df_nato):
-    ## clean extra spaces and capitalization differences
+    ## clear extra spaces and capitalization differences
     df_nato.columns = df_nato.columns.str.strip().str.capitalize()
     df_force.columns = df_force.columns.str.strip().str.capitalize()
 
+    ## change column values before the merge
+    df_nato["Nato (y/n)"] = df_nato["Nato (y/n)"].map({"Y": "NATO", "N": "Non-NATO"})
+
     ## merge on key column
+    ## names should match after str.capitalize
+    ## inner can be changed to left join to prevent dropped rows (in case)
+
     merged_df = pd.merge(df_force, df_nato, on='Iso', how='inner')
 
-    ## define answers for Q8
-    ## hardcode for the specific Q8 column
-    valid_answers = ['Yes', 'No', 'Silent', 'Ambiguous']
-    key_question = df_force.columns[15]
+    ## define answers for Question 8
 
-    ## node labels
+    valid_answers = ['Yes', 'No', 'Silent', 'Ambiguous']
+    key_question = df_force.columns[15]  # Replace with actual column name
+
+    ## Create the node labels
+    ## 1 for each flow
     countries = merged_df['Iso'].unique().tolist()
     nato_status = sorted(merged_df['Nato (y/n)'].unique().tolist())
-    responses = valid_answers
+    responses = valid_answers  # Use predefined responses from valid_answers
 
-    nodes = countries + nato_status + responses
+    nodes = countries + nato_status + responses  # list the nodes you will use
     node_indices = {node: idx for idx, node in enumerate(nodes)}
 
-    ## prepare links
+    # prepare links
     links = []
 
-    ## Stage 1: State → NATO
+    # Stage 1: State → NATO
     stage1_counts = merged_df.groupby(['Iso', 'Nato (y/n)']).size().reset_index(name='count')
     for _, row in stage1_counts.iterrows():
         links.append({
@@ -249,7 +258,7 @@ def create_uof_art51_nato_sankey(df_force, df_nato):
             'color': 'rgba(100, 149, 237, 0.6)'  # Cornflower blue
         })
 
-    ## Stage 2: NATO → Response to Q8
+    # Stage 2: NATO → Response to Q8
     stage2_counts = merged_df.groupby(['Nato (y/n)', key_question]).size().reset_index(name='count')
     for _, row in stage2_counts.iterrows():
         if row[key_question] in valid_answers:
@@ -260,12 +269,6 @@ def create_uof_art51_nato_sankey(df_force, df_nato):
                 'color': 'rgba(255, 165, 0, 0.6)'  # Orange
             })
 
-    ## Build Sankey link dict
-
-    ##source is the starting node index of link
-    ##target is the ending node index of link
-    ## value is the flow size thickness of link
-    ## color is the color of link
     sankey_links = dict(
         source=[link['source'] for link in links],
         target=[link['target'] for link in links],
@@ -273,32 +276,8 @@ def create_uof_art51_nato_sankey(df_force, df_nato):
         color=[link['color'] for link in links]
     )
 
-    colors = sankey_links['color'].copy()
-    ## -----Actual Dash app portion begins after this
-    ##
-    ##
+    ## Sankey diagram
 
-    # Dash App
-    # app = Dash(__name__)
-    #
-    # ## top portion of the page
-    # ## dropdown will show you which thread is highlighted
-    # app.layout = html.Div([
-    #     html.H2("Highlightable NATO Question 8 Sankey"),
-    #     dcc.Dropdown(
-    #         id='highlight-dropdown',
-    #         options=[{'label': node, 'value': node} for node in nodes],
-    #         placeholder="Select a node to highlight"
-    #     ),
-    #     dcc.Graph(id='sankey-graph')
-    # ])
-    #
-    # ## app.callback function tells the app that it is interactive
-    # ## output and input dictate the figure can be changeable and what changes it, respectively
-    # @app.callback(
-    #     Output('sankey-graph', 'figure'),
-    #     Input('highlight-dropdown', 'value')
-    # )
     fig = go.Figure(data=[go.Sankey(
         node=dict(
             pad=15,
@@ -310,50 +289,135 @@ def create_uof_art51_nato_sankey(df_force, df_nato):
             source=sankey_links['source'],
             target=sankey_links['target'],
             value=sankey_links['value'],
-            color=colors
+            color=sankey_links['color']
         )
     )])
 
-    ## title
-    fig.update_layout(title_text="NATO Countries with Answer to Question 8", font_size=14)
+    fig.update_layout(title_text="NATO and Non-NATO Countries Response to Question 8", font_size=14)
+
     return fig
 
-    def update_sankey(selected_node):
-        # Default link colors
-        colors = sankey_links['color'].copy()
 
-        ## this is the highlighting logic of the app
-        ## portion that will show red for clicked option in the dropdown
-        ## if -> none means that if not clicked, then no change
-        ## currently only highlights from stage 1 but not fully
-        if selected_node is not None:
-            idx = node_indices[selected_node]
-            for i, (src, tgt) in enumerate(zip(sankey_links['source'], sankey_links['target'])):
-                if src == idx or tgt == idx:
-                    colors[i] = 'rgba(255,0,0,0.8)'  # Highlighted red
-                else:
-                    colors[i] = 'rgba(200,200,200,0.2)'  # Fade others
+def create_uof_art51_nato_trace_sankey(df_force, df_nato):
+    ## generates the colors randomly for each Iso
+    ## create as a separate function and then call
+    def rgba_str(color, alpha=0.5):
+        r, g, b = mcolors.to_rgb(color)
+        r, g, b = int(r * 255), int(g * 255), int(b * 255)
+        return f'rgba({r},{g},{b},{alpha})'
 
-        ## creates the sankey basically
+    ## clean spaces and capitalization
+    df_nato.columns = df_nato.columns.str.strip().str.capitalize()
+    df_force.columns = df_force.columns.str.strip().str.capitalize()
 
-        fig = go.Figure(data=[go.Sankey(
-            node=dict(
-                pad=15,
-                thickness=20,
-                label=nodes,
-                color="blue"
-            ),
-            link=dict(
-                source=sankey_links['source'],
-                target=sankey_links['target'],
-                value=sankey_links['value'],
-                color=colors
-            )
-        )])
+    ## map y and n from Nato (y/n) column
+    df_nato["Nato (y/n)"] = df_nato["Nato (y/n)"].map({"Y": "NATO", "N": "Non-NATO"})
 
-        ## title
-        fig.update_layout(title_text="NATO Countries with Answer to Question 8", font_size=14)
-        return fig
+    ## merge the datasets
+    merged_df = pd.merge(df_force, df_nato, on='Iso', how='inner')
 
-    # if __name__ == '__main__':
-    #     app.run(debug=True, port=8051)
+    ## define responses
+    ## hard coded column to look at
+    valid_answers = ['Yes', 'No', 'Silent', 'Ambiguous']
+    key_question = df_force.columns[15]
+
+    ## nodes for each step
+    countries = merged_df['Iso'].unique().tolist()
+    nato_status = sorted(merged_df['Nato (y/n)'].unique().tolist())
+    responses = valid_answers
+    nodes = countries + nato_status + responses
+    node_indices = {node: idx for idx, node in enumerate(nodes)}
+
+    ## this brings in the color def
+    ## assign a unique color to each country
+    color_palette = list(mcolors.TABLEAU_COLORS.values())
+    random.shuffle(color_palette)
+    country_colors = {
+        country: color_palette[i % len(color_palette)]
+        for i, country in enumerate(countries)
+    }
+
+    ## group stages instead
+    ## stage 1 and stage 2 data
+    stage1 = merged_df.groupby(['Iso', 'Nato (y/n)']).size().reset_index(name='count')
+    stage2 = merged_df.groupby(['Iso', 'Nato (y/n)', key_question]).size().reset_index(name='count')
+
+    ## build links using merged columns and color def
+    def build_links(highlight_country):
+        links = []
+        for _, row in stage1.iterrows():
+            alpha = 1.0 if row['Iso'] == highlight_country else 0.15
+            links.append(dict(
+                source=node_indices[row['Iso']],
+                target=node_indices[row['Nato (y/n)']],
+                value=row['count'],
+                color=rgba_str(country_colors[row['Iso']], alpha)
+            ))
+        for _, row in stage2.iterrows():
+            if row[key_question] in valid_answers:
+                alpha = 1.0 if row['Iso'] == highlight_country else 0.15
+                links.append(dict(
+                    source=node_indices[row['Nato (y/n)']],
+                    target=node_indices[row[key_question]],
+                    value=row['count'],
+                    color=rgba_str(country_colors[row['Iso']], alpha)
+                ))
+        return links
+
+    ## defaults to first country
+    ## should be interactive
+    default_country = countries[0]
+    links = build_links(default_country)
+
+    sankey_links = dict(
+        source=[l['source'] for l in links],
+        target=[l['target'] for l in links],
+        value=[l['value'] for l in links],
+        color=[l['color'] for l in links]
+    )
+
+    fig = go.Figure(data=[go.Sankey(
+        arrangement="snap",
+        node=dict(
+            pad=20,
+            thickness=20,
+            line=dict(color="blue", width=0.5),
+            label=nodes,
+            color="gold"
+        ),
+        link=sankey_links
+    )])
+
+    ## creates the dropdown menu
+    ## will substitute name of country into title based on chosen selection
+    buttons = []
+    for country in countries:
+        new_links = build_links(country)
+        buttons.append(dict(
+            label=country,
+            method="update",
+            args=[{"link": dict(
+                source=[l['source'] for l in new_links],
+                target=[l['target'] for l in new_links],
+                value=[l['value'] for l in new_links],
+                color=[l['color'] for l in new_links]
+            )},
+                {"title": f"Statement on Article 51 by {country}"}]
+        ))
+
+    fig.update_layout(
+        title=f"Statement on Article 51 by {default_country}",
+        font_size=12,
+        updatemenus=[dict(
+            active=0,
+            buttons=buttons,
+            direction="down",
+            showactive=True,
+            x=1.05,
+            xanchor="left",
+            y=1,
+            yanchor="top"
+        )]
+    )
+
+    return fig

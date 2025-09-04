@@ -1,4 +1,4 @@
-# utils/scatter_utils.py
+# scatter plot utils
 import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go

@@ -1,9 +1,6 @@
 # sankey utils
 import pandas as pd
 import plotly.graph_objects as go
-from dash import Dash, dcc, html
-from dash.dcc import Input
-from dash.html import Output
 import matplotlib.colors as mcolors
 import random
 
@@ -218,89 +215,7 @@ def create_demscore_sankey_buttons(target_columns):
 
 
 def create_uof_art51_nato_sankey(df_force, df_nato):
-    ## clear extra spaces and capitalization differences
-    df_nato.columns = df_nato.columns.str.strip().str.capitalize()
-    df_force.columns = df_force.columns.str.strip().str.capitalize()
-
-    ## change column values before the merge
-    df_nato["Nato (y/n)"] = df_nato["Nato (y/n)"].map({"Y": "NATO", "N": "Non-NATO"})
-
-    ## merge on key column
-    ## names should match after str.capitalize
-    ## inner can be changed to left join to prevent dropped rows (in case)
-
-    merged_df = pd.merge(df_force, df_nato, on='Iso', how='inner')
-
-    ## define answers for Question 8
-
-    valid_answers = ['Yes', 'No', 'Silent', 'Ambiguous']
-    key_question = df_force.columns[15]  # Replace with actual column name
-
-    ## Create the node labels
-    ## 1 for each flow
-    countries = merged_df['Iso'].unique().tolist()
-    nato_status = sorted(merged_df['Nato (y/n)'].unique().tolist())
-    responses = valid_answers  # Use predefined responses from valid_answers
-
-    nodes = countries + nato_status + responses  # list the nodes you will use
-    node_indices = {node: idx for idx, node in enumerate(nodes)}
-
-    # prepare links
-    links = []
-
-    # Stage 1: State → NATO
-    stage1_counts = merged_df.groupby(['Iso', 'Nato (y/n)']).size().reset_index(name='count')
-    for _, row in stage1_counts.iterrows():
-        links.append({
-            'source': node_indices[row['Iso']],
-            'target': node_indices[row['Nato (y/n)']],
-            'value': row['count'],
-            'color': 'rgba(100, 149, 237, 0.6)'  # Cornflower blue
-        })
-
-    # Stage 2: NATO → Response to Q8
-    stage2_counts = merged_df.groupby(['Nato (y/n)', key_question]).size().reset_index(name='count')
-    for _, row in stage2_counts.iterrows():
-        if row[key_question] in valid_answers:
-            links.append({
-                'source': node_indices[row['Nato (y/n)']],
-                'target': node_indices[row[key_question]],
-                'value': row['count'],
-                'color': 'rgba(255, 165, 0, 0.6)'  # Orange
-            })
-
-    sankey_links = dict(
-        source=[link['source'] for link in links],
-        target=[link['target'] for link in links],
-        value=[link['value'] for link in links],
-        color=[link['color'] for link in links]
-    )
-
-    ## Sankey diagram
-
-    fig = go.Figure(data=[go.Sankey(
-        node=dict(
-            pad=15,
-            thickness=20,
-            label=nodes,
-            color="blue"
-        ),
-        link=dict(
-            source=sankey_links['source'],
-            target=sankey_links['target'],
-            value=sankey_links['value'],
-            color=sankey_links['color']
-        )
-    )])
-
-    fig.update_layout(title_text="NATO and Non-NATO Countries Response to Question 8", font_size=14)
-
-    return fig
-
-
-def create_uof_art51_nato_trace_sankey(df_force, df_nato):
     ## generates the colors randomly for each Iso
-    ## create as a separate function and then call
     def rgba_str(color, alpha=0.5):
         r, g, b = mcolors.to_rgb(color)
         r, g, b = int(r * 255), int(g * 255), int(b * 255)
@@ -316,8 +231,7 @@ def create_uof_art51_nato_trace_sankey(df_force, df_nato):
     ## merge the datasets
     merged_df = pd.merge(df_force, df_nato, on='Iso', how='inner')
 
-    ## define responses
-    ## hard coded column to look at
+    ## define responses hard coded column to look at
     valid_answers = ['Yes', 'No', 'Silent', 'Ambiguous']
     key_question = df_force.columns[15]
 
@@ -328,8 +242,7 @@ def create_uof_art51_nato_trace_sankey(df_force, df_nato):
     nodes = countries + nato_status + responses
     node_indices = {node: idx for idx, node in enumerate(nodes)}
 
-    ## this brings in the color def
-    ## assign a unique color to each country
+    ## this brings in the color def assign a unique color to each country
     color_palette = list(mcolors.TABLEAU_COLORS.values())
     random.shuffle(color_palette)
     country_colors = {
@@ -337,8 +250,7 @@ def create_uof_art51_nato_trace_sankey(df_force, df_nato):
         for i, country in enumerate(countries)
     }
 
-    ## group stages instead
-    ## stage 1 and stage 2 data
+    ## group stages instead stage 1 and stage 2 data
     stage1 = merged_df.groupby(['Iso', 'Nato (y/n)']).size().reset_index(name='count')
     stage2 = merged_df.groupby(['Iso', 'Nato (y/n)', key_question]).size().reset_index(name='count')
 
@@ -364,8 +276,7 @@ def create_uof_art51_nato_trace_sankey(df_force, df_nato):
                 ))
         return links
 
-    ## defaults to first country
-    ## should be interactive
+    ## defaults to first country should be interactive
     default_country = countries[0]
     links = build_links(default_country)
 
@@ -377,7 +288,7 @@ def create_uof_art51_nato_trace_sankey(df_force, df_nato):
     )
 
     fig = go.Figure(data=[go.Sankey(
-        arrangement="snap",
+        # arrangement="snap",
         node=dict(
             pad=20,
             thickness=20,
@@ -388,8 +299,7 @@ def create_uof_art51_nato_trace_sankey(df_force, df_nato):
         link=sankey_links
     )])
 
-    ## creates the dropdown menu
-    ## will substitute name of country into title based on chosen selection
+    ## creates the dropdown menu will substitute name of country into title based on chosen selection
     buttons = []
     for country in countries:
         new_links = build_links(country)
@@ -404,7 +314,6 @@ def create_uof_art51_nato_trace_sankey(df_force, df_nato):
             )},
                 {"title": f"Statement on Article 51 by {country}"}]
         ))
-
     fig.update_layout(
         title=f"Statement on Article 51 by {default_country}",
         font_size=12,
@@ -419,5 +328,4 @@ def create_uof_art51_nato_trace_sankey(df_force, df_nato):
             yanchor="top"
         )]
     )
-
     return fig

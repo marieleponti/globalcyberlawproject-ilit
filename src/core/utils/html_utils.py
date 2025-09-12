@@ -43,6 +43,10 @@ def generate_plot_html(fig):
     </div>
     """
 
+def generate_sunburst_html(fig):
+    """Convierte una figura de Plotly a HTML"""
+    return fig.to_html(include_plotlyjs='cdn', full_html=False)
+
 
 def generate_error_html(error_message):
     """Genera HTML para mostrar errores"""

@@ -102,9 +102,6 @@ def create_eu_comparison_table(df_issue, preguntas, df_membership):
             # Esto está bien si colors es una lista
             colors.append(fila_colores)
 
-        # FIN: Si necesitas convertir colors a DataFrame, hazlo después:
-        colors_df = pd.DataFrame(colors)
-
         # Transponer la matriz de colores
         colors_transposed = list(map(list, zip(*colors)))
 
@@ -128,31 +125,3 @@ def create_eu_comparison_table(df_issue, preguntas, df_membership):
         import traceback
         traceback.print_exc()
         return go.Figure()
-
-# def load_uof_data():
-#     """Cargar datos UOF desde archivo CSV"""
-#     try:
-#         # Ajusta la ruta según tu estructura de proyecto
-#         file_path = os.path.join(os.path.dirname(__file__), 'data', 'uof_data.csv')
-#         df = pd.read_csv(file_path)
-#         return df
-#     except Exception as e:
-#         print(f"Error cargando datos UOF: {e}")
-#         return pd.DataFrame()
-#
-# def load_membership_data():
-#     """Cargar datos de membresía"""
-#     try:
-#         file_path = os.path.join(os.path.dirname(__file__), 'data', 'membership.csv')
-#         df = pd.read_csv(file_path)
-#         return df
-#     except Exception as e:
-#         print(f"Error cargando datos de membresía: {e}")
-#         return pd.DataFrame()
-#
-# def get_uof_questions(df):
-#     """Obtener lista de preguntas del dataframe UOF"""
-#     # Excluir columnas que no son preguntas
-#     non_question_cols = ['iso', 'country', 'year', 'timestamp']
-#     questions = [col for col in df.columns if col not in non_question_cols]
-#     return questions

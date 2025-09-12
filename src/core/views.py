@@ -24,6 +24,9 @@ def use_of_force(request):
 def sovereignty(request):
     return render(request, 'core/sovereignty.html')
 
+def nonintervention(request):
+    return render(request, 'core/nonintervention.html')
+
 def uof_sankey(request):
     try:
         df = load_uof_data()

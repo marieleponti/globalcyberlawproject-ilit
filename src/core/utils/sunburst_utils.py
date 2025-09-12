@@ -14,7 +14,7 @@ def create_uofq8_sunburst_figure(df_force, df_nato):
 
     filtered_df = merged_df[merged_df[key_question_col].isin(valid_answers)]
 
-    df = filtered_df[['NATO (Y/N)', key_question_col, 'Iso']].copy()
+    df = filtered_df[['NATO (Y/N)', key_question_col, 'iso']].copy()
 
     fig = go.Figure(go.Sunburst(
         ids=[df['NATO (Y/N)'], df[key_question_col], df['iso']],

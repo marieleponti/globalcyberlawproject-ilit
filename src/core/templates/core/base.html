@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}National Cyber Statements{% endblock %}</title>
+    <title>{% block title %}Global Cyber Law Resource Project{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -245,7 +245,7 @@
                 <ul class="dropdown-menu">
                     <li><a href="{% url 'use_of_force' %}">Use of Force</a></li>
                     <li><a href="{% url 'sovereignty' %}">Sovereignty</a></li>
-                    <li><a href="">Nonintervention</a></li>
+                    <li><a href="{% url 'nonintervention' %}">Nonintervention</a></li>
                     <li><a href="">Countermeasures</a></li>
                 </ul>
             </li>
@@ -270,7 +270,7 @@
             <div class="logo">
 <!--                <img src="{% static 'images/temple-logo.png' %}" alt="Temple University Logo">-->
                 <div class="logo-text">
-                    <h1>National Cyber Statements</h1>
+                    <h1>Global Cyber Law Resource Project</h1>
                     <p>Institute for Law, Innovation &amp; Technology - Temple University - Beasley School of Law</p>
                     <p>Tech, Law &amp; Security Program - American University - Washington College of Law</p>
                 </div>
@@ -289,29 +289,29 @@
 
     <footer class="footer">
         <div class="footer-container">
-            <div class="footer-section">
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="#">Temple University</a></li>
-                    <li><a href="#">American University</a></li>
-                    <li><a href="#">Beasley School of Law</a></li>
-                    <li><a href="#">Washington School of Law</a></li>
-                    <li><a href="#">Calendar</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Contact Us</h3>
-                <address>
-                    Institute for Law &amp; Innovation<br>
-                    1719 N. Broad Street<br>
-                    Philadelphia, PA 19122<br>
-                    Phone: (215) 204-0000<br>
-                    Email: info@ilit.temple.edu
-                </address>
-            </div>
-        </div>
+<!--            <div class="footer-section">-->
+<!--                <h3>Quick Links</h3>-->
+<!--                <ul>-->
+<!--                    <li><a href="#">Temple University</a></li>-->
+<!--                    <li><a href="#">American University</a></li>-->
+<!--                    <li><a href="#">Beasley School of Law</a></li>-->
+<!--                    <li><a href="#">Washington School of Law</a></li>-->
+<!--                    <li><a href="#">Calendar</a></li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--            <div class="footer-section">-->
+<!--                <h3>Contact Us</h3>-->
+<!--                <address>-->
+<!--                    Institute for Law &amp; Innovation<br>-->
+<!--                    1719 N. Broad Street<br>-->
+<!--                    Philadelphia, PA 19122<br>-->
+<!--                    Phone: (215) 204-0000<br>-->
+<!--                    Email: info@ilit.temple.edu-->
+<!--                </address>-->
+<!--            </div>-->
+<!--        </div>-->
         <div class="copyright">
-            &copy; {% now "Y" %} Temple University. All Rights Reserved.
+            &copy; {% now "Y" %}  Global Cyber Law Resource Project. All Rights Reserved.
         </div>
     </footer>
 </body>

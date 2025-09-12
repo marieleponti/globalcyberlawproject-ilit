@@ -9,8 +9,10 @@ def create_parallel_categories_figure(df_uof, df_sov, questions_uof, questions_s
     fig.add_trace(go.Parcats(
         dimensions=[
             {'label': 'Country', 'values': df_uof['State']},
-            {'label': questions_uof[0], 'values': df_uof[questions_uof[0]]},
-            {'label': questions_sov[1], 'values': df_sov[questions_sov[1]]}
+            # {'label': questions_uof[0], 'values': df_uof[questions_uof[0]]},
+            # {'label': questions_sov[1], 'values': df_sov[questions_sov[1]]},
+            {'label': 'Use of Force Response', 'values': df_uof[questions_uof[0]]},
+            {'label': 'Sovereignty Response', 'values': df_sov[questions_sov[1]]}
         ],
         line={'color': df_uof.index, 'colorscale': 'Viridis'},
         arrangement='freeform',
@@ -42,10 +44,11 @@ def create_parallel_categories_buttons_uof(df_uof, questions_uof):
         buttons.append(
             dict(
                 args=[{
-                    'dimensions[1].label': q1,
+                    # replace q1 with hard coded label
+                    'dimensions[1].label': "Use of Force Response",
                     'dimensions[1].values': [df_uof[q1].tolist()]
                 }],
-                label=q1,
+                label=f'{q1}',
                 method="restyle"
             )
         )
@@ -59,10 +62,11 @@ def create_parallel_categories_buttons_sov(df_sov, questions_sov):
         buttons.append(
             dict(
                 args=[{
-                    'dimensions[2].label': q2,
+                    # replace q2 with hard coded label
+                    'dimensions[2].label': "Sovereignty Response",
                     'dimensions[2].values': [df_sov[q2].tolist()]
                 }],
-                label=q2,
+                label=f'{q2}',
                 method="restyle"
             )
         )

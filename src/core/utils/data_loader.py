@@ -4,7 +4,7 @@ from django.conf import settings
 
 def load_uof_data():
     """Carga los datos de Use of Force"""
-    uof_data = settings.BASE_DIR / 'data' / 'uof-aug2025.csv'
+    uof_data = settings.BASE_DIR / 'data' / 'uof-sept2025.csv'
     df = pd.read_csv(uof_data)
     df = df.rename(columns={'ISO': 'iso'})
     return df
@@ -25,7 +25,7 @@ def load_nato_data():
 
 def load_sovereignty_data():
     """Carga los datos de Sovereignty"""
-    sovereignty_data = settings.BASE_DIR / 'data' / 'sovereignty-aug2025.csv'
+    sovereignty_data = settings.BASE_DIR / 'data' / 'sovereignty-sept2025.csv'
     df = pd.read_csv(sovereignty_data)
     return df
 

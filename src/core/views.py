@@ -114,20 +114,6 @@ def eu_comparison_view(request):
         'uof_eu_members_table': tabla_fig    })
 
 
-def uof_q8_nato_sunburst(request):
-    try:
-        df_uof = load_uof_data()
-        df_nato = load_nato_data()
-        fig = create_uofq8_sunburst_figure(df_uof, df_nato)
-        sunburst_html = generate_plot_html(fig)
-        return render(request, 'core/uof_q8_nato_sunburst.html', {
-            'uof_q8_sunburst': sunburst_html
-        })
-    except Exception as e:
-        return render(request, 'core/uof_q8_nato_sankey.html', {
-            'uof_q8_sunburst': generate_error_html(str(e))
-        })
-
 def uof_q8_nato_sankey(request):
     try:
         df_uof = load_uof_data()
@@ -142,4 +128,15 @@ def uof_q8_nato_sankey(request):
             'uof_q8_sankey': generate_error_html(str(e))
         })
 
+
+def sovereignty_sankey(request):
+    try:
+        df = load_sovereignty_data()
+        fig = create_uof_sankey_figure(df)
+        sankey_html = generate_sankey_html(fig)
+        return render(request, 'core/sovereignty_sankey.html', {'sovereignty_sankey': sankey_html})
+    except Exception as e:
+        return render(request, 'core/sovereignty_sankey.html', {
+            'sovereignty_sankey': generate_error_html(str(e))
+        })
 

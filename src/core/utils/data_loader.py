@@ -27,6 +27,7 @@ def load_sovereignty_data():
     """Carga los datos de Sovereignty"""
     sovereignty_data = settings.BASE_DIR / 'data' / 'sovereignty-sept2025.csv'
     df = pd.read_csv(sovereignty_data)
+    df = df.rename(columns={'ISO': 'iso'})
     return df
 
 def load_democracy_data():

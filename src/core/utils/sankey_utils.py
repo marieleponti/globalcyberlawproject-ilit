@@ -34,7 +34,9 @@ def create_uof_sankey_data(df):
     """Prepara datos para el Sankey de Use of Force"""
     column_names = list(df.columns)
     origin_state = 'State'
-    target_columns = column_names[2:18]
+    num_col = len(df.columns)
+    final_index = num_col + 1
+    target_columns = column_names[2:final_index]
 
     sankey_traces = []
 
@@ -72,10 +74,12 @@ def create_uof_sankey_data(df):
     return sankey_traces, target_columns
 
 
-def create_uof_demscore_sankey_figure(df_uof, df_dem):
+def create_uof_demscore_sankey_figure(df_issue, df_dem):
     """Crea la figura completa del Sankey de Use of Force vs Democracy Score"""
-    target_columns = list(df_uof.columns[2:18])
-    sankey_figs = create_uof_demscore_sankey_data(df_uof, df_dem, target_columns)
+    num_col = len(df_issue.columns)
+    final_index = num_col + 1
+    target_columns = list(df_issue.columns[2:final_index])
+    sankey_figs = create_uof_demscore_sankey_data(df_issue, df_dem, target_columns)
 
     fig = go.Figure(data=sankey_figs)
     buttons = create_demscore_sankey_buttons(target_columns)
@@ -103,13 +107,13 @@ def create_uof_demscore_sankey_figure(df_uof, df_dem):
     return fig
 
 
-def create_uof_demscore_sankey_data(df_uof, df_dem, target_columns):
+def create_uof_demscore_sankey_data(df_issue, df_dem, target_columns):
     """Prepara datos para el Sankey de Use of Force vs Democracy Score"""
     sankey_figs = []
 
     for question in target_columns:
         merged_df = pd.merge(
-            df_uof,
+            df_issue,
             df_dem[['iso', 'dem_score']],
             on='iso',
             how='inner'

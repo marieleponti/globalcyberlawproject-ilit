@@ -40,13 +40,13 @@ def create_uof_scatter_figure(df, preguntas):
     return fig
 
 
-def create_uof_by_state_scatter_figure(df_uof, preguntas_uof, estados):
+def create_by_state_scatter_figure(df, preguntas, estados):
     """Crea scatter plot por estado para Use of Force"""
     estado_inicial = estados[0]
-    df_filtrado = df_uof[df_uof['State'] == estado_inicial]
+    df_filtrado = df[df['State'] == estado_inicial]
     df_melted = df_filtrado.melt(
         id_vars=['State', 'iso'],
-        value_vars=preguntas_uof,
+        value_vars=preguntas,
         var_name='Question',
         value_name='Response'
     )
@@ -76,7 +76,7 @@ def create_uof_by_state_scatter_figure(df_uof, preguntas_uof, estados):
         selector=dict(mode='markers')
     )
 
-    botones = create_state_scatter_buttons(df_uof, preguntas_uof, estados)
+    botones = create_state_scatter_buttons(df, preguntas, estados)
 
     fig.update_layout(
         updatemenus=[

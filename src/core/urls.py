@@ -15,5 +15,8 @@ urlpatterns = [
     path('uof-art51-nato-sankey', views.uof_q8_nato_sankey, name='uof_q8_nato_sankey'),
     path('sovereignty-sankey', views.sovereignty_sankey, name='sovereignty_sankey'),
     path('sov-demscore-sankey', views.sov_demscore_sankey, name='sov_demscore_sankey'),
+    path('nonintervention-sankey', views.nonintervention_sankey, name='nonintervention_sankey'),
+    path('nonint-demscore-sankey', views.nonintervention_demscore_sankey, name='nonint_demscore_sankey'),
+    path('sov-by-state-scatter', views.sovereignty_by_state_scatter, name='sov_by_state_scatter'),
 
 ]

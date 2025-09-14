@@ -14,4 +14,6 @@ urlpatterns = [
     path('uof-eu-states-to-eu', views.eu_comparison_view, name='uof_eu_states_to_eu'),
     path('uof-art51-nato-sankey', views.uof_q8_nato_sankey, name='uof_q8_nato_sankey'),
     path('sovereignty-sankey', views.sovereignty_sankey, name='sovereignty_sankey'),
+    path('sov-demscore-sankey', views.sov_demscore_sankey, name='sov_demscore_sankey'),
+
 ]

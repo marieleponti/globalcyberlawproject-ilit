@@ -74,12 +74,12 @@ def create_uof_sankey_data(df):
     return sankey_traces, target_columns
 
 
-def create_uof_demscore_sankey_figure(df_issue, df_dem):
+def create_issue_demscore_sankey_figure(df_issue, df_dem):
     """Crea la figura completa del Sankey de Use of Force vs Democracy Score"""
     num_col = len(df_issue.columns)
     final_index = num_col + 1
     target_columns = list(df_issue.columns[2:final_index])
-    sankey_figs = create_uof_demscore_sankey_data(df_issue, df_dem, target_columns)
+    sankey_figs = create_issue_demscore_sankey_data(df_issue, df_dem, target_columns)
 
     fig = go.Figure(data=sankey_figs)
     buttons = create_demscore_sankey_buttons(target_columns)
@@ -107,7 +107,7 @@ def create_uof_demscore_sankey_figure(df_issue, df_dem):
     return fig
 
 
-def create_uof_demscore_sankey_data(df_issue, df_dem, target_columns):
+def create_issue_demscore_sankey_data(df_issue, df_dem, target_columns):
     """Prepara datos para el Sankey de Use of Force vs Democracy Score"""
     sankey_figs = []
 

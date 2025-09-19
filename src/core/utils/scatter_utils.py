@@ -20,7 +20,7 @@ def create_uof_scatter_figure(df, preguntas):
         plot_bgcolor='rgba(0,0,0,0)',
         yaxis={'categoryorder': 'total ascending'},
         margin=dict(l=100, r=50, t=50, b=100),
-        height=800
+        height=1200
     )
 
     botones = create_scatter_dropdown_buttons(df, preguntas)
@@ -32,7 +32,7 @@ def create_uof_scatter_figure(df, preguntas):
             'showactive': True,
             'x': 0.1,
             'xanchor': 'left',
-            'y': 1.35,
+            'y': 1.15,
             'yanchor': 'top'
         }]
     )
@@ -57,8 +57,9 @@ def create_by_state_scatter_figure(df, preguntas, estados):
         y='Question',
         # color='Question',
         title=f'Responses for {estado_inicial}',
-        labels={'Response': 'Response Value', 'Question': 'Question'},
-        height=600,
+        labels={'Response': 'Response Value', 'Question': ''},
+        height=1000,
+        width=1500,
         hover_data=['State']
     )
 
@@ -86,7 +87,7 @@ def create_by_state_scatter_figure(df, preguntas, estados):
                 'showactive': True,
                 'x': 0.37,
                 'xanchor': 'left',
-                'y': 1.13,
+                'y': 1.1,
                 'yanchor': 'top',
                 'bgcolor': '#f8f9fa',
                 'borderwidth': 1
@@ -97,7 +98,7 @@ def create_by_state_scatter_figure(df, preguntas, estados):
                 text="Select State:",
                 x=0,
                 xref="paper",
-                y=1.1,
+                y=1.09  ,
                 yref="paper",
                 align="left",
                 showarrow=False
@@ -106,6 +107,41 @@ def create_by_state_scatter_figure(df, preguntas, estados):
     )
 
     return fig
+#
+# def create_by_state_scatter_figure(df, preguntas, estados):
+#     """Crea scatter plot por estado para Use of Force"""
+#     estado_inicial = estados[0]
+#     df_filtrado = df[df['State'] == estado_inicial]
+#     df_melted = df_filtrado.melt(
+#         id_vars=['State', 'iso'],
+#         value_vars=preguntas,
+#         var_name='Question',
+#         value_name='Response'
+#     )
+#
+#     fig = px.scatter(
+#         df_melted,
+#         x='Response',
+#         y='Question',
+#         title=f'Responses for {estado_inicial}',
+#         labels={'Response': 'Response Value', 'Question': ''},
+#         height=1000,
+#         width=1500,
+#         hover_data=['State']
+#     )
+#
+#     fig.update_layout(
+#         hovermode='closest',
+#         plot_bgcolor='rgba(0,0,0,0)',
+#         xaxis={'categoryorder': 'total descending'},
+#         yaxis={'categoryorder': 'array', 'categoryarray': preguntas[::-1]},
+#         margin=dict(l=150, r=50, t=80, b=100),
+#         showlegend=False,
+#         transition={'duration': 500}
+#     )
+#
+#     # Resto de tu código...
+#     return fig
 
 
 def create_scatter_dropdown_buttons(df, preguntas):

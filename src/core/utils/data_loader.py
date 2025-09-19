@@ -9,6 +9,13 @@ def load_uof_data():
     df = df.rename(columns={'ISO': 'iso'})
     return df
 
+def load_uof_transposed_data():
+    """Carga los datos de Use of Force"""
+    uof_data = settings.BASE_DIR / 'data' / 'uof_transposed-sept2025.csv'
+    df = pd.read_csv(uof_data)
+    df = df.rename(columns={'ISO': 'iso'})
+    return df
+
 def load_sovereignty_data():
     """Carga los datos de Sovereignty"""
     sovereignty_data = settings.BASE_DIR / 'data' / 'sovereignty-sept2025.csv'

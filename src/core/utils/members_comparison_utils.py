@@ -69,9 +69,11 @@ def create_eu_comparison_table(df_issue, preguntas, df_membership):
                 fill_color=[],
                 align='left',
                 font=dict(size=11),
-                height=15
+                # org 15
+                height=7
             ),
-            columnwidth=[300]
+            # org 300
+            columnwidth=[1200, 400]
         )])
 
         # Configurar colores basados en comparación con UE
@@ -113,7 +115,8 @@ def create_eu_comparison_table(df_issue, preguntas, df_membership):
         # Configurar layout
         fig.update_layout(
             title='',
-            height=400 + (len(preguntas) * 30),
+            height=500 + (len(preguntas) * 30),
+            width=1700,
             margin=dict(l=10, r=10, t=80, b=10),
             title_x=0.5
         )

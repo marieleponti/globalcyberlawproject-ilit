@@ -14,6 +14,8 @@ from core.utils.data_loader import load_nato_data
 from core.utils.sankey_utils import create_uof_art51_nato_sankey
 from core.utils.html_utils import generate_sunburst_html
 from core.utils.data_loader import load_nonintervention_data
+# from core.utils.state_comparison_utils import create_state_comparison_table
+from core.utils.data_loader import load_uof_transposed_data
 
 
 # Create your views here.
@@ -65,7 +67,7 @@ def uof_scatter(request):
         df = load_uof_data()
         preguntas = get_questions(df)
         fig = create_uof_scatter_figure(df, preguntas)
-        plot_div = fig.to_html()
+        plot_div = fig.to_html(full_html=False, config={'responsive': True})
         return render(request, 'core/uof_scatter.html', {'uof_scatter': plot_div})
     except Exception as e:
         return render(request, 'core/uof_scatter.html', {
@@ -120,6 +122,17 @@ def eu_comparison_view(request):
 
     return render(request, 'core/uof_eu_members.html', {
         'uof_eu_members_table': tabla_fig})
+
+def state_comparison_view(request):
+    # Cargar datos
+    df_uof = load_uof_transposed_data()
+    questions_uof = get_questions(df_uof)
+    # Crear la tabla
+    tabla_fig = create_state_comparison_table(df_uof, questions_uof)
+    tabla_fig = opy.plot(tabla_fig, output_type='div', include_plotlyjs=False)
+
+    return render(request, 'core/uof_state_comparison.html', {
+        'uof_state_comparison': tabla_fig})
 
 
 def uof_q8_nato_sankey(request):

@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <h1>USE OF FORCE - Comparison of States' Responses</h1>
+
+    {% if uof_state_comparison %}
+    <!-- Mostrar el gráfico directamente -->
+    {{ uof_state_comparison|safe }}
+    {% else %}
+    <p>No hay datos disponibles para mostrar.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

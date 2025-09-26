@@ -7,6 +7,9 @@ These visualizations includes:
 - A sankey diagram displaying states and their responses to each of the Use of Force questions, layered with their democracy score range.
 - A scatter plot of overall Use of Force questions.
 - A scatter plot of Use of Force questions, filtered by state.
+- A sankey diagram displaying states and their response to Question 8 of Use of Force, layered with NATO membership.
+- A table that compares EU member states' responses to EU's responses, in the issue area Use of Force
+
 
 ![alt text](images/home_nsv.png)
 ![alt text](images/uof_mainpage.png)

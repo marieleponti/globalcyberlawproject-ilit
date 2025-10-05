@@ -117,7 +117,7 @@ def create_eu_comparison_table(df_issue, preguntas, df_membership):
         fig.update_layout(
             title='',
             height=500 + (len(preguntas) * 30),
-            width=1700,
+            width=1500,
             margin=dict(l=10, r=10, t=80, b=10),
             title_x=0.5
         )
@@ -129,6 +129,7 @@ def create_eu_comparison_table(df_issue, preguntas, df_membership):
         import traceback
         traceback.print_exc()
         return go.Figure()
+
 
 
 def create_eu_non_members_comparison_table(df_issue, preguntas, df_membership):
@@ -240,7 +241,7 @@ def create_eu_non_members_comparison_table(df_issue, preguntas, df_membership):
         fig.update_layout(
             title='Comparison of EU vs NON Members',
             height=500 + (len(preguntas) * 30),
-            width=1700,
+            width=1500,
             margin=dict(l=10, r=10, t=80, b=10),
             title_x=0.5
         )

@@ -16,10 +16,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV UV_HTTP_TIMEOUT=150
 
 COPY src/requirements.txt .
-RUN uv pip install -r requirements.txt --system
-
-#add for missing matplotlib install
-RUN uv pip install matplotlib
+RUN uv pip install -r requirements.txt --system && pip install matplotlib
 
 COPY src/ .
 

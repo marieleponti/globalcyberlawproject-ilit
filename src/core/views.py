@@ -110,7 +110,7 @@ def uof_sov_parallel_categories(request):
         })
 
 
-def eu_comparison_view(request):
+def eu_comparison_uof_view(request):
     # Cargar datos
     df_uof = load_uof_data()
     df_membresia = load_membership_data()
@@ -122,6 +122,19 @@ def eu_comparison_view(request):
 
     return render(request, 'core/uof_eu_members.html', {
         'uof_eu_members_table': tabla_fig})
+
+def eu_comparison_sov_view(request):
+    # Cargar datos
+    df_sov = load_sovereignty_data()
+    df_membresia = load_membership_data()
+    questions_sov = get_questions(df_sov)
+
+    # Crear la tabla
+    tabla_fig = create_eu_comparison_table(df_sov, questions_sov, df_membresia)
+    tabla_fig = opy.plot(tabla_fig, output_type='div', include_plotlyjs=False)
+
+    return render(request, 'core/sov_eu_members.html', {
+        'sov_eu_members_table': tabla_fig})
 
 def state_comparison_view(request):
     # Cargar datos

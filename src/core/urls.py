@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('methodology', views.methodology, name='methodology'),
     path('uof', views.use_of_force, name='use_of_force'),
     path('sovereignty', views.sovereignty, name='sovereignty'),
     path('nonintervention', views.nonintervention, name='nonintervention'),

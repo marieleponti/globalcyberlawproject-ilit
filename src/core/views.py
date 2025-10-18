@@ -23,6 +23,8 @@ from core.utils.members_comparison_utils import create_eu_non_members_comparison
 def home(request):
     return render(request, 'core/home.html')
 
+def methodology(request):
+    return render(request, 'core/methodology.html')
 
 def use_of_force(request):
     return render(request, 'core/uof.html')
@@ -30,7 +32,6 @@ def use_of_force(request):
 
 def sovereignty(request):
     return render(request, 'core/sovereignty.html')
-
 
 def nonintervention(request):
     return render(request, 'core/nonintervention.html')

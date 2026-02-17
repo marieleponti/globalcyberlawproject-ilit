@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Global Cyber Law Resource Project{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap"
+          rel="stylesheet">
     <style>
         :root {
             --temple-cherry: #A41E35;
@@ -93,7 +94,7 @@
             position: relative;
         }
 
-        .nav-menu li a {
+        .nav-menu li a  {
             display: block;
             color: var(--temple-white);
             text-decoration: none;
@@ -107,40 +108,52 @@
             background-color: var(--temple-dark-cherry);
         }
 
-         .dropdown {
-        position: relative;
-    }
+        .logout-button  {
+            background: none;
+            border: none;
+            display: block;
+            color: var(--temple-white);
+            text-decoration: none;
+            padding: 20px 15px 30px 20px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: background-color 0.3s;
+        }
 
-    .dropdown-menu {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        background-color: var(--temple-dark-cherry);
-        min-width: 200px;
-        z-index: 1000;
-        padding: 0;
-        margin: 0;
-        list-style: none;
-    }
+        .dropdown {
+            position: relative;
+        }
 
-    .dropdown-menu li {
-        width: 100%;
-    }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--temple-dark-cherry);
+            min-width: 200px;
+            z-index: 1000;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
 
-    .dropdown-menu a {
-        padding: 12px 20px;
-        display: block;
-        white-space: nowrap;
-    }
+        .dropdown-menu li {
+            width: 100%;
+        }
 
-    .dropdown:hover .dropdown-menu {
-        display: block;
-    }
+        .dropdown-menu a {
+            padding: 12px 20px;
+            display: block;
+            white-space: nowrap;
+        }
 
-    .dropdown-menu a:hover {
-        background-color: var(--temple-cherry);
-    }
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: var(--temple-cherry);
+        }
 
         .main-content {
             max-width: 1200px;
@@ -234,13 +247,13 @@
 </head>
 <body>
 
-    <nav class="nav-container">
-        <div class="nav">
-            <ul class="nav-menu">
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="">About</a></li>
-                <li><a href="{% url 'methodology' %}">Methodology</a></li>
-                <li class="dropdown">
+<nav class="nav-container">
+    <div class="nav">
+        <ul class="nav-menu">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="">About</a></li>
+            <li><a href="{% url 'methodology' %}">Methodology</a></li>
+            <li class="dropdown">
                 <a href="">Issues</a>
                 <ul class="dropdown-menu">
                     <li><a href="{% url 'use_of_force' %}">Use of Force</a></li>
@@ -249,7 +262,7 @@
                     <li><a href="">Countermeasures</a></li>
                 </ul>
             </li>
-               <li class="dropdown">
+            <li class="dropdown">
                 <a href="">Source Material</a>
                 <ul class="dropdown-menu">
                     <li><a href="">Use of Force</a></li>
@@ -259,60 +272,67 @@
                 </ul>
             </li>
 
-                <li><a href=""></a></li>
-                <li><a href=""></a></li>
-            </ul>
-        </div>
-    </nav>
+            <li>
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">
+                        Log Out
+                    </button>
+                </form>
+            </li>
+            <li><a href=""></a></li>
+        </ul>
+    </div>
+</nav>
 
-        <header class="header">
-        <div class="header-container">
-            <div class="logo">
-<!--                <img src="{% static 'images/temple-logo.png' %}" alt="Temple University Logo">-->
-                <div class="logo-text">
-                    <h1>Global Cyber Law Resource Project</h1>
-                    <p>Institute for Law, Innovation &amp; Technology - Temple University - Beasley School of Law</p>
-                    <p>Tech, Law &amp; Security Program - American University - Washington College of Law</p>
-                </div>
+<header class="header">
+    <div class="header-container">
+        <div class="logo">
+            <!--                <img src="{% static 'images/temple-logo.png' %}" alt="Temple University Logo">-->
+            <div class="logo-text">
+                <h1>Global Cyber Law Resource Project</h1>
+                <p>Institute for Law, Innovation &amp; Technology - Temple University - Beasley School of Law</p>
+                <p>Tech, Law &amp; Security Program - American University - Washington College of Law</p>
             </div>
-            <div class="search">
-                <!-- Search form could be added here -->
-            </div>
         </div>
-    </header>
+        <div class="search">
+            <!-- Search form could be added here -->
+        </div>
+    </div>
+</header>
 
-    <main class="main-content">
-        {% block content %}
+<main class="main-content">
+    {% block content %}
 
-        {% endblock %}
-    </main>
+    {% endblock %}
+</main>
 
-    <footer class="footer">
-        <div class="footer-container">
-<!--            <div class="footer-section">-->
-<!--                <h3>Quick Links</h3>-->
-<!--                <ul>-->
-<!--                    <li><a href="#">Temple University</a></li>-->
-<!--                    <li><a href="#">American University</a></li>-->
-<!--                    <li><a href="#">Beasley School of Law</a></li>-->
-<!--                    <li><a href="#">Washington School of Law</a></li>-->
-<!--                    <li><a href="#">Calendar</a></li>-->
-<!--                </ul>-->
-<!--            </div>-->
-<!--            <div class="footer-section">-->
-<!--                <h3>Contact Us</h3>-->
-<!--                <address>-->
-<!--                    Institute for Law &amp; Innovation<br>-->
-<!--                    1719 N. Broad Street<br>-->
-<!--                    Philadelphia, PA 19122<br>-->
-<!--                    Phone: (215) 204-0000<br>-->
-<!--                    Email: info@ilit.temple.edu-->
-<!--                </address>-->
-<!--            </div>-->
-<!--        </div>-->
+<footer class="footer">
+    <div class="footer-container">
+        <!--            <div class="footer-section">-->
+        <!--                <h3>Quick Links</h3>-->
+        <!--                <ul>-->
+        <!--                    <li><a href="#">Temple University</a></li>-->
+        <!--                    <li><a href="#">American University</a></li>-->
+        <!--                    <li><a href="#">Beasley School of Law</a></li>-->
+        <!--                    <li><a href="#">Washington School of Law</a></li>-->
+        <!--                    <li><a href="#">Calendar</a></li>-->
+        <!--                </ul>-->
+        <!--            </div>-->
+        <!--            <div class="footer-section">-->
+        <!--                <h3>Contact Us</h3>-->
+        <!--                <address>-->
+        <!--                    Institute for Law &amp; Innovation<br>-->
+        <!--                    1719 N. Broad Street<br>-->
+        <!--                    Philadelphia, PA 19122<br>-->
+        <!--                    Phone: (215) 204-0000<br>-->
+        <!--                    Email: info@ilit.temple.edu-->
+        <!--                </address>-->
+        <!--            </div>-->
+        <!--        </div>-->
         <div class="copyright">
-            &copy; {% now "Y" %}  Global Cyber Law Resource Project. All Rights Reserved.
+            &copy; {% now "Y" %} Global Cyber Law Resource Project. All Rights Reserved.
         </div>
-    </footer>
+</footer>
 </body>
 </html>

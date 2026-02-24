@@ -3,14 +3,49 @@ import pandas as pd
 import plotly.graph_objects as go
 import matplotlib.colors as mcolors
 import random
+import numpy as np
+import re
+# def create_sankey_figure(df):
+#     """Crea la figura completa del Sankey de Use of Force"""
+#     sankey_traces, target_columns = create_sankey_data(df)
+#
+#     fig = go.Figure(data=sankey_traces)
+#     fig.update_layout(
+#         title={
+#             'text': "STATE RESPONSES ON USE OF FORCE",
+#             'y': 0.95,
+#             'x': 0.5,
+#             'xanchor': 'center',
+#             'yanchor': 'top',
+#             'font': {'size': 18}
+#         },
+#         font={'size': 12},
+#         height=700,
+#         width=1200,
+#         margin={'l': 50, 'r': 50, 'b': 100, 't': 100, 'pad': 10},
+#         plot_bgcolor='white',
+#         updatemenus=[create_sankey_dropdown_menu(target_columns)],
+#     )
+#     return fig
 
+def create_sankey_figure(df_main, df_citations):
 
-def create_uof_sankey_figure(df):
-    """Crea la figura completa del Sankey de Use of Force"""
-    sankey_traces, target_columns = create_uof_sankey_data(df)
+    # 1️⃣ Preparar y unir hojas
+    df_long = prepare_merged_dataframe(df_main, df_citations)
+
+    # 2️⃣ Crear Sankey con citas
+    sankey_traces, target_columns = create_sankey_data(df_long)
 
     fig = go.Figure(data=sankey_traces)
+
     fig.update_layout(
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=13,
+            font_family="Arial",
+            font_color="black",
+            bordercolor="#333333"
+            ),
         title={
             'text': "STATE RESPONSES ON USE OF FORCE",
             'y': 0.95,
@@ -24,27 +59,40 @@ def create_uof_sankey_figure(df):
         width=1200,
         margin={'l': 50, 'r': 50, 'b': 100, 't': 100, 'pad': 10},
         plot_bgcolor='white',
-        updatemenus=[create_sankey_dropdown_menu(target_columns)]
+        updatemenus=[create_sankey_dropdown_menu(target_columns)],
     )
 
     return fig
 
 
-def create_uof_sankey_data(df):
-    """Prepara datos para el Sankey de Use of Force"""
-    column_names = list(df.columns)
-    origin_state = 'State'
-    num_col = len(df.columns)
-    final_index = num_col + 1
-    target_columns = column_names[2:final_index]
+def create_sankey_data(df_long):
+    """Prepara datos para el Sankey con citas integradas"""
+
+    origin_state = 'iso'
+    target_columns = df_long['Question_clean'].unique()
 
     sankey_traces = []
 
     for i, target in enumerate(target_columns):
-        df_grouped = df.groupby([origin_state, target])['iso'].count().reset_index()
-        df_grouped.columns = ['source', 'target', 'value']
 
-        unique_labels = pd.unique(df_grouped[['source', 'target']].values.ravel('K'))
+        df_filtered = df_long[df_long['Question_clean'] == target]
+
+        df_grouped = (
+            df_filtered
+            .groupby([origin_state, 'Answer'])
+            .agg(
+                value=('iso', 'size'),
+                citation=('Citation', lambda x: wrap_text('; '.join(x.unique()), 60))
+            )
+            .reset_index()
+        )
+
+        df_grouped.columns = ['source', 'target', 'value', 'citation']
+
+        unique_labels = pd.unique(
+            df_grouped[['source', 'target']].values.ravel('K')
+        )
+
         mapping_dict = {k: v for v, k in enumerate(unique_labels)}
 
         node_config = {
@@ -59,7 +107,14 @@ def create_uof_sankey_data(df):
             'source': df_grouped['source'].map(mapping_dict),
             'target': df_grouped['target'].map(mapping_dict),
             'value': df_grouped['value'],
-            'color': 'rgba(150, 150, 150, 0.3)'
+            'color': 'rgba(150,150,150,0.3)',
+            'customdata': df_grouped['citation'],
+            'hovertemplate': (
+                '<b>%{source.label} → %{target.label}</b><br><br>'
+                '<b>Responses:</b> %{value}<br><br>'
+                '<b>Citation:</b><br>%{customdata}'
+                '<extra></extra>'
+            )
         }
 
         sankey_traces.append(
@@ -72,6 +127,83 @@ def create_uof_sankey_data(df):
         )
 
     return sankey_traces, target_columns
+
+# def create_sankey_data(df):
+#     """Prepara datos para el Sankey de Use of Force"""
+#     column_names = list(df.columns)
+#     origin_state = 'State'
+#     num_col = len(df.columns)
+#     final_index = num_col + 1
+#     target_columns = column_names[2:final_index]
+#
+#     sankey_traces = []
+#
+#     for i, target in enumerate(target_columns):
+#         df_grouped = df.groupby([origin_state, target])['iso'].count().reset_index()
+#         df_grouped.columns = ['source', 'target', 'value']
+#         unique_labels = pd.unique(df_grouped[['source', 'target']].values.ravel('K'))
+#         mapping_dict = {k: v for v, k in enumerate(unique_labels)}
+#
+#         node_config = {
+#             'pad': 30,
+#             'thickness': 15,
+#             'line': {'color': 'black', 'width': 0.5},
+#             'label': unique_labels,
+#             'color': '#1f77b4'
+#         }
+#         link_config = {
+#             'source': df_grouped['source'].map(mapping_dict),
+#             'target': df_grouped['target'].map(mapping_dict),
+#             'value': df_grouped['value'],
+#             'color': 'rgba(150, 150, 150, 0.3)'
+#         }
+#         sankey_traces.append(
+#             go.Sankey(
+#                 arrangement="perpendicular",
+#                 node=node_config,
+#                 link=link_config,
+#                 visible=(i == 0)
+#             )
+#         )
+#     return sankey_traces, target_columns
+
+def prepare_merged_dataframe(df_main, df_citations):
+
+    # Asegurar que no haya columnas duplicadas
+    df_main = df_main.loc[:, ~df_main.columns.duplicated()]
+
+    # Columnas de preguntas (todo excepto State e ISO)
+    question_columns = [
+        col for col in df_main.columns
+        if col not in ['State', 'iso']
+    ]
+
+    # Pasar main a formato largo
+    df_long = df_main.melt(
+        id_vars=['State', 'iso'],
+        value_vars=question_columns,
+        var_name='Question',
+        value_name='Answer'
+    )
+
+    # Limpiar preguntas en ambas hojas
+    df_long['Question_clean'] = df_long['Question'].apply(clean_question)
+    df_citations['Question_clean'] = df_citations['Question'].apply(clean_question)
+
+    # Normalizar texto por seguridad
+    df_long['Answer'] = df_long['Answer'].str.strip().str.lower()
+    df_citations['Answer'] = df_citations['Answer'].str.strip().str.lower()
+
+    # Merge por ISO + Question + Answer
+    df_long = df_long.merge(
+        df_citations[['iso', 'Question_clean', 'Answer', 'Citation']],
+        on=['iso', 'Question_clean', 'Answer'],
+        how='left'
+    )
+
+    df_long['Citation'] = df_long['Citation'].fillna("No citation available")
+
+    return df_long
 
 
 def create_issue_demscore_sankey_figure(df_issue, df_dem):
@@ -333,3 +465,30 @@ def create_uof_art51_nato_sankey(df_force, df_nato):
         )]
     )
     return fig
+
+
+def clean_question(text):
+    """
+    Limpia prefijos
+    """
+    if pd.isna(text):
+        return text
+    # 1️⃣ eliminar número inicial
+    text = re.sub(r'^\s*\d+\s*', '', text)
+    # 2️⃣ eliminar todos los bloques tipo (algo) al inicio
+    text = re.sub(r'^(\s*\([^)]+\))+', '', text)
+    # 3️⃣ eliminar puntuación residual al inicio
+    text = re.sub(r'^\s*[\.\:\-\–]+\s*', '', text)
+    text = text.strip().lower()
+    # 4️⃣ capitalizar primera letra
+    if text:
+        text = text[0].upper() + text[1:]
+
+    return text
+
+import textwrap
+
+def wrap_text(text, width=60):
+    if pd.isna(text):
+        return text
+    return "<br>".join(textwrap.wrap(text, width=width))

@@ -66,3 +66,7 @@ wcwidth==0.2.13
 Werkzeug==3.0.6
 widgetsnbextension==4.0.14
 zipp==3.21.0
+dash>=2.14
+django-plotly-dash>=2.3
+channels
+channels-redis

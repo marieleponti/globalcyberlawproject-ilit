@@ -31,7 +31,7 @@ Sweden,Europe,SWE,Y,NATO Member,EU Member,N,1
 Turkey,Europe,TUR,Y,NATO Member,Non-EU,N,1
 United Kingdom,Europe,GBR,Y,NATO Member,Non-EU,N,1
 United States,North America,USA,Y,NATO Member,Non-EU,N,1
-African Union (AU),Africa,AU,N,Non-NATO Member,Non-EU,Y,1
+African Union,Africa,AU,N,Non-NATO Member,Non-EU,Y,1
 Australia,Australia,AUS,N,Non-NATO Member,Non-EU,N,1
 Austria,Europe,AUT,N,Non-NATO Member,EU Member,N,1
 Bolivia,South America,BOL,N,Non-NATO Member,Non-EU,N,1
@@ -51,11 +51,11 @@ Israel,Asia,ISR,N,Non-NATO Member,Non-EU,N,1
 Japan,Asia,JPN,N,Non-NATO Member,Non-EU,N,1
 Kazakhstan,Asia,KAZ,N,Non-NATO Member,Non-EU,N,1
 Kenya,Africa,KEN,N,Non-NATO Member,Non-EU,N,1
-Korea,Asia,KOR,N,Non-NATO Member,Non-EU,N,1
+Republic of Korea,Asia,KOR,N,Non-NATO Member,Non-EU,N,1
 New Zealand,Australia,NZL,N,Non-NATO Member,Non-EU,N,1
 Pakistan,Asia,PAK,N,Non-NATO Member,Non-EU,N,1
 Peru,South America,PER,N,Non-NATO Member,Non-EU,N,1
-Russia Federation,Europe,RUS,N,Non-NATO Member,Non-EU,N,1
+Russian Federation,Europe,RUS,N,Non-NATO Member,Non-EU,N,1
 Singapore,Asia,SGP,N,Non-NATO Member,Non-EU,N,1
 Switzerland,Europe,CHE,N,Non-NATO Member,Non-EU,N,1
 Thailand,Asia,THA,N,Non-NATO Member,Non-EU,N,1

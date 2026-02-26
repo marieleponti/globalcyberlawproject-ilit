@@ -2,7 +2,8 @@ import plotly.graph_objects as go
 import plotly.offline as opy
 from nat_state_vis_app import settings
 from django.shortcuts import render
-from core.utils.data_loader import load_uof_data, load_sovereignty_data, load_sovereignty_citations_data, load_democracy_data, get_questions
+from core.utils.data_loader import load_uof_data, load_sovereignty_data, load_sovereignty_citations_data, \
+    load_democracy_data, get_questions, load_uof_citations_data, load_nonintervention_citations_data
 from core.utils.sankey_utils import create_sankey_figure, create_issue_demscore_sankey_figure
 from core.utils.scatter_utils import create_uof_scatter_figure, create_by_state_scatter_figure
 from core.utils.html_utils import generate_sankey_html, generate_plot_html, generate_error_html
@@ -40,7 +41,8 @@ def nonintervention(request):
 def uof_sankey(request):
     try:
         df = load_uof_data()
-        fig = create_sankey_figure(df)
+        df_citations = load_uof_citations_data()
+        fig = create_sankey_figure(df, df_citations)
         sankey_html = generate_sankey_html(fig)
         return render(request, 'core/uof_sankey.html', {'uof_sankey': sankey_html})
     except Exception as e:
@@ -209,7 +211,8 @@ def sov_demscore_sankey(request):
 def nonintervention_sankey(request):
     try:
         df = load_nonintervention_data()
-        fig = create_sankey_figure(df)
+        df_citations = load_nonintervention_citations_data()
+        fig = create_sankey_figure(df, df_citations)
         sankey_html = generate_sankey_html(fig)
         return render(request, 'core/nonintervention_sankey.html', {'nonintervention_sankey': sankey_html})
     except Exception as e:

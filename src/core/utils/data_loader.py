@@ -9,6 +9,14 @@ def load_uof_data():
     df = df.rename(columns={'ISO': 'iso'})
     return df
 
+def load_uof_citations_data():
+    """Carga los datos de Use of Force"""
+    uof_data = settings.BASE_DIR / 'data' / 'uof_citations-feb2026.csv'
+    df = pd.read_csv(uof_data)
+    df = df.rename(columns={'ISO': 'iso'})
+    return df
+
+
 def load_uof_transposed_data():
     """Carga los datos de Use of Force"""
     uof_data = settings.BASE_DIR / 'data' / 'uof_transposed-sept2025.csv'
@@ -33,6 +41,13 @@ def load_sovereignty_citations_data():
 def load_nonintervention_data():
     """Carga los datos de Sovereignty"""
     sovereignty_data = settings.BASE_DIR / 'data' / 'nonintervention-sept2025.csv'
+    df = pd.read_csv(sovereignty_data)
+    df = df.rename(columns={'ISO': 'iso'})
+    return df
+
+def load_nonintervention_citations_data():
+    """Carga los datos de Sovereignty"""
+    sovereignty_data = settings.BASE_DIR / 'data' / 'nonintervention_citations-feb2026.csv'
     df = pd.read_csv(sovereignty_data)
     df = df.rename(columns={'ISO': 'iso'})
     return df

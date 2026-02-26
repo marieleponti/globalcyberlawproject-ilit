@@ -29,15 +29,12 @@ import re
 #     return fig
 
 def create_sankey_figure(df_main, df_citations):
-
     # 1️⃣ Preparar y unir hojas
     df_long = prepare_merged_dataframe(df_main, df_citations)
-
     # 2️⃣ Crear Sankey con citas
     sankey_traces, target_columns = create_sankey_data(df_long)
 
     fig = go.Figure(data=sankey_traces)
-
     fig.update_layout(
         hoverlabel=dict(
             bgcolor="white",
@@ -61,7 +58,6 @@ def create_sankey_figure(df_main, df_citations):
         plot_bgcolor='white',
         updatemenus=[create_sankey_dropdown_menu(target_columns)],
     )
-
     return fig
 
 
@@ -473,8 +469,8 @@ def clean_question(text):
     """
     if pd.isna(text):
         return text
-    # 1️⃣ eliminar número inicial
-    text = re.sub(r'^\s*\d+\s*', '', text)
+    # 1️⃣ eliminar número inicial (incluye 1.1, 2.3.4, etc.)
+    text = re.sub(r'^\s*\d+(?:\.\d+)*\s*', '', text)
     # 2️⃣ eliminar todos los bloques tipo (algo) al inicio
     text = re.sub(r'^(\s*\([^)]+\))+', '', text)
     # 3️⃣ eliminar puntuación residual al inicio

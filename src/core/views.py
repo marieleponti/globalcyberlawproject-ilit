@@ -55,7 +55,8 @@ def uof_demscore_sankey(request):
     try:
         df_uof = load_uof_data()
         df_dem = load_democracy_data()
-        fig = create_issue_demscore_sankey_figure(df_uof, df_dem)
+        df_citations = load_uof_citations_data()
+        fig = create_issue_demscore_sankey_figure(df_uof, df_dem, df_citations)
         sankey_html = generate_plot_html(fig)
         return render(request, 'core/uof_demscore_sankey.html', {
             'uof_demscore_sankey': sankey_html

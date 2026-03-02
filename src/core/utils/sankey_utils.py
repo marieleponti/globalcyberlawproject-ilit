@@ -5,28 +5,6 @@ import matplotlib.colors as mcolors
 import random
 import numpy as np
 import re
-# def create_sankey_figure(df):
-#     """Crea la figura completa del Sankey de Use of Force"""
-#     sankey_traces, target_columns = create_sankey_data(df)
-#
-#     fig = go.Figure(data=sankey_traces)
-#     fig.update_layout(
-#         title={
-#             'text': "STATE RESPONSES ON USE OF FORCE",
-#             'y': 0.95,
-#             'x': 0.5,
-#             'xanchor': 'center',
-#             'yanchor': 'top',
-#             'font': {'size': 18}
-#         },
-#         font={'size': 12},
-#         height=700,
-#         width=1200,
-#         margin={'l': 50, 'r': 50, 'b': 100, 't': 100, 'pad': 10},
-#         plot_bgcolor='white',
-#         updatemenus=[create_sankey_dropdown_menu(target_columns)],
-#     )
-#     return fig
 
 def create_sankey_figure(df_main, df_citations):
     # 1️⃣ Preparar y unir hojas
@@ -124,44 +102,6 @@ def create_sankey_data(df_long):
 
     return sankey_traces, target_columns
 
-# def create_sankey_data(df):
-#     """Prepara datos para el Sankey de Use of Force"""
-#     column_names = list(df.columns)
-#     origin_state = 'State'
-#     num_col = len(df.columns)
-#     final_index = num_col + 1
-#     target_columns = column_names[2:final_index]
-#
-#     sankey_traces = []
-#
-#     for i, target in enumerate(target_columns):
-#         df_grouped = df.groupby([origin_state, target])['iso'].count().reset_index()
-#         df_grouped.columns = ['source', 'target', 'value']
-#         unique_labels = pd.unique(df_grouped[['source', 'target']].values.ravel('K'))
-#         mapping_dict = {k: v for v, k in enumerate(unique_labels)}
-#
-#         node_config = {
-#             'pad': 30,
-#             'thickness': 15,
-#             'line': {'color': 'black', 'width': 0.5},
-#             'label': unique_labels,
-#             'color': '#1f77b4'
-#         }
-#         link_config = {
-#             'source': df_grouped['source'].map(mapping_dict),
-#             'target': df_grouped['target'].map(mapping_dict),
-#             'value': df_grouped['value'],
-#             'color': 'rgba(150, 150, 150, 0.3)'
-#         }
-#         sankey_traces.append(
-#             go.Sankey(
-#                 arrangement="perpendicular",
-#                 node=node_config,
-#                 link=link_config,
-#                 visible=(i == 0)
-#             )
-#         )
-#     return sankey_traces, target_columns
 
 def prepare_merged_dataframe(df_main, df_citations):
 
@@ -202,15 +142,20 @@ def prepare_merged_dataframe(df_main, df_citations):
     return df_long
 
 
-def create_issue_demscore_sankey_figure(df_issue, df_dem):
+def create_issue_demscore_sankey_figure(df_issue, df_dem, df_citations):
     """Crea la figura completa del Sankey de Use of Force vs Democracy Score"""
     num_col = len(df_issue.columns)
     final_index = num_col + 1
     target_columns = list(df_issue.columns[2:final_index])
-    sankey_figs = create_issue_demscore_sankey_data(df_issue, df_dem, target_columns)
 
-    fig = go.Figure(data=sankey_figs)
+    sankey_figs = create_issue_demscore_sankey_data(
+        df_issue,
+        df_dem,
+        df_citations,
+        target_columns
+    )
     buttons = create_demscore_sankey_buttons(target_columns)
+    fig = go.Figure(data=sankey_figs)
 
     fig.update_layout(
         font_size=12,
@@ -235,23 +180,71 @@ def create_issue_demscore_sankey_figure(df_issue, df_dem):
     return fig
 
 
-def create_issue_demscore_sankey_data(df_issue, df_dem, target_columns):
-    """Prepara datos para el Sankey de Use of Force vs Democracy Score"""
+def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_columns):
+    """Prepara datos para el Sankey de Use of Force vs Democracy Score
+       con citas en country → score_range."""
+
     sankey_figs = []
 
-    for question in target_columns:
-        merged_df = pd.merge(
-            df_issue,
-            df_dem[['iso', 'dem_score']],
-            on='iso',
-            how='inner'
-        ).dropna()
+    # ==============================
+    # 🔹 Merge base UNA sola vez
+    # ==============================
+    base_df = pd.merge(
+        df_issue,
+        df_dem[['iso', 'dem_score']],
+        on='iso',
+        how='inner'
+    )
 
+    # ==============================
+    # 🔹 Limpieza global de citas
+    # ==============================
+    df_citations = df_citations.copy()
+    df_citations['Answer'] = df_citations['Answer'].astype(str).str.strip().str.lower()
+    df_citations['Question_clean'] = df_citations['Question'].apply(clean_question)
+
+    # Agrupar para evitar duplicaciones y NaN
+    df_citations = (
+        df_citations
+        .groupby(['iso', 'Question_clean', 'Answer'], as_index=False)
+        .agg({'Citation': lambda x: '; '.join(
+            sorted(set(str(i) for i in x if pd.notna(i)))
+        )})
+    )
+
+    # ==============================
+    # 🔹 Loop por pregunta
+    # ==============================
+    for question in target_columns:
+
+        merged_df = base_df[['iso', 'dem_score', question]].dropna().copy()
         if merged_df.empty:
             continue
 
+        # Normalizar respuestas
+        merged_df[question] = merged_df[question].astype(str).str.strip().str.lower()
+
+        # 🔹 Una fila por país
+        merged_df = merged_df.drop_duplicates(subset=['iso'])
+
+        # 🔹 Merge con citas
+        question_clean = clean_question(question)
+        citations_filtered = df_citations[df_citations['Question_clean'] == question_clean][['iso','Answer','Citation']]
+
+        merged_df = merged_df.merge(
+            citations_filtered,
+            left_on=['iso', question],
+            right_on=['iso', 'Answer'],
+            how='left'
+        )
+        merged_df['Citation'] = merged_df['Citation'].fillna("No citation available")
+
+        # ==============================
+        # 🔹 Crear bins democracia
+        # ==============================
         bins = [0, 2, 4, 5, 6, 7, 8, 9, 10]
         labels = ['[0-2)', '[2-4)', '[4-5)', '[5-6)', '[6-7)', '[7-8)', '[8-9)', '[9-10]']
+
         merged_df['score_range'] = pd.cut(
             merged_df['dem_score'],
             bins=bins,
@@ -260,31 +253,63 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, target_columns):
         )
         merged_df.loc[merged_df['dem_score'] == 10, 'score_range'] = '[9-10]'
 
+        # ==============================
+        # 🔹 Construcción de nodos
+        # ==============================
         countries = merged_df['iso'].unique().tolist()
-        ranges = sorted(merged_df['score_range'].unique().tolist())
+        ranges = sorted(merged_df['score_range'].dropna().unique().tolist())
         responses = merged_df[question].unique().tolist()
 
         nodes = countries + ranges + responses
         node_indices = {node: idx for idx, node in enumerate(nodes)}
 
         links = []
+        customdata = []
 
-        stage1_counts = merged_df.groupby(['iso', 'score_range']).size().reset_index(name='count')
+        # ==============================
+        # 🔹 Stage 1: country → score_range (con citas)
+        # ==============================
+        stage1_counts = (
+            merged_df
+            .groupby(['iso', 'score_range'])
+            .agg(
+                count=('iso','size'),
+                citation=('Citation', lambda x: wrap_text(
+                    '; '.join(sorted(set(str(i) for i in x if pd.notna(i)))), 60
+                ))
+            )
+            .reset_index()
+        )
+
         for _, row in stage1_counts.iterrows():
             links.append({
                 'source': node_indices[row['iso']],
                 'target': node_indices[row['score_range']],
                 'value': row['count']
             })
+            customdata.append(row['citation'])
 
-        stage2_counts = merged_df.groupby(['score_range', question]).size().reset_index(name='count')
+        # ==============================
+        # 🔹 Stage 2: score_range → response (solo valores)
+        # ==============================
+        stage2_counts = (
+            merged_df
+            .groupby(['score_range', question])
+            .agg(count=('iso','size'))
+            .reset_index()
+        )
+
         for _, row in stage2_counts.iterrows():
             links.append({
                 'source': node_indices[row['score_range']],
                 'target': node_indices[row[question]],
                 'value': row['count']
             })
+            customdata.append("")  # sin citas
 
+        # ==============================
+        # 🔹 Crear la figura Sankey
+        # ==============================
         fig = go.Sankey(
             arrangement="perpendicular",
             node=dict(
@@ -300,9 +325,22 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, target_columns):
                 source=[link['source'] for link in links],
                 target=[link['target'] for link in links],
                 value=[link['value'] for link in links],
-                color='rgba(150, 150, 150, 0.3)'
+                color='rgba(150,150,150,0.3)',
+                customdata=customdata,
+                hovertemplate=(
+                    '<b>%{source.label} → %{target.label}</b><br><br>'
+                    '<b>Count:</b> %{value}<br><br>'
+                    '<b>Citation:</b><br>%{customdata}'
+                    '<extra></extra>'
+                )
             ),
-            visible=(question == target_columns[0])
+            visible=(question == target_columns[0]),
+            hoverlabel=dict(
+                bgcolor='rgba(255,255,255,0.9)',
+                font_size=12,
+                font_color='black',
+                bordercolor='black'
+            )
         )
 
         sankey_figs.append(fig)

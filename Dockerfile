@@ -5,7 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     DJANGO_DEBUG=True \
     PYTHONPATH=/app/src
 
-WORKDIR /app/src
+WORKDIR /app
 
 #RUN apt-get update && apt-get install -y curl
 
@@ -15,10 +15,13 @@ RUN apt-get update && \
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV UV_HTTP_TIMEOUT=150
 
-COPY src/requirements.txt .
+COPY src/requirements.txt /app/src/requirements.txt
 RUN uv pip install -r requirements.txt --system && pip install matplotlib
 
-COPY src/ .
+COPY src/ /app/src/
+
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 EXPOSE 8000
 
@@ -26,4 +29,4 @@ EXPOSE 8000
 #local deployment
 #CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 #Railway deployment
-CMD ["sh", "-c", "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT"]
+CMD ["/app/entrypoint.sh"]

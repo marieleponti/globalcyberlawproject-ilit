@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 PYTHONUNBUFFERED=1 \
 DJANGO_DEBUG=True
 
-WORKDIR /app
+WORKDIR /app/src
 
 #RUN apt-get update && apt-get install -y curl
 

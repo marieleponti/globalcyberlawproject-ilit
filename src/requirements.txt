@@ -70,3 +70,4 @@ dash>=2.14
 django-plotly-dash>=2.3
 channels
 channels-redis
+gunicorn

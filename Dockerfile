@@ -5,20 +5,22 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     DJANGO_DEBUG=True \
     PYTHONPATH=/app/src
 
-WORKDIR /app
+WORKDIR /app/src
 
 #RUN apt-get update && apt-get install -y curl
 
 RUN apt-get update && \
-    apt-get update && apt-get install -y curl
+    apt-get update && apt-get install -y curl \
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV UV_HTTP_TIMEOUT=150
 
-COPY src/requirements.txt /app/src/requirements.txt
-RUN uv pip install -r requirements.txt --system && pip install matplotlib
+COPY src/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt && pip install matplotlib gunicorn
+#entorno dev
+#RUN uv pip install -r requirements.txt --system && pip install matplotlib
 
-COPY src/ /app/src/
+COPY src/ .
 
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh

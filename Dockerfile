@@ -10,7 +10,7 @@ WORKDIR /app/src
 #RUN apt-get update && apt-get install -y curl
 
 RUN apt-get update && \
-    apt-get update && apt-get install -y curl \
+    apt-get update && apt-get install -y curl 
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV UV_HTTP_TIMEOUT=150

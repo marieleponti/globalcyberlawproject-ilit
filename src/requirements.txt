@@ -71,3 +71,4 @@ django-plotly-dash>=2.3
 channels
 channels-redis
 gunicorn
+dj-database-url

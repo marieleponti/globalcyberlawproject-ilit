@@ -32,7 +32,7 @@ RAILWAY_HOST = os.environ.get("RAILWAY_ENVIRONMENT_HOST", "globalcyberlawresourc
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = [RAILWAY_HOST, '.railway.app']
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost', RAILWAY_HOST, '.up.railway.app']
 
 CSRF_TRUSTED_ORIGINS = [f'https://{RAILWAY_HOST}']
 

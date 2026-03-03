@@ -28,10 +28,13 @@ SECRET_KEY = 'django-insecure-!vy90nul47qxhp%p!i1a!rhm&u*_6^oi)nv*y!#6a6(g-x)2#z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
+RAILWAY_HOST = os.environ.get("RAILWAY_ENVIRONMENT_HOST", "globalcyberlawresourceproject.up.railway.app")
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = ['.railway.app']
+    ALLOWED_HOSTS = [RAILWAY_HOST, '.railway.app']
+
+CSRF_TRUSTED_ORIGINS = ['https://globalcyberlawresourceproject.up.railway.app']
 
 # Application definition
 

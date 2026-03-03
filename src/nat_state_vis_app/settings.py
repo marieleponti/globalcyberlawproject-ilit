@@ -34,7 +34,7 @@ if DEBUG:
 else:
     ALLOWED_HOSTS = [RAILWAY_HOST, '.railway.app']
 
-CSRF_TRUSTED_ORIGINS = ['https://globalcyberlawresourceproject.up.railway.app']
+CSRF_TRUSTED_ORIGINS = [f'https://{RAILWAY_HOST}']
 
 # Application definition
 

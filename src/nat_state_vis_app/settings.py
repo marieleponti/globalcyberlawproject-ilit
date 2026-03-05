@@ -104,11 +104,12 @@ WSGI_APPLICATION = 'nat_state_vis_app.wsgi.application'
 # }
 #Config for Railway - comment out for local deployment or remove for other platform
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL')
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL", "sqlite:///db.sqlite3"),
+        conn_max_age=600,
+        ssl_require=True
     )
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

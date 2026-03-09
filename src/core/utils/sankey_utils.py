@@ -188,7 +188,8 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
     df_issue = df_issue.applymap(clean_cell)
     df_dem = df_dem.applymap(clean_cell)
     df_citations = df_citations.applymap(clean_cell)
-    
+    df_dem['dem_score'] = df_dem['dem_score'].astype(float)
+
     sankey_figs = []
 
     # ==============================

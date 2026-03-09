@@ -184,12 +184,6 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
     """Prepara datos para el Sankey de Use of Force vs Democracy Score
        con citas en country → score_range."""
 
-    # 🔹 Limpiar todos los dataframes al inicio
-    df_issue = df_issue.applymap(clean_cell)
-    df_dem = df_dem.applymap(clean_cell)
-    df_citations = df_citations.applymap(clean_cell)
-    df_dem['dem_score'] = df_dem['dem_score'].astype(float)
-
     sankey_figs = []
 
     # ==============================
@@ -532,10 +526,3 @@ def wrap_text(text, width=60):
     if pd.isna(text):
         return text
     return "<br>".join(textwrap.wrap(text, width=width))
-
-
-def clean_cell(cell):
-    """Limpia espacios invisibles y caracteres especiales de una celda"""
-    if cell is None:
-        return ''
-    return str(cell).replace('\xa0', ' ').replace('\u200b', '').strip().lower()

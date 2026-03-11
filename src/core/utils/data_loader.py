@@ -26,7 +26,7 @@ def load_uof_transposed_data():
 
 def load_sovereignty_data():
     """Carga los datos de Sovereignty"""
-    sovereignty_data = settings.BASE_DIR / 'data' / 'sovereignty-sept2025.csv'
+    sovereignty_data = settings.BASE_DIR / 'data' / 'sovereignty-mar2026.csv'
     df = pd.read_csv(sovereignty_data)
     df = df.rename(columns={'ISO': 'iso'})
     return df

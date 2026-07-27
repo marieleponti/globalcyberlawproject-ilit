@@ -29,6 +29,7 @@
   - [Overview](#overview)
   - [Visualizations Included](#visualizations-included)
   - [Methodology](#methodology)
+  - [Data Methodology & Coding Standards (Sankey Diagrams)](#data-methodology--coding-standards-sankey-diagrams)
   - [Data Structure](#data-structure)
   - [Code Structure: `core/views.py`](#code-structure-coreviewspy)
   - [Utility Module Reference](#utility-module-reference)
@@ -272,6 +273,53 @@ After consulting visualization resources and a Data Scientist, the team selected
 **Architecture:** A Dockerized Django app was built. No database was used — data is sourced directly from CSVs exported from the coded Airtable base. Some CSVs required minimal adaptation; others required processing/reformatting to fit the required visualization structure.
 
 To visualize relationships between question responses and other markers (e.g., democracy scores, NATO membership), the data tables were joined within Python functions.
+
+### Data Methodology & Coding Standards (Sankey Diagrams)
+
+This section documents how the underlying national-statement data was defined, coded, and validated for the Sankey diagram visualizations.
+
+#### Objective
+
+The purpose of the Sankey diagram was to visualize how nations have voiced their statements on select UN resolutions by depicting the flow from each country to its assigned response value (e.g., Yes, No, Silent, Ambiguous). A Sankey diagram was chosen over a table or other visualization format because it can display voting/response patterns across many countries at once.
+
+#### Scope
+
+Country-level values apply to an individual country's position on a specific question, based on the categorization of that nation's response.
+
+#### Data Collected
+
+Each nation's statements were assigned a value (Yes / No / Ambiguous / Silent) based on extracted official statements on specific topics (e.g., Use of Force). Coding was peer-reviewed by research assistants, legal fellows, and law school professors, and reflects assigned values based on publicly available official statements.
+
+#### Data Preparation
+
+Nation names and statement categorizations were standardized, duplicate entries were removed, and missing values were checked by research assistants and tech fellows. Preparation included inspecting CSV imports/exports for inconsistencies and cross-checking against the Airtable source, to ensure the Sankey diagrams accurately reflected the national statements.
+
+#### Data Validation
+
+Validation was conducted by legal fellows and research assistants: a research assistant visually inspected each CSV file, which was then proofread by a legal fellow to verify it was free of errors.
+
+#### Sources
+
+- UNGA Official Compendium of Voluntary National Contributions
+- OAS Survey Responses Submitted
+- Position papers issued by the respective countries
+
+#### Definitions
+
+**National Statement:** A public statement issued by a government body or head of state.
+
+#### Variables
+
+**Categorical (response value):**
+
+| Value | Definition |
+|---|---|
+| **Yes** | The country has issued a clear public statement indicating support or agreement with the question. |
+| **No** | The country has issued a clear public statement indicating disagreement with the question. |
+| **Ambiguous** | The country has issued a public statement that is mixed or conditional and does not clearly state support or opposition. |
+| **Silent** | No public statement has been made by the country. |
+
+**Date of Position:** The date of the most recent statement is either 2025 or 2026.
 
 ### Data Structure
 

@@ -18,22 +18,22 @@ from django.conf.global_settings import LOGIN_URL
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+bue
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!vy90nul47qxhp%p!i1a!rhm&u*_6^oi)nv*y!#6a6(g-x)2#z'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 # SECURITY SETTINGS
-RAILWAY_HOST = os.environ.get("RAILWAY_ENVIRONMENT_HOST", "globalcyberlawresourceproject.up.railway.app")
+RENDER_HOST = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if DEBUG:
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0']
 else:
-    ALLOWED_HOSTS = [RAILWAY_HOST]
+    ALLOWED_HOSTS = [RENDER_HOST]
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -41,7 +41,7 @@ else:
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
-CSRF_TRUSTED_ORIGINS = [f'https://{RAILWAY_HOST}']
+CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_HOST}']
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
@@ -93,14 +93,9 @@ WSGI_APPLICATION = 'nat_state_vis_app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-if os.getenv("RAILWAY_ENVIRONMENT"):
-    # Railway (PostgreSQL)
-    DATABASES = {
-        "default": dj_database_url.config(
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
+if os.getenv("DATABASE_URL"):
+    # Cualquier proveedor con Postgres administrado (Railway, Render, etc.)
+    DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=True)}
 else:
     # Local development
     DATABASES = {

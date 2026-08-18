@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# Ajusta PYTHONPATH
 export PYTHONPATH=/app/src
 
 # Si PORT no existe (local), usa 8000

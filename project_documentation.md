@@ -1,6 +1,14 @@
 # Global CyberLaw Resource Project
 ## National Statements Visualizations — Documentation
 
+> **Image placeholders:** Throughout this document, images are marked as
+> `![PLACEHOLDER: description](images/filename.png)`. Save your screenshots
+> into an `images/` folder next to this file, using the suggested filenames,
+> and the images will render automatically once added to a repo, wiki, or
+> static site. If you're pasting this into a platform without an `images/`
+> folder convention, just replace the placeholder path with wherever the
+> image is hosted.
+
 ---
 
 ## Table of Contents
@@ -25,7 +33,6 @@
   - [Data Structure](#data-structure)
   - [Code Structure: `core/views.py`](#code-structure-coreviewspy)
   - [Utility Module Reference](#utility-module-reference)
-  - [Deployment (Render)](#deployment-render)
 
 ---
 
@@ -91,17 +98,31 @@ This produces a numerical representation where "yes" = `1`, "no" = `0`, and "amb
 
 **Step 3 — One sheet per year.** A separate sheet was created for each year, starting from the earliest year a statement was published (2016) through the present. For example, the 2023 sheet is a copy of the matrix, with any country whose statement was released in 2024 changed from `1` back to `0` — reflecting that, as of 2023, that country did not yet have a published statement.
 
+![PLACEHOLDER: 2023 spreadsheet showing African Union participation before its 2024 statement](images/spreadsheet-2023-african-union.png)
+
+![PLACEHOLDER: 2024 spreadsheet showing African Union updated to 1 after publishing its statement](images/spreadsheet-2024-african-union.png)
+
 **Step 4 — Automate the year-by-year conversion.** A `<Current Year>` column was added to each sheet (e.g., the sheet representing 2021 data has `<Current Year> = 2021`). A formula compares the current year to each statement's publish date: if the publish date is on or before the current year, the category value is `1`; otherwise, it is `0`.
+
+![PLACEHOLDER: Screenshot of the Current Year formula/column setup](images/current-year-formula.png)
 
 **Step 5 — Upload to Datawrapper.** The data was uploaded to the team's [Datawrapper archive](https://app.datawrapper.de/archive/team/H2_4w6co) as a separate spreadsheet per year, so each map shows cumulative participation to date. For example, since the United States has a `1` in 2016 (having published a statement that year), it appears highlighted on that year's map.
 
 This was repeated for every year from 2016–2024. The spreadsheet structure: countries as rows, years as columns, with each `[row, column]` cell holding a boolean indicating whether that country had a published statement by that year. For example, Chile published its first statement in 2018, so it is `0` for 2016–2017 and `1` starting in 2018.
 
+![PLACEHOLDER: 2019 spreadsheet example uploaded to Datawrapper](images/datawrapper-data-2019.png)
+
 **Step 6 — Generate the map.** Datawrapper generates the choropleth map based on the selected column (year).
+
+![PLACEHOLDER: Datawrapper visualization settings for the 2019 map](images/datawrapper-settings-2019.png)
+
+![PLACEHOLDER: Final choropleth map for 2019](images/choropleth-map-2019.png)
 
 This process was repeated for every year in the dataset, producing one map per year.
 
 **Step 7 — Animate the sequence.** Each yearly map was downloaded as a PNG and combined into an animated GIF using [Animated GIF Maker (ezgif.com)](https://ezgif.com/maker).
+
+![PLACEHOLDER: Animated GIF sequence of yearly choropleth maps](images/choropleth-animation.gif)
 
 #### Heatmap
 
@@ -113,9 +134,13 @@ The goal of the heatmap was to show the intensity of discussion for each topic o
 - In 2016, the US remained the only state to have addressed that topic → still `1`.
 - In 2018, the UK also published a statement addressing IL → the count became `2`. (The US's 2018 statement on the same topic was not double-counted.)
 
+![PLACEHOLDER: First heatmap iteration (non-cumulative)](images/heatmap-v1.png)
+
 This version made 2021 appear as the peak of the conversation, since that year had the most national statements (driven by the UNGA and GGE processes). The team felt this misrepresented the steady, ongoing progression of state engagement — implying discussion of IL only began in 2021, which was inaccurate.
 
 **Second iteration.** Switched to a cumulative count to better reflect the progression of participation.
+
+![PLACEHOLDER: Second heatmap iteration (cumulative)](images/heatmap-v2.png)
 
 This version looked better visually, but the cumulative approach effectively doubled the dataset, which caused the legend to display an incorrect total number of national statements.
 
@@ -158,6 +183,8 @@ Using the [States and Issues spreadsheet](#):
 | Label | B |
 | Info for pop-ups | B–C (Country and Year) |
 
+![PLACEHOLDER: Flourish data configuration screenshot](images/flourish-data-config.png)
+
 In Flourish's **Grouped Questions** section:
 
 | Field | Value |
@@ -168,6 +195,8 @@ In Flourish's **Grouped Questions** section:
 | Answers to include | D (1) |
 
 🔗 [Edit in Flourish](https://app.flourish.studio/visualisation/19186602/edit)
+
+![PLACEHOLDER: Flourish Grouped Questions configuration](images/flourish-grouped-questions-config.png)
 
 This produced the first version of the grouped-questions-survey visualization.
 
@@ -225,6 +254,8 @@ Phase 2 is a web app built with **Django** (Python), using **Pandas** and **NumP
 5. A **Sankey diagram** showing States and their responses to Question 8 of Use of Force, layered with NATO membership (Sovereignty, Use of Force).
 6. A **comparison table** of EU member states' responses vs. the EU's own response, in the Use of Force issue area (Sovereignty, Use of Force).
 7. A **comparison table** of EU member states' responses vs. non-EU states' responses, in the Use of Force issue area (Sovereignty).
+
+![PLACEHOLDER: Screenshot of Phase 2 Django app dashboard](images/django-app-dashboard.png)
 
 ### Methodology
 
@@ -469,47 +500,4 @@ Both functions wrap their logic in a `try/except` that prints the error to the c
 
 ---
 
-## Deployment (Render)
-
-The app is deployed on [Render](https://render.com) as a Docker-based Web Service, connected to a managed PostgreSQL database. **Access is restricted — a login is required to view the site** (via `core.middleware.LoginRequiredMiddleware`, redirecting to `/login/`). This is intentional for now; the app is not publicly accessible. Admin accounts already exist and are managed through `/admin/`.
-
-### Settings.py fixes made for Render
-
-The project was originally configured for Railway and required two fixes before it would run on Render:
-
-| Issue | Fix |
-|---|---|
-| `ALLOWED_HOSTS` / `CSRF_TRUSTED_ORIGINS` referenced an undefined `RAILWAY_HOST` variable, which would raise a `NameError` on startup with `DEBUG=False` | Replaced with `RENDER_HOST = os.environ.get("RENDER_EXTERNAL_HOSTNAME")` — a variable Render injects automatically, no manual configuration needed |
-| `SECRET_KEY` was hardcoded in `settings.py` (a `django-insecure-...` development key, exposed in Git history) | Changed to `SECRET_KEY = os.environ.get("SECRET_KEY")`, with a newly generated production key set as an environment variable on Render (never committed to the repo) |
-
-### Environment variables (Render dashboard)
-
-| Variable | Value | Notes |
-|---|---|---|
-| `SECRET_KEY` | New production key | Generate with `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"` |
-| `DEBUG` | `False` | |
-| `DATABASE_URL` | — | Set automatically by Render when a PostgreSQL service is attached |
-| `RENDER_EXTERNAL_HOSTNAME` | — | Injected automatically by Render; do not set manually |
-
-### Pre-Deploy Command
-
-Since the app depends on PostgreSQL for `auth`/`sessions`/`admin` tables, migrations must run before the service takes traffic. Configured in Render as the **Pre-Deploy Command**:
-
-```bash
-python manage.py migrate
-```
-
-### Deployment checklist
-
-- [x] `RAILWAY_HOST` → `RENDER_HOST` fix applied
-- [x] `SECRET_KEY` moved to an environment variable
-- [x] `SECRET_KEY`, `DEBUG=False` configured in Render's dashboard
-- [x] PostgreSQL service attached (provides `DATABASE_URL` automatically)
-- [x] Pre-Deploy Command set to `python manage.py migrate`
-- [x] Admin account already exists — no `createsuperuser` step needed
-- [ ] Confirm `python manage.py collectstatic --dry-run` passes locally before deploying (`STATICFILES_STORAGE` uses `CompressedManifestStaticFilesStorage`, which fails the build if a template references a static file that doesn't exist)
-- [ ] Confirm the `data/` folder (CSVs) is not excluded by `.gitignore` — every view depends on these files being present in the deployed image
-
----
-
-*Document prepared for the Global CyberLaw Resource Project.*
+*Document prepared for the Global CyberLaw Resource Project. Add screenshots to the `images/` folder using the suggested filenames above to complete the visual documentation.*

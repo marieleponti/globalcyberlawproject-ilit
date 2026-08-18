@@ -16,7 +16,7 @@ echo "Creating superuser if env vars exist..."
 if [ "$DJANGO_SUPERUSER_USERNAME" ]; then
     python manage.py createsuperuser \
         --noinput \
-        --username "$DJANGO_SUPERUSER_USERNAME" \
+        --username "$DJANGO_SUPERUSER_USERNAME" \ya los
         --email "$DJANGO_SUPERUSER_EMAIL" || true
 fi
 

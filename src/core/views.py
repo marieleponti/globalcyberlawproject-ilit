@@ -42,7 +42,7 @@ def uof_sankey(request):
     try:
         df = load_uof_data()
         df_citations = load_uof_citations_data()
-        fig = create_sankey_figure(df, df_citations)
+        fig = create_sankey_figure(df, df_citations, title="STATE RESPONSES ON USE OF FORCE")
         sankey_html = generate_sankey_html(fig)
         return render(request, 'core/uof_sankey.html', {'uof_sankey': sankey_html})
     except Exception as e:
@@ -185,14 +185,13 @@ def sovereignty_sankey(request):
     try:
         df = load_sovereignty_data()
         df_citations = load_sovereignty_citations_data()
-        fig = create_sankey_figure(df, df_citations)
+        fig = create_sankey_figure(df, df_citations, title="STATE RESPONSES ON SOVEREIGNTY")
         sankey_html = generate_sankey_html(fig)
         return render(request, 'core/sovereignty_sankey.html', {'sovereignty_sankey': sankey_html})
     except Exception as e:
         return render(request, 'core/sovereignty_sankey.html', {
             'sovereignty_sankey': generate_error_html(str(e))
         })
-
 
 def sov_demscore_sankey(request):
     try:
@@ -214,7 +213,7 @@ def nonintervention_sankey(request):
     try:
         df = load_nonintervention_data()
         df_citations = load_nonintervention_citations_data()
-        fig = create_sankey_figure(df, df_citations)
+        fig = create_sankey_figure(df, df_citations, title="STATE RESPONSES ON NON-INTERVENTION")
         sankey_html = generate_sankey_html(fig)
         return render(request, 'core/nonintervention_sankey.html', {'nonintervention_sankey': sankey_html})
     except Exception as e:

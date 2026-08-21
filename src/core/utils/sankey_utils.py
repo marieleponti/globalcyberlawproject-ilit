@@ -6,10 +6,8 @@ import random
 import numpy as np
 import re
 
-def create_sankey_figure(df_main, df_citations):
-    # 1️⃣ Preparar y unir hojas
+def create_sankey_figure(df_main, df_citations, title="STATE RESPONSES"):
     df_long = prepare_merged_dataframe(df_main, df_citations)
-    # 2️⃣ Crear Sankey con citas
     sankey_traces, target_columns = create_sankey_data(df_long)
 
     fig = go.Figure(data=sankey_traces)
@@ -20,9 +18,9 @@ def create_sankey_figure(df_main, df_citations):
             font_family="Arial",
             font_color="black",
             bordercolor="#333333"
-            ),
+        ),
         title={
-            'text': "STATE RESPONSES ON USE OF FORCE",
+            'text': title,
             'y': 0.95,
             'x': 0.5,
             'xanchor': 'center',
@@ -37,7 +35,6 @@ def create_sankey_figure(df_main, df_citations):
         updatemenus=[create_sankey_dropdown_menu(target_columns)],
     )
     return fig
-
 
 def create_sankey_data(df_long):
     """Prepara datos para el Sankey con citas integradas"""

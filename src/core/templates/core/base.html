@@ -245,6 +245,27 @@
         }
     </style>
 </head>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.js-plotly-plot').forEach(function (plotDiv) {
+    plotDiv.on('plotly_click', function (data) {
+      const point = data.points[0];
+      const url = point.customdata && point.customdata[1];
+      if (url) {
+        window.open(url, '_blank', 'noopener');
+      }
+    });
+  });
+});
+</script>
+
+<style>
+.js-plotly-plot .sankey .link-container path {
+  cursor: pointer;
+}
+</style>
+
+</body>s
 <body>
 
 <nav class="nav-container">

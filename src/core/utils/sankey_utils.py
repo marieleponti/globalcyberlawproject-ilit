@@ -53,12 +53,13 @@ def create_sankey_data(df_long):
             .groupby([origin_state, 'Answer'])
             .agg(
                 value=('iso', 'size'),
-                citation=('Citation', lambda x: wrap_text('; '.join(x.unique()), 60))
+                citation=('Citation', lambda x: wrap_text('; '.join(x.unique()), 60)),
+                url=('Source_URL', lambda x: next((u for u in x if u), ""))
             )
             .reset_index()
         )
 
-        df_grouped.columns = ['source', 'target', 'value', 'citation']
+        df_grouped.columns = ['source', 'target', 'value', 'citation', 'url']
 
         unique_labels = pd.unique(
             df_grouped[['source', 'target']].values.ravel('K')
@@ -79,7 +80,7 @@ def create_sankey_data(df_long):
             'target': df_grouped['target'].map(mapping_dict),
             'value': df_grouped['value'],
             'color': 'rgba(150,150,150,0.3)',
-            'customdata': df_grouped['citation'],
+            'customdata': df_grouped[['citation', 'url']].values,
             'hovertemplate': (
                 '<b>%{source.label} → %{target.label}</b><br><br>'
                 '<b>Responses:</b> %{value}<br><br>'
@@ -127,14 +128,21 @@ def prepare_merged_dataframe(df_main, df_citations):
     df_long['Answer'] = df_long['Answer'].str.strip().str.lower()
     df_citations['Answer'] = df_citations['Answer'].str.strip().str.lower()
 
+    # Force 'iso' to string type on both sides -- avoids a dtype mismatch
+    # (object vs float64) when df_citations['iso'] has empty/NaN cells,
+    # e.g. while it's still being filled in manually.
+    df_long['iso'] = df_long['iso'].astype(str)
+    df_citations['iso'] = df_citations['iso'].astype(str)
+
     # Merge por ISO + Question + Answer
     df_long = df_long.merge(
-        df_citations[['iso', 'Question_clean', 'Answer', 'Citation']],
+        df_citations[['iso', 'Question_clean', 'Answer', 'Citation', 'Source_URL']],
         on=['iso', 'Question_clean', 'Answer'],
         how='left'
     )
 
     df_long['Citation'] = df_long['Citation'].fillna("No citation available")
+    df_long['Source_URL'] = df_long['Source_URL'].fillna("")
 
     return df_long
 
@@ -200,13 +208,20 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
     df_citations['Answer'] = df_citations['Answer'].astype(str).str.strip().str.lower()
     df_citations['Question_clean'] = df_citations['Question'].apply(clean_question)
 
-    # Agrupar para evitar duplicaciones y NaN
+    # Force 'iso' to string on both sides -- avoids the same object/float64
+    # dtype mismatch we hit on the regular Sankey, in case citations 'iso'
+    # still has empty cells.
+    df_citations['iso'] = df_citations['iso'].astype(str)
+
     df_citations = (
         df_citations
         .groupby(['iso', 'Question_clean', 'Answer'], as_index=False)
-        .agg({'Citation': lambda x: '; '.join(
-            sorted(set(str(i) for i in x if pd.notna(i)))
-        )})
+        .agg({
+            'Citation': lambda x: '; '.join(
+                sorted(set(str(i) for i in x if pd.notna(i)))
+            ),
+            'Source_URL': lambda x: next((u for u in x if pd.notna(u) and u), "")
+        })
     )
 
     # ==============================
@@ -226,7 +241,7 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
 
         # 🔹 Merge con citas
         question_clean = clean_question(question)
-        citations_filtered = df_citations[df_citations['Question_clean'] == question_clean][['iso','Answer','Citation']]
+        citations_filtered = df_citations[df_citations['Question_clean'] == question_clean][['iso','Answer','Citation','Source_URL']]
 
         merged_df = merged_df.merge(
             citations_filtered,
@@ -234,7 +249,10 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
             right_on=['iso', 'Answer'],
             how='left'
         )
+
         merged_df['Citation'] = merged_df['Citation'].fillna("No citation available")
+        merged_df['Source_URL'] = merged_df['Source_URL'].fillna("")
+        merged_df['iso'] = merged_df['iso'].astype(str)
 
         # ==============================
         # 🔹 Crear bins democracia
@@ -270,10 +288,11 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
             merged_df
             .groupby(['iso', 'score_range'])
             .agg(
-                count=('iso','size'),
+                count=('iso', 'size'),
                 citation=('Citation', lambda x: wrap_text(
                     '; '.join(sorted(set(str(i) for i in x if pd.notna(i)))), 60
-                ))
+                )),
+                url=('Source_URL', lambda x: next((u for u in x if u), ""))
             )
             .reset_index()
         )
@@ -284,7 +303,7 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
                 'target': node_indices[row['score_range']],
                 'value': row['count']
             })
-            customdata.append(row['citation'])
+            customdata.append([row['citation'], row['url']])
 
         # ==============================
         # 🔹 Stage 2: score_range → response (solo valores)
@@ -302,7 +321,7 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
                 'target': node_indices[row[question]],
                 'value': row['count']
             })
-            customdata.append("")  # sin citas
+            customdata.append(["", ""])  # no citation for this stage
 
         # ==============================
         # 🔹 Crear la figura Sankey

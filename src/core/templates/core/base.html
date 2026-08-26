@@ -245,27 +245,6 @@
         }
     </style>
 </head>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.js-plotly-plot').forEach(function (plotDiv) {
-    plotDiv.on('plotly_click', function (data) {
-      const point = data.points[0];
-      const url = point.customdata && point.customdata[1];
-      if (url) {
-        window.open(url, '_blank', 'noopener');
-      }
-    });
-  });
-});
-</script>
-
-<style>
-.js-plotly-plot .sankey .link-container path {
-  cursor: pointer;
-}
-</style>
-
-</body>s
 <body>
 
 <nav class="nav-container">
@@ -330,30 +309,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <footer class="footer">
     <div class="footer-container">
-        <!--            <div class="footer-section">-->
-        <!--                <h3>Quick Links</h3>-->
-        <!--                <ul>-->
-        <!--                    <li><a href="#">Temple University</a></li>-->
-        <!--                    <li><a href="#">American University</a></li>-->
-        <!--                    <li><a href="#">Beasley School of Law</a></li>-->
-        <!--                    <li><a href="#">Washington School of Law</a></li>-->
-        <!--                    <li><a href="#">Calendar</a></li>-->
-        <!--                </ul>-->
-        <!--            </div>-->
-        <!--            <div class="footer-section">-->
-        <!--                <h3>Contact Us</h3>-->
-        <!--                <address>-->
-        <!--                    Institute for Law &amp; Innovation<br>-->
-        <!--                    1719 N. Broad Street<br>-->
-        <!--                    Philadelphia, PA 19122<br>-->
-        <!--                    Phone: (215) 204-0000<br>-->
-        <!--                    Email: info@ilit.temple.edu-->
-        <!--                </address>-->
-        <!--            </div>-->
-        <!--        </div>-->
         <div class="copyright">
             &copy; {% now "Y" %} Global Cyber Law Resource Project. All Rights Reserved.
         </div>
 </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.js-plotly-plot').forEach(function (plotDiv) {
+    plotDiv.on('plotly_click', function (data) {
+      const point = data.points[0];
+      const url = point.customdata && point.customdata[1];
+      if (url) {
+        window.open(url, '_blank', 'noopener');
+      }
+    });
+  });
+});
+</script>
+
+<style>
+.js-plotly-plot .sankey .link-container path {
+  cursor: pointer;
+}
+</style>
+
 </body>
 </html>

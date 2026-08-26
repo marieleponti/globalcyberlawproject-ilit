@@ -406,18 +406,18 @@ These use `opy.plot(..., output_type='div', include_plotlyjs=False)` instead of 
 
 All raw data lives as CSVs in the `data/` folder and is loaded fresh on every request (no database — `db.sqlite3` exists in the project but is not used for this app's content). Every loader function follows the same shape: build the file path from `settings.BASE_DIR`, read the CSV with `pandas`, rename the `ISO` column to lowercase `iso` (for consistent joins across tables), and return the dataframe.
 
-| Function | Source CSV (`data/`) | Column renames | Notes |
-|---|---|---|---|
-| `load_uof_data()` | `uof-mar2026.csv` | `ISO` → `iso` | Main Use of Force response dataset |
-| `load_uof_citations_data()` | `uof_citations-feb2026.csv` | `ISO` → `iso` | Citations backing Use of Force statements |
-| `load_uof_transposed_data()` | `uof_transposed-mar2026.csv` | `ISO` → `iso` | Transposed version of the UoF dataset, used for `state_comparison_view` |
-| `load_sovereignty_data()` | `sovereignty-mar2026.csv` | `ISO` → `iso` | Main Sovereignty response dataset |
-| `load_sovereignty_citations_data()` | `sovereignty_citations-feb2026.csv` | `ISO` → `iso` | Citations backing Sovereignty statements |
-| `load_nonintervention_data()` | `nonintervention-mar2026.csv` | `ISO` → `iso` | Main Non-Intervention response dataset |
+| Function | Source CSV (`data/`)                    | Column renames | Notes |
+|---|-----------------------------------------|---|---|
+| `load_uof_data()` | `uof-mar2026.csv`                       | `ISO` → `iso` | Main Use of Force response dataset |
+| `load_uof_citations_data()` | `uof_citations-feb2026.csv`             | `ISO` → `iso` | Citations backing Use of Force statements |
+| `load_uof_transposed_data()` | `uof_transposed-mar2026.csv`            | `ISO` → `iso` | Transposed version of the UoF dataset, used for `state_comparison_view` |
+| `load_sovereignty_data()` | `sovereigntyaug2026.csv`                | `ISO` → `iso` | Main Sovereignty response dataset |
+| `load_sovereignty_citations_data()` | `sovereignty_citations-feb2026.csv`     | `ISO` → `iso` | Citations backing Sovereignty statements |
+| `load_nonintervention_data()` | `nonintervention-mar2026.csv`           | `ISO` → `iso` | Main Non-Intervention response dataset |
 | `load_nonintervention_citations_data()` | `nonintervention_citations-feb2026.csv` | `ISO` → `iso` | Citations backing Non-Intervention statements |
-| `load_membership_data()` | `eu-states.csv` | `ISO` → `iso`, `Membership` → `membership` | EU membership status per state |
-| `load_nato_data()` | `NATO_EU_Member.csv` | `ISO` → `iso` | NATO (and EU) membership status per state |
-| `load_democracy_data()` | `democracy-index-eiu.csv` | `Year` → `year`, `Code` → `iso`, `Democracy score` → `dem_score` | Filters to only the **most recent year** present in the file before returning — so the app always reflects the latest available democracy scores, not a historical series |
+| `load_membership_data()` | `eu-states.csv`                         | `ISO` → `iso`, `Membership` → `membership` | EU membership status per state |
+| `load_nato_data()` | `NATO_EU_Member.csv`                    | `ISO` → `iso` | NATO (and EU) membership status per state |
+| `load_democracy_data()` | `democracy-index-eiu.csv`               | `Year` → `year`, `Code` → `iso`, `Democracy score` → `dem_score` | Filters to only the **most recent year** present in the file before returning — so the app always reflects the latest available democracy scores, not a historical series |
 
 **`get_questions(df)`** — a shared helper (not a loader) that returns the list of question columns from any topic dataframe, assuming columns `0` and `1` are metadata (e.g., State and ISO) and every column from index `2` onward is a question/topic column.
 

@@ -54,12 +54,22 @@ def create_sankey_data(df_long):
             .agg(
                 value=('iso', 'size'),
                 citation=('Citation', lambda x: wrap_text('; '.join(x.unique()), 60)),
+                pincite=('Pincite_Text', lambda x: wrap_text('; '.join(x.unique()), 60)),
                 url=('Source_URL', lambda x: next((u for u in x if u), ""))
             )
             .reset_index()
         )
 
-        df_grouped.columns = ['source', 'target', 'value', 'citation', 'url']
+        df_grouped.columns = ['source', 'target', 'value', 'citation', 'pincite', 'url']
+
+        # Only show the "Source:" label when there's an actual source --
+        # keeps the tooltip clean instead of showing an empty/placeholder label.
+        def format_pincite(p):
+            if p and p != 'No source available':
+                return f"<br><br><b>Source:</b><br>{p}"
+            return ""
+
+        df_grouped['pincite_display'] = df_grouped['pincite'].apply(format_pincite)
 
         unique_labels = pd.unique(
             df_grouped[['source', 'target']].values.ravel('K')
@@ -80,11 +90,11 @@ def create_sankey_data(df_long):
             'target': df_grouped['target'].map(mapping_dict),
             'value': df_grouped['value'],
             'color': 'rgba(150,150,150,0.3)',
-            'customdata': df_grouped[['citation', 'url']].values,
+            'customdata': df_grouped[['pincite_display', 'url']].values,
             'hovertemplate': (
                 '<b>%{source.label} → %{target.label}</b><br><br>'
-                '<b>Responses:</b> %{value}<br><br>'
-                '<b>Citation:</b><br>%{customdata}'
+                '<b>Responses:</b> %{value}'
+                '%{customdata[0]}'
                 '<extra></extra>'
             )
         }
@@ -124,9 +134,11 @@ def prepare_merged_dataframe(df_main, df_citations):
     df_long['Question_clean'] = df_long['Question'].apply(clean_question)
     df_citations['Question_clean'] = df_citations['Question'].apply(clean_question)
 
-    # Normalizar texto por seguridad
-    df_long['Answer'] = df_long['Answer'].str.strip().str.lower()
-    df_citations['Answer'] = df_citations['Answer'].str.strip().str.lower()
+    # Normalize answer text -- strip trailing punctuation too, since some
+    # citation rows have "Yes." (with period) while the main CSV has "Yes"
+    # (without), which would otherwise break the merge for that row.
+    df_long['Answer'] = df_long['Answer'].astype(str).str.strip().str.lower().str.rstrip('.')
+    df_citations['Answer'] = df_citations['Answer'].astype(str).str.strip().str.lower().str.rstrip('.')
 
     # Force 'iso' to string type on both sides -- avoids a dtype mismatch
     # (object vs float64) when df_citations['iso'] has empty/NaN cells,
@@ -136,12 +148,13 @@ def prepare_merged_dataframe(df_main, df_citations):
 
     # Merge por ISO + Question + Answer
     df_long = df_long.merge(
-        df_citations[['iso', 'Question_clean', 'Answer', 'Citation', 'Source_URL']],
+        df_citations[['iso', 'Question_clean', 'Answer', 'Citation', 'Pincite_Text', 'Source_URL']],
         on=['iso', 'Question_clean', 'Answer'],
         how='left'
     )
 
     df_long['Citation'] = df_long['Citation'].fillna("No citation available")
+    df_long['Pincite_Text'] = df_long['Pincite_Text'].fillna("No source available")
     df_long['Source_URL'] = df_long['Source_URL'].fillna("")
 
     return df_long
@@ -205,7 +218,7 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
     # 🔹 Limpieza global de citas
     # ==============================
     df_citations = df_citations.copy()
-    df_citations['Answer'] = df_citations['Answer'].astype(str).str.strip().str.lower()
+    df_citations['Answer'] = df_citations['Answer'].astype(str).str.strip().str.lower().str.rstrip('.')
     df_citations['Question_clean'] = df_citations['Question'].apply(clean_question)
 
     # Force 'iso' to string on both sides -- avoids the same object/float64
@@ -234,7 +247,7 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
             continue
 
         # Normalizar respuestas
-        merged_df[question] = merged_df[question].astype(str).str.strip().str.lower()
+        merged_df[question] = merged_df[question].astype(str).str.strip().str.lower().str.rstrip('.')
 
         # 🔹 Una fila por país
         merged_df = merged_df.drop_duplicates(subset=['iso'])
@@ -303,7 +316,13 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
                 'target': node_indices[row['score_range']],
                 'value': row['count']
             })
-            customdata.append([row['citation'], row['url']])
+            # Only show the "Citation:" label when there's an actual citation --
+            # keeps the tooltip clean instead of showing an empty label.
+            if row['citation'] and row['citation'] != 'No citation available':
+                citation_display = f"<b>Citation:</b><br>{row['citation']}"
+            else:
+                citation_display = ""
+            customdata.append([citation_display, row['url']])
 
         # ==============================
         # 🔹 Stage 2: score_range → response (solo valores)
@@ -345,8 +364,8 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
                 customdata=customdata,
                 hovertemplate=(
                     '<b>%{source.label} → %{target.label}</b><br><br>'
-                    '<b>Count:</b> %{value}<br><br>'
-                    '<b>Citation:</b><br>%{customdata}'
+                    '<b>Count:</b> %{value}'
+                    '%{customdata[0]}'
                     '<extra></extra>'
                 )
             ),

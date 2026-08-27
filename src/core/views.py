@@ -27,9 +27,14 @@ def home(request):
 def methodology(request):
     return render(request, 'core/methodology.html')
 
+def about(request):
+    return render(request, 'core/about.html')
+
+def source_docs(request):
+    return render(request, 'core/source_docs.html')
+
 def use_of_force(request):
     return render(request, 'core/uof.html')
-
 
 def sovereignty(request):
     return render(request, 'core/sovereignty.html')

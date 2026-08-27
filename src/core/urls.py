@@ -4,6 +4,8 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('methodology', views.methodology, name='methodology'),
+    path('about', views.about, name='about'),
+    path('source-docs', views.source_docs, name='source_docs'),
     path('uof', views.use_of_force, name='use_of_force'),
     path('sovereignty', views.sovereignty, name='sovereignty'),
     path('nonintervention', views.nonintervention, name='nonintervention'),
@@ -22,5 +24,4 @@ urlpatterns = [
     path('nonintervention-sankey', views.nonintervention_sankey, name='nonintervention_sankey'),
     path('nonint-demscore-sankey', views.nonintervention_demscore_sankey, name='nonint_demscore_sankey'),
     path('sov-by-state-scatter', views.sovereignty_by_state_scatter, name='sov_by_state_scatter'),
-
 ]

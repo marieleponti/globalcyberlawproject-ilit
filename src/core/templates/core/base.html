@@ -251,7 +251,7 @@
     <div class="nav">
         <ul class="nav-menu">
             <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="">About</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
             <li><a href="{% url 'methodology' %}">Methodology</a></li>
             <li class="dropdown">
                 <a href="">Issues</a>
@@ -262,16 +262,7 @@
                     <li><a href="">Countermeasures</a></li>
                 </ul>
             </li>
-            <li class="dropdown">
-                <a href="">Source Material</a>
-                <ul class="dropdown-menu">
-                    <li><a href="">Use of Force</a></li>
-                    <li><a href="">Sovereignty</a></li>
-                    <li><a href="">Nonintervention</a></li>
-                    <li><a href="">Countermeasures</a></li>
-                </ul>
-            </li>
-
+            <li><a href="{% url 'source_docs' %}">Source Material</a></li>
             <li>
                 <form action="{% url 'logout' %}" method="post">
                     {% csrf_token %}

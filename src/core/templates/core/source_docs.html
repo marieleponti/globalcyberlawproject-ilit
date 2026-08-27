@@ -1,10 +1,262 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Position Papers Database | Global Cyber Law Resource Project{% endblock %}
+
+{% block content %}
+    <style>
+        .position-paper-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .position-paper-entry {
+            padding: 14px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .position-paper-entry:last-child {
+            border-bottom: none;
+        }
+
+        .position-paper-entry .country-label {
+            font-weight: 700;
+            color: var(--temple-cherry);
+        }
+
+        .position-paper-entry .citation a {
+            color: var(--temple-blue);
+            text-decoration: none;
+        }
+
+        .position-paper-entry .citation a:hover {
+            text-decoration: underline;
+        }
+
+        .position-paper-note {
+            margin: 6px 0 0 20px;
+            padding: 0;
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+
+    <div class="hero">
+        <h2>List of All Position Papers in the Database</h2>
+    </div>
+
+    <ul class="position-paper-list">
+            <li class="position-paper-entry">
+                <span class="country-label">African Union (2024)</span> &ndash; <span class="citation"><a href="https://perma.cc/7GR9-X64J?type=standard" target="_blank" rel="noopener">Common African Position on the Application of International Law to the Use of Information and Communication Technologies in Cyberspace</a>, pg. [x], §[x], ¶[x] (2024).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Australia Cyber Engagement Strategy (2017)</span> &ndash; <span class="citation"><a href="https://perma.cc/9KHK-AZBT" target="_blank" rel="noopener">Australia’s Position on the Application of International Law to State Conduct in Cyberspace</a>, Attachment 1, pg. # (2017).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Australia, 2019 International Law Supplement (2019)</span> &ndash; <span class="citation"><a href="https://perma.cc/LSJ6-GTRW" target="_blank" rel="noopener">Supplement to Australia’s Position on the Application of International Law to State Conduct in Cyberspace,</a> Attachment 2, pg. # (2019).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Australia (Annex B) (2020)</span> &ndash; <span class="citation"><a href="https://perma.cc/AZW3-27HW" target="_blank" rel="noopener">Australia, Annex B: Australia’s position on how international law applies to State conduct in cyberspace</a>, pg.#, ¶# (2020).</span>
+                <ul class="position-paper-note"><li>Should be read in conjunction with Australia Non-paper Case Studies (2020).</li></ul>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Australia Non-Paper Case Studies (2020)</span> &ndash; <span class="citation"><a href="https://perma.cc/DS72-6FNF" target="_blank" rel="noopener">Australia Non-Paper Case studies on the application of international law in cyberspace</a>, pg.# (2020).</span>
+                <ul class="position-paper-note"><li>Found on pgs. 1-6 of the file</li></ul>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Australia (UNGA Compendium July 2021)</span> &ndash; <span class="citation">A<a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">ustralia, UNGA Official Compendium of Voluntary National Contributions</a>, pg.#, §#, ¶# (2021).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Austria (2020)</span> &ndash; <span class="citation"><a href="https://perma.cc/P4N7-8AZW" target="_blank" rel="noopener">Austria OEWG Pre-Draft Report Comments</a>, pg.#, §# (2020).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Austria (2024)</span> &ndash; <span class="citation"><a href="https://perma.cc/J6LL-59E9" target="_blank" rel="noopener">Position Paper of the Republic of Austria: Cyber Activities and International Law,</a> pg.#, §#, ¶# (2024).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Belgium (2025)</span> &ndash; <span class="citation"><a href="https://docs-library.unoda.org/Open-Ended_Working_Group_on_Information_and_Communication_Technologies_-_(2021)/National_position_BE_on_international_law_DEF_171025.pdf" target="_blank" rel="noopener">The National Position of Belgium on International Law Applicable to Cyberspace,</a> pg. #, §#, ¶# (2025).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Bolivia (2019 OAS Survey Response)</span> &ndash; <span class="citation">OAS Inter-American Juridical Committee Questionnaire - Response by Bolivia, pg. #, Question #, (2019). <a href="https://tuprd.sharepoint.com/:b:/r/sites/iLITHome/iLIT%20Student%20Researchers/Global%20Cyber%20Law/National%20Cyber%20Statements/Source%20Materials/National%20Statements/Bolivia/Response%20by%20Bolivia.%20EN.pdf?csf=1&amp;web=1&amp;e=4V9maU" target="_blank" rel="noopener">[source]</a></span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Brazil (UNGA Compendium July 2021)</span> &ndash; <span class="citation"><a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">Brazil</a>, UNGA Official Compendium of Voluntary National Contributions, pg.#, §#, ¶# (2021).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Canada (Apr. 2022)</span> &ndash; <span class="citation"><a href="https://perma.cc/HNH3-BX5J" target="_blank" rel="noopener">Canada Statement on International Law Applicable in Cyberspace</a>, ¶# (2022).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Chile (2020 OAS Response) - Comments on the Sixth Report of the Inter-American Juridical Committee on Binding and Non-Binding Agreements, pg. #, ¶# (2020).</span> &ndash; <span class="citation"></span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Chile (2019 OAS Response)</span> &ndash; <span class="citation"><a href="https://tuprd.sharepoint.com/:w:/r/sites/iLITHome/iLIT%20Student%20Researchers/Global%20Cyber%20Law/National%20Cyber%20Statements/Source%20Materials/National%20Statements/Chile/Response%20by%20Chile.%20EN%20(1).DOCX?d=w88cf4e2dd83649f199b19e1fe85fe80c&amp;csf=1&amp;web=1&amp;e=zsyWB2" target="_blank" rel="noopener">OAS Inter-American Juridical Committee Questionnaire - Response by Chile</a>, pg. #, Question #, ¶# (2019).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">China (Oct. 2021)</span> &ndash; <span class="citation"><a href="https://perma.cc/G2JV-C5FF" target="_blank" rel="noopener">China’s Positions on International Rules-making in Cyberspace</a>, pg.#, §#, ¶# (2021).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">China (Dec. 2021)</span> &ndash; <span class="citation"><a href="https://perma.cc/MUU6-5NYZ" target="_blank" rel="noopener">China’s Views on the Application of the Principle of Sovereignty in Cyberspace</a>, pg.#, §# (2021).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Colombia (2025)</span> &ndash; <span class="citation"><a href="https://perma.cc/9R5K-K447" target="_blank" rel="noopener">Colombia’s National Position on International Law in Cyberspace</a>, pg.#, §#, ¶# (2025).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Costa Rica (2019 Response)</span> &ndash; <span class="citation"><a href="https://tuprd.sharepoint.com/:w:/r/sites/iLITHome/iLIT%20Student%20Researchers/Global%20Cyber%20Law/National%20Cyber%20Statements/Source%20Materials/National%20Statements/Costa%20Rica/Respuesta%20de%20Costa%20Rica.EN.doc?d=w975a22a807f8404a96b7ec035b62f6a1&amp;csf=1&amp;web=1&amp;e=2WmlqE" target="_blank" rel="noopener">OAS Inter-American Juridical Committee Questionnaire - Response by Costa Rica</a>, pg. #, Question #, (2019).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Costa Rica (Jul. 2023)</span> &ndash; <span class="citation"><a href="https://perma.cc/7483-K9DH" target="_blank" rel="noopener">Costa Rica’s Position on The Application of International Law in Cyberspace</a>, pg.#, ¶# (2023).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Cuba (2024) (Spanish translation)</span> &ndash; <span class="citation"><a href="https://tuprd.sharepoint.com/:w:/r/sites/iLITHome/iLIT%20Student%20Researchers/Global%20Cyber%20Law/National%20Cyber%20Statements/Source%20Materials/National%20Statements/Cuba/Spanish%20to%20English%20Translation%20of%20Cuba%20National%20Position%20(2024).docx?d=w1ab3da0163084f429ac48954540bb9c8&amp;csf=1&amp;web=1&amp;e=gBGGLM" target="_blank" rel="noopener">Position Paper of the Republic of Cuba on the Application of International Law to Information and Communication Technologies in Cyberspace</a>, pg. #, ¶ # (2024)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Czech Republic (Feb. 2020)</span> &ndash; <span class="citation"><a href="https://perma.cc/68JC-6HQ6" target="_blank" rel="noopener">Statement of the Special Envoy for Cyberspace and Director of Cybersecurity Department of the Czech Republic</a>, pg.# (2020)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Czech Republic (2024)</span> &ndash; <span class="citation"><a href="https://perma.cc/35XF-55UV" target="_blank" rel="noopener">Czech Republic Position Paper on the Application of International Law in Cyberspace</a>, pg.#, ¶# (2024).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Denmark (Jul. 2023)</span> &ndash; <span class="citation"><a href="https://perma.cc/6D5U-ZXJ8" target="_blank" rel="noopener">Denmark’s Position Paper on the Application of International Law in Cyberspace,</a> pg. # (2023)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Ecuador (2019 OAS Response)</span> &ndash; <span class="citation"><a href="https://tuprd.sharepoint.com/:b:/s/iLITHome/IQCnwd0Jqcv_QqwRRxQs5NbrAcGo4Q-lORKcLhHJ8y3ol3w?email=michellexin%40temple.edu&amp;e=M43Dw5" target="_blank" rel="noopener">OAS Inter-American Juridical Committee Questionnaire - Response by Ecuador</a>, pg. #, Question #, (2019)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Estonia (2019 CyCon Speech)</span> &ndash; <span class="citation"><a href="https://perma.cc/R2A8-FGEZ" target="_blank" rel="noopener">President of the Republic at the Opening of Cycon 2019</a>, Pg. # (2019)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Estonia (UNGA Compendium July 2021)</span> &ndash; <span class="citation">Estonia, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg. # (2021).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">European Union (2024)</span> &ndash; <span class="citation"><a href="https://perma.cc/EQX2-GMNU" target="_blank" rel="noopener">Declaration on a Common Understanding of International Law in Cyberspace</a>, pg. #, §# (2024).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Finland (2020)</span> &ndash; <span class="citation"><a href="https://perma.cc/M5DA-YSE6" target="_blank" rel="noopener">International Law and Cyberspace: Finland’s National Positions</a>, pg. #, (2020).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">France (2021)</span> &ndash; <span class="citation"><a href="https://perma.cc/9N3U-3CU8" target="_blank" rel="noopener">International Law Applied to Operations in Cyberspace: Paper shared by France with the OEWG</a>, pg.#, §# (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Germany (Mar. 2021)</span> &ndash; <span class="citation"><a href="https://perma.cc/J9BX-UZ4U" target="_blank" rel="noopener">Federal Government of Germany, On the Application of International Law in Cyberspace</a>, pg.# (2021).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Germany (UNGA Compendium July 2021)</span> &ndash; <span class="citation">Germany, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg. # (2021).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Guatemala (2019 OAS Response)</span> &ndash; <span class="citation"><a href="https://tuprd.sharepoint.com/:b:/s/iLITHome/IQB4YKxILhNXRbJ9aFhKfJdmAWzS30azdTM0p3yN4X5Wm3Q?email=michellexin%40temple.edu&amp;e=XXzowV" target="_blank" rel="noopener">OAS Inter-American Juridical Committee Questionnaire - Response by Guatemala</a>, pg. #, Question #, (2019)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Guyana (2019 OAS Response)</span> &ndash; <span class="citation"><a href="https://tuprd.sharepoint.com/:b:/r/sites/iLITHome/iLIT%20Student%20Researchers/Global%20Cyber%20Law/National%20Cyber%20Statements/Source%20Materials/OAS%20Survey%20Responses/Guyana%20response.%20EN.PDF?csf=1&amp;web=1&amp;e=Gb4J0h" target="_blank" rel="noopener">OAS Inter-American Juridical Committee Questionnaire - Response by Guyana</a>, pg. #, Question #, (2019)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Iran (2020)</span> &ndash; <span class="citation"><a href="https://perma.cc/VE54-3YZF" target="_blank" rel="noopener">Position Paper of the Republic of Iran</a>, pg. #, Art. #, ¶# (2020)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Ireland (July 2023)</span> &ndash; <span class="citation"><a href="https://perma.cc/K2UL-4HYB" target="_blank" rel="noopener">Ireland Position Paper on the Application of International Law in Cyberspace</a>, pg. #, ¶# (2023).</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Israel (2021)</span> &ndash; <span class="citation"><a href="https://perma.cc/3ENJ-5H3N" target="_blank" rel="noopener">Israel’s Perspective on Key Legal and Practical Issues Concerning the Application of International Law to Cyber Operations</a>, pg.# (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Italy (2021)</span> &ndash; <span class="citation"><a href="https://perma.cc/XA4M-YQH9" target="_blank" rel="noopener">Italian Position Paper on International Law and Cyberspace</a>, pg.# (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Japan (May 2021)</span> &ndash; <span class="citation"><a href="https://perma.cc/9V4X-62EY" target="_blank" rel="noopener">Basic Position of the Government of Japan on International Law Applicable to Cyber Operations</a>, pg.#, §#, ¶# (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Japan (UNGA Compendium July 2021)</span> &ndash; <span class="citation">Japan, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg. # (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Kazakhstan (UNGA Compendium July 2021)</span> &ndash; <span class="citation">Kazakhstan, <a href="https://tuprd.sharepoint.com/:w:/s/iLITHome/IQB1buGwABlzSYvnEOou_ihgAbEAwR7XFEtxlc2hM4etwgE?email=michellexin%40temple.edu&amp;e=X8nxF7" target="_blank" rel="noopener">Translation of UNGA Official Compendium of Voluntary National Contributions</a>, pg. # (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Kenya (UNGA Compendium July 2021)</span> &ndash; <span class="citation">Kenya, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg. # (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Korea (2025)</span> &ndash; <span class="citation"><a href="https://perma.cc/P3W7-9URM" target="_blank" rel="noopener">National Position of the Republic of Korea on the Application of International Law in Cyberspace</a>, pg.#, §# (2025)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Netherlands (Appendix; undated) (July 2019)</span> &ndash; <span class="citation"><a href="https://perma.cc/YFD4-LB25" target="_blank" rel="noopener">Government of the Kingdom of the Netherlands, Appendix: International law in cyberspace</a>, pg. # (2019)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Netherlands (July 2019 Letter to Parliament)</span> &ndash; <span class="citation"><a href="https://perma.cc/63UT-HTRF" target="_blank" rel="noopener">Minister of Foreign Affairs, Letter to Parliament on the international legal order in cyberspace</a>, pg.# (2019)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Netherlands (UNGA Compendium July 2021)</span> &ndash; <span class="citation">Netherlands, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg. # (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">New Zealand (Dec. 2020)</span> &ndash; <span class="citation"><a href="https://perma.cc/5FBX-CJ58" target="_blank" rel="noopener">The Application of International Law to State Activity in Cyberspace</a>, pg. #, ¶# (2020)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">New Zealand (2025)</span> &ndash; <span class="citation"><a href="https://perma.cc/5JRG-RPLW" target="_blank" rel="noopener">The Application of International Law to State Activity in Cyberspace</a>, pg. #, ¶# (2025)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Norway (July 2021)</span> &ndash; <span class="citation"><a href="https://www.regjeringen.no/contentassets/a8911fc020c94eb386a1ec7917bf0d03/norwegian_positions.pdf" target="_blank" rel="noopener">Norwegian Positions on Selected Questions of International Law Relating to Cyberspace</a>, pg.#, §# (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Norway (UNGA Compendium July 2021)</span> &ndash; <span class="citation">Norway, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg. # (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Pakistan (2023)</span> &ndash; <span class="citation"><a href="https://perma.cc/T37B-BEDR" target="_blank" rel="noopener">Pakistan’s Position on the Application of International Law in Cyberspace</a>, pg. #, ¶# (2023)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Peru (2020 OAS Response)</span> &ndash; <span class="citation"><a href="https://perma.cc/JW8T-8YXC" target="_blank" rel="noopener">OAS Inter-American Juridical Committee Questionnaire - Response by Peru</a>, pg. #, Question #, (2019)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Poland (Dec 2022)</span> &ndash; <span class="citation"><a href="https://perma.cc/EN4F-N5QV" target="_blank" rel="noopener">The Republic of Poland’s position on the application of international law in cyberspace</a>, pg. #, § # (2022)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Romania (UNGA Compendium July 2021)</span> &ndash; <span class="citation">– Romania, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg. # (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Russia (UNGA Compendium July 2021)</span> &ndash; <span class="citation">Russian Federation, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg. # (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Singapore (UNGA Compendium July 2021)</span> &ndash; <span class="citation">Singapore, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg. #, ¶# (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Sweden (July 2022)</span> &ndash; <span class="citation"><a href="https://perma.cc/U5HT-GWEZ" target="_blank" rel="noopener">Sweden’s Position Paper on the Application of International Law in Cyberspace</a>, pg. # (2022)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Switzerland (2021)</span> &ndash; <span class="citation"><a href="https://perma.cc/BX6P-2YT6" target="_blank" rel="noopener">Switzerland&#x27;s position paper on the application of international law in cyberspace: Annex to UN GGE</a>, pg. #, §# (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Switzerland (UNGA Compendium July 2021)</span> &ndash; <span class="citation">Switzerland, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg. # (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">Thailand (2025)</span> &ndash; <span class="citation"><a href="https://perma.cc/A5JV-UA3F" target="_blank" rel="noopener">Thailand’s National Position on the Application of International Law in Cyberspace, pg. #, ¶# (2025)</a></span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">United Kingdom (2018)</span> &ndash; <span class="citation"><a href="https://perma.cc/U39M-962P" target="_blank" rel="noopener">Attorney General Jeremy Wright: Cyber and International Law in the 21st Century</a>, pg.# (2018)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">United Kingdom (June 2021)</span> &ndash; <span class="citation"><a href="https://perma.cc/RJL8-DV4L" target="_blank" rel="noopener">Application of international law to states’ conduct in cyberspace: UK statement</a>, pg.#, ¶# (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">United Kingdom (UNGA Compendium July 2021)</span> &ndash; <span class="citation">United Kingdom, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg. #, ¶# (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">United Kingdom (May 2022)</span> &ndash; <span class="citation"><a href="https://perma.cc/69JF-VV9Y" target="_blank" rel="noopener">Attorney General Suella Braverman: International Law in Future Frontiers</a>, pg.# (2022)</span>
+                <ul class="position-paper-note"><li>The speech starts at pg.3 (The Rt Hon Suella Braverman QC MP) and ends at pg. 12 (Chatham House Staff)</li></ul>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">United States (2012)</span> &ndash; <span class="citation"><a href="https://perma.cc/Z2F6-97WN" target="_blank" rel="noopener">Harold Hongju Koh, International Law in Cyberspace</a>, pg. # (2012)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">United States (2016)</span> &ndash; <span class="citation"><a href="https://perma.cc/8RU4-AXL2" target="_blank" rel="noopener">Brian J. Egan, International Law and Stability in Cyberspace</a>, pg. # (2016)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">United States (2020)</span> &ndash; <span class="citation"><a href="https://perma.cc/7BMC-LLMG" target="_blank" rel="noopener">Hon. Paul C. Ney, Jr., DOD General Counsel Remarks at US Cyber Command Legal Conference</a>, pg. # (2020)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">United States (UNGA Compendium July 2021)</span> &ndash; <span class="citation">United States, <a href="https://perma.cc/UD7M-5NA7" target="_blank" rel="noopener">UNGA Official Compendium of Voluntary National Contributions</a>, pg., §# (2021)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">United States (2023)</span> &ndash; <span class="citation"><a href="https://perma.cc/9SBR-6XV9" target="_blank" rel="noopener">Hon. Caroline Krass, DOD General Counsel Remarks at U.S. Cyber Command Legal Conference</a>, §# (2023)</span>
+            </li>
+            <li class="position-paper-entry">
+                <span class="country-label">United States (2024)</span> &ndash; <span class="citation"><a href="https://perma.cc/GX5G-NW8M" target="_blank" rel="noopener">Richard C. Visek, International Law and Cyberspace: Building Consensus</a>, pg.# (2024)</span>
+            </li>
+    </ul>
+{% endblock %}

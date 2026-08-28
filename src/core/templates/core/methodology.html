@@ -1,159 +1,206 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<div>
-    <h1>Methodology</h1>
-</div>
 
-<div class="uof-into-header">
-    <div class="header-wrapper">
-
-        <span class="uof-into-label">Questions</span>
+<section class="method-header">
+    <div class="method-container">
+        <h1>Methodology</h1>
     </div>
-</div>
+</section>
 
+<section class="method-section">
+    <div class="method-container">
+        <h2>Citations Process</h2>
+        <p>The project described above follows a structured, multi-stage research methodology designed to produce a high-quality final product capable of serving as a tool relied upon by national governments in high-level negotiations, academics, civil society organizations, and other parties. The research methodology was developed through an iterative process that combines expert oversight with structured student research, scholarly quality control check, and independent expert peer review. The methodology consists of the following steps.</p>
+
+        <ol class="method-steps">
+            <li>
+                We first identified and established a finite set of international law issues to be included in the dataset.
+                <ol type="a" class="method-substeps">
+                    <li>The application of international law in cyberspace</li>
+                    <li>The application of the duty of non-intervention, including when an intervention is unlawful (coercive)</li>
+                    <li>The legal significance, limitations (if any), and effects of state sovereignty in cyberspace</li>
+                    <li>The application of the prohibition of the use of force and the use of force threshold for cyber operations (jus ad bellum)</li>
+                    <li>The availability and operation of the right to self-defense, including the armed attack threshold (jus ad bellum)</li>
+                </ol>
+            </li>
+            <li>As a quality-control measure, the research team examined one legal issue at a time instead of conducting research across multiple issue areas simultaneously. That way, researchers were able to focus on a single body of legal questions at a time, thus promoting consistency in coding decisions and reducing the likelihood of analytical errors or inconsistencies across issue areas.</li>
+            <li>
+                For each legal issue, Professors Duncan Hollis, Gary Corn, and Laura Bingham developed a standardized set of indicator questions that could be answered with a binary or categorical coding framework. These indicators were designed to capture whether a national statement clearly adopted a particular legal position.
+                <p class="method-lead-in">Each indicator is coded using one of four possible responses:</p>
+                <ul class="method-codes">
+                    <li><strong>Yes:</strong> The statement clearly supports or adopts the position.</li>
+                    <li><strong>No:</strong> The statement clearly rejects or contradicts the position.</li>
+                    <li><strong>Ambiguous:</strong> The statement addresses the issue but does not express a sufficiently clear position for a definitive coding decision.</li>
+                    <li><strong>Silent:</strong> The statement does not address the indicator question.</li>
+                </ul>
+            </li>
+            <li>Once the indicator questions were finalized for a particular issue, student researchers compiled their analysis and coding decisions into a comprehensive citation document with verbatim excerpts from national statements addressing that issue. The citation document is organized by country. Student researchers reviewed each national statement and identified passages relevant to each indicator question, recording the supporting quotations alongside the proposed coding decisions. The research team erred on the side of over inclusivity to minimize the possibility of overlooking relevant language.</li>
+            <li>After the initial citation document was completed, student researchers participated in an internal peer-review process. Citation documents were exchanged between the Temple iLIT and the American TSL Research Assistants, who independently evaluate the proposed coding decisions, supporting quotations, and citations. This initial peer review served as the first layer of quality control and helped identify omissions, inconsistencies, or interpretive errors before faculty review.</li>
+            <li>Following completion of the student peer review, the citation document was reviewed by Professors Duncan Hollis and Gary Corn. Faculty members assessed the coding decisions and the supporting evidence to ensure that the national statements had been interpreted accurately and consistently with the project's coding methodology. Any identified issues were corrected before the materials proceeded to external review.</li>
+            <li>
+                After faculty review, the project underwent an independent expert peer-review process to provide an additional level of validation. Expert reviewers assessed whether the coding decisions accurately reflected the language of the national statements and whether the supporting citations justified the assigned codes. Citation documents were divided into smaller review packets, with each expert evaluating approximately four to five countries across two legal issue areas.
+                <p class="method-note">At the current stage of the project, expert peer reviews were conducted in April and August 2026 for the following issue areas: Sovereignty, Non-Intervention, Use of Force, and Self-Defense.</p>
+            </li>
+            <li>Once expert peer-review comments were received, Professors Gary Corn and Duncan Hollis reviewed each recommendation and determined whether revisions to the coding are warranted. Where questions arose, they discussed the relevant evidence and reached a consensus regarding the appropriate coding decision.</li>
+            <li>After consensus was reached, student researchers entered the final coding decisions into AirTable, which serves as the project's central data repository.</li>
+            <li>After the dataset had been finalized in AirTable, the completed data were exported as a CSV file and provided to the Visualization Team. The team imported the data into the project's visualization platform, where it was then transformed into interactive charts, maps, and other graphical representations allowing users to compare state positions across legal issues and identify broader trends in state practice.</li>
+        </ol>
+    </div>
+</section>
+
+<section class="method-section">
+    <div class="method-container">
+        <h2>Visualizations Process</h2>
+        <p>The process of creating data visualizations was iterative &ndash; we conducted research into the possible types of visualizations, analytical coding, data classification, and technical tool development. The objective was to produce effective visualizations for analysis by practitioners, scholars, policymakers, and other general users.</p>
+        <p>The process began with an examination of the structure and purpose of the underlying dataset. Because the data consisted primarily of question-and-answer information, the first step was to determine how to represent the responses in a way that preserved the substance of the policy analysis while translating the qualitative or categorical results into quantitative, binary code. Where appropriate, responses were converted into binary analytical categories, allowing a policy position to be represented as a value such as 0/1 or No/Yes.</p>
+        <p>Once the coding structure was established, we had to determine which visualization types would most effectively communicate the different aspects of our analysis and dataset. In this stage, we created the following:</p>
+        <ul class="method-list">
+            <li>A choropleth map to display State participation and frequency of National Statement publishing across different years.</li>
+            <li>A heatmap to demonstrate the changing frequency of discussion of particular topics over time.</li>
+        </ul>
+        <p>The visualizations were further refined through consultation of technical resources, including data-analysis libraries such as Pandas and NumPy, and through consultation with a Data Scientist. These consultations informed the creation of a dockerized Django app that would allow us to integrate visually appealing charts, such as the following:</p>
+        <ul class="method-list">
+            <li>A sankey diagram displaying states and their responses across the issue questions.</li>
+            <li>A sankey diagram displaying states and their responses to each of the Use of Force questions, layered with their democracy score range.</li>
+            <li>A scatter plot of overall Use of Force questions.</li>
+            <li>A scatter plot of Use of Force questions, filtered by state.</li>
+            <li>A sankey diagram displaying states and their response to Question 8 of Use of Force, layered with NATO membership.</li>
+            <li>An EU Comparison table comparing EU member states' responses to EU's responses.</li>
+            <li>An EU/Non-EU Comparison table comparing EU member states' responses to Non-EU states' responses.</li>
+        </ul>
+    </div>
+</section>
+
+<section class="method-section alt">
+    <div class="method-container">
+        <h2>Status of the Project as of August 2026</h2>
+        <p>As of August 2026, we have compiled over 69 national statements and analyzed them according to the indicator questions for each international law issue provided above. The issues &mdash; Sovereignty, Non-Intervention, Use of Force, and Self-Defense &mdash; have undergone rounds of student peer review, professor quality review, and expert peer review from a panel of scholars, academics, and expert practitioners.</p>
+    </div>
+</section>
+
+<section class="method-section">
+    <div class="method-container">
+        <h2>Continuing Efforts</h2>
+        <p>Due to the dynamic landscape of national cyber statements, the research team will routinely check national cyber statements regarding all topics to ensure our data set remains a comprehensive and current research tool. The dataset will be maintained as a living resource and updated to capture revisions to existing national statements as well as newly published positions. In addition, as countries that have not previously issued formal national cyber statements release official documents, those statements will be analyzed, coded according to the established methodology, and integrated into the dataset.</p>
+    </div>
+</section>
 
 <style>
-    .uof-into-header {
-        font-family: 'Georgia', 'Times New Roman', serif;
-<!--        color: #222;-->
-        max-width: 1000px;
-        margin: 50px auto;
-        padding: 0 30px;
-    }
-
-    .header-wrapper {
-        border-bottom: 1px solid #e0e0e0;
-        padding-bottom: 35px;
-    }
-
-    .uof-into-label {
-        display: block;
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-        font-size: 20px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        color: #777;
-        margin-bottom: 12px;
-    }
-
-    h1 {
-        font-size: 42px;
-        font-weight: 500;
-        line-height: 1.15;
-        margin: 0 0 12px 0;
-        color: #000;
-        text-transform: uppercase;
-    }
-
-    h2 {
-        font-size: 24px;
-        font-weight: 400;
-        line-height: 1.4;
-        margin: 0 0 28px 0;
-        color: #444;
-        text-transform: uppercase;
-
-    }
-
-    @media (max-width: 768px) {
-        .uof-into-header {
-            padding: 0 20px;
-            margin: 40px auto;
-        }
-
-        h1 {
-            font-size: 32px;
-        }
-
-        h2 {
-            font-size: 24px;
-        }
-
-        .intro-paragraphs {
-            font-size: 19px;
-        }
-    }
-
-    .uof-vis-section {
+    .method-header {
         background-color: #f9f9f9;
-        padding: 60px 0;
+        padding: 50px 0 30px;
         font-family: 'Open Sans', Arial, sans-serif;
+        border-bottom: 3px solid var(--temple-cherry, #A41E35);
     }
 
-    .container {
-        max-width: 1200px;
+    .method-header h1 {
+        color: var(--temple-cherry, #A41E35);
+        font-size: 36px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    .method-container {
+        max-width: 900px;
         margin: 0 auto;
         padding: 0 20px;
     }
 
-    .section-title {
-        color: #A41E35; /* Temple cherry */
-        font-size: 32px;
-        margin-bottom: 40px;
-        text-align: center;
+    .method-section {
+        padding: 45px 0;
+        font-family: 'Open Sans', Arial, sans-serif;
+        color: #444;
+    }
+
+    .method-section.alt {
+        background-color: #f9f9f9;
+    }
+
+    .method-section h2 {
+        color: var(--temple-cherry, #A41E35);
+        font-size: 24px;
         font-weight: 700;
+        margin: 0 0 20px;
     }
 
-    .vis-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 30px;
+    .method-section p {
+        font-size: 16px;
+        line-height: 1.7;
+        margin: 0 0 16px;
     }
 
-    .vis-card {
-        background: white;
-        border-radius: 4px;
-        padding: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        transition: transform 0.2s;
-    }
-
-    .vis-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .vis-title {
-        font-size: 20px;
-        margin: 0 0 10px 0;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .vis-meta {
+    .method-section .method-note {
+        font-size: 15px;
+        font-style: italic;
         color: #666;
-        font-size: 14px;
-        margin-bottom: 15px;
+        margin: 12px 0 0;
     }
 
-    .vis-desc {
-        color: #333;
-        font-size: 15px;
-        line-height: 1.5;
-        margin-bottom: 20px;
-    }
-
-    .vis-link {
-        color: #A41E35;
-        text-decoration: none;
+    .method-section .method-lead-in {
+        margin: 14px 0 8px;
         font-weight: 600;
-        font-size: 15px;
-        display: inline-block;
+        color: #333;
     }
 
-    .vis-link:hover {
-        text-decoration: underline;
+    .method-list {
+        margin: 0 0 16px;
+        padding-left: 22px;
+        line-height: 1.7;
+    }
+
+    .method-list li {
+        margin-bottom: 8px;
+    }
+
+    .method-codes {
+        margin: 0 0 16px;
+        padding-left: 22px;
+        line-height: 1.7;
+    }
+
+    .method-codes li {
+        margin-bottom: 6px;
+    }
+
+    .method-steps {
+        margin: 20px 0 0;
+        padding-left: 24px;
+        counter-reset: step;
+    }
+
+    .method-steps > li {
+        margin-bottom: 22px;
+        line-height: 1.7;
+        padding-left: 6px;
+    }
+
+    .method-steps > li::marker {
+        font-weight: 700;
+        color: var(--temple-cherry, #A41E35);
+    }
+
+    .method-substeps {
+        margin: 12px 0 0;
+        padding-left: 24px;
+        line-height: 1.7;
+        color: #555;
+    }
+
+    .method-substeps li {
+        margin-bottom: 6px;
     }
 
     @media (max-width: 768px) {
-        .vis-grid {
-            grid-template-columns: 1fr;
+        .method-header h1 {
+            font-size: 28px;
         }
 
-        .section-title {
-            font-size: 28px;
+        .method-section h2 {
+            font-size: 21px;
         }
     }
 </style>
+
 {% endblock content %}

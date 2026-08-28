@@ -1,151 +1,134 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<div>
-    <h1>About</h1>
-</div>
+
+<section class="method-header">
+    <div class="method-container">
+        <h1>About</h1>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="about-container">
+        </div>
+</section>
+
 
 <style>
-    .uof-into-header {
-        font-family: 'Georgia', 'Times New Roman', serif;
-<!--        color: #222;-->
-        max-width: 1000px;
-        margin: 50px auto;
-        padding: 0 30px;
-    }
-
-    .header-wrapper {
-        border-bottom: 1px solid #e0e0e0;
-        padding-bottom: 35px;
-    }
-
-    .uof-into-label {
-        display: block;
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-        font-size: 20px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        color: #777;
-        margin-bottom: 12px;
-    }
-
-    h1 {
-        font-size: 42px;
-        font-weight: 500;
-        line-height: 1.15;
-        margin: 0 0 12px 0;
-        color: #000;
-        text-transform: uppercase;
-    }
-
-    h2 {
-        font-size: 24px;
-        font-weight: 400;
-        line-height: 1.4;
-        margin: 0 0 28px 0;
-        color: #444;
-        text-transform: uppercase;
-
-    }
-
-    @media (max-width: 768px) {
-        .uof-into-header {
-            padding: 0 20px;
-            margin: 40px auto;
-        }
-
-        h1 {
-            font-size: 32px;
-        }
-
-        h2 {
-            font-size: 24px;
-        }
-
-        .intro-paragraphs {
-            font-size: 19px;
-        }
-    }
-
-    .uof-vis-section {
+    .method-header {
         background-color: #f9f9f9;
-        padding: 60px 0;
+        padding: 50px 0 30px;
         font-family: 'Open Sans', Arial, sans-serif;
+        border-bottom: 3px solid var(--temple-cherry, #A41E35);
     }
 
-    .container {
-        max-width: 1200px;
+    .method-header h1 {
+        color: var(--temple-cherry, #A41E35);
+        font-size: 36px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    .method-container {
+        max-width: 900px;
         margin: 0 auto;
         padding: 0 20px;
     }
 
-    .section-title {
-        color: #A41E35; /* Temple cherry */
-        font-size: 32px;
-        margin-bottom: 40px;
-        text-align: center;
+    .method-section {
+        padding: 45px 0;
+        font-family: 'Open Sans', Arial, sans-serif;
+        color: #444;
+    }
+
+    .method-section.alt {
+        background-color: #f9f9f9;
+    }
+
+    .method-section h2 {
+        color: var(--temple-cherry, #A41E35);
+        font-size: 24px;
         font-weight: 700;
+        margin: 0 0 20px;
     }
 
-    .vis-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 30px;
+    .method-section p {
+        font-size: 16px;
+        line-height: 1.7;
+        margin: 0 0 16px;
     }
 
-    .vis-card {
-        background: white;
-        border-radius: 4px;
-        padding: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        transition: transform 0.2s;
-    }
-
-    .vis-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .vis-title {
-        font-size: 20px;
-        margin: 0 0 10px 0;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .vis-meta {
+    .method-section .method-note {
+        font-size: 15px;
+        font-style: italic;
         color: #666;
-        font-size: 14px;
-        margin-bottom: 15px;
+        margin: 12px 0 0;
     }
 
-    .vis-desc {
-        color: #333;
-        font-size: 15px;
-        line-height: 1.5;
-        margin-bottom: 20px;
-    }
-
-    .vis-link {
-        color: #A41E35;
-        text-decoration: none;
+    .method-section .method-lead-in {
+        margin: 14px 0 8px;
         font-weight: 600;
-        font-size: 15px;
-        display: inline-block;
+        color: #333;
     }
 
-    .vis-link:hover {
-        text-decoration: underline;
+    .method-list {
+        margin: 0 0 16px;
+        padding-left: 22px;
+        line-height: 1.7;
+    }
+
+    .method-list li {
+        margin-bottom: 8px;
+    }
+
+    .method-codes {
+        margin: 0 0 16px;
+        padding-left: 22px;
+        line-height: 1.7;
+    }
+
+    .method-codes li {
+        margin-bottom: 6px;
+    }
+
+    .method-steps {
+        margin: 20px 0 0;
+        padding-left: 24px;
+        counter-reset: step;
+    }
+
+    .method-steps > li {
+        margin-bottom: 22px;
+        line-height: 1.7;
+        padding-left: 6px;
+    }
+
+    .method-steps > li::marker {
+        font-weight: 700;
+        color: var(--temple-cherry, #A41E35);
+    }
+
+    .method-substeps {
+        margin: 12px 0 0;
+        padding-left: 24px;
+        line-height: 1.7;
+        color: #555;
+    }
+
+    .method-substeps li {
+        margin-bottom: 6px;
     }
 
     @media (max-width: 768px) {
-        .vis-grid {
-            grid-template-columns: 1fr;
+        .method-header h1 {
+            font-size: 28px;
         }
 
-        .section-title {
-            font-size: 28px;
+        .method-section h2 {
+            font-size: 21px;
         }
     }
 </style>
+
 {% endblock content %}

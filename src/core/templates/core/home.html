@@ -2,10 +2,254 @@
 
 {% block content %}
 
-<div>
-    <iframe class="airtable-embed" src="https://airtable.com/embed/appxCq7GJS6f7w32U/shrUkM5ctRwonLxBG?viewControls=on"
-        frameborder="0" onmousewheel="" width="100%" height="533" style="background: transparent; border: 1px solid #ccc;"></iframe>
-</div>
+<section class="home-intro-section">
+    <div class="container">
+        <h2 class="home-intro-title">Project Background</h2>
+        <p class="home-intro-text">The global rise of cross-border cyber-attacks in the past two decades has led states to convene several high-level interstate processes on the application of international law and the elaboration of norms of state behavior in cyberspace. Prompted by these developments, national governments have also begun releasing statements setting out positions on key questions that arise in this context (42 countries and the 2 state blocks have issued statements as of July 23, 2026; the US, UK and Estonia have issued multiple statements). These intense diplomatic efforts reflect a rising demand for the identification and consolidation of national positions on unsettled questions of law with direct bearing on global peace and security.</p>
+        <p class="home-intro-text">A limited number of independent, UN-based and state-sponsored projects are already underway to collect national position statements and track their language on an issue-by-issue basis, or to contextualize national positions with more information on domestic laws and survey responses. However, no resource currently exists that systematically and objectively breaks down each issue according to a common set of legal indicators and provides comprehensive, up-to-date expert analysis of trends in norms, rules and principles of international law.</p>
+        <p class="home-intro-text">Temple University&rsquo;s Institute for Law, Innovation &amp; Technology (iLIT) and American University have created this project to generate a public-facing, web-based tool, which tracks national positions on the application of international law to cyber operations using a transparent comparative methodology. An analytical tool which tracks trends in national positions will serve the interest of national governments, researchers, and other multistakeholder participants in the international law field.</p>
+        <a href="{% url 'methodology' %}" class="home-intro-link">Read the full methodology →</a>
+    </div>
+</section>
 
+<section class="home-vis-section">
+    <div class="container">
+        <h2 class="section-title">Visualizations</h2>
+        <div class="vis-grid">
+            <div class="vis-card">
+                <h3 class="vis-title">Use of Force</h3>
+                <div class="vis-meta">Sankey Diagram</div>
+                <p class="vis-desc">The states and their responses to all questions in the issue area.</p>
+                <a href="{% url 'uof_sankey' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Use of Force and Democracy Index Score</h3>
+                <div class="vis-meta">Sankey Diagram</div>
+                <p class="vis-desc">Relationship democracy index score -> use of force responses.</p>
+                <a href="{% url 'uof_demscore_sankey' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Use of Force</h3>
+                <div class="vis-meta">Scatter Plot</div>
+                <p class="vis-desc">Overall responses to issue area.</p>
+                <a href="{% url 'uof_scatter' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Use of Force: By Country</h3>
+                <div class="vis-meta">Scatter Plot</div>
+                <p class="vis-desc">Country profile for issue area.</p>
+                <a href="{% url 'uof_by_state_scatter' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Use of Force: Article 51 and NATO membership</h3>
+                <div class="vis-meta">Sankey Diagram</div>
+                <p class="vis-desc">Does the State consider a use of force to be the equivalent of an armed attack (per Article 51 of the UN Charter) subject to the same threshold?</p>
+                <a href="{% url 'uof_q8_nato_sankey' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Use of Force: EU States to EU Comparison</h3>
+                <div class="vis-meta">Table</div>
+                <p class="vis-desc">Comparison of how the EU responses compare to its member states.</p>
+                <a href="{% url 'uof_eu_states_to_eu' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Sovereignty</h3>
+                <div class="vis-meta">Sankey Diagram</div>
+                <p class="vis-desc">The states and their responses to all questions in the issue area.</p>
+                <a href="{% url 'sovereignty_sankey' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Sovereignty and Democracy Index Score</h3>
+                <div class="vis-meta">Sankey Diagram</div>
+                <p class="vis-desc">Relationship democracy index score -> sovereignty responses.</p>
+                <a href="{% url 'sov_demscore_sankey' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Sovereignty: By Country</h3>
+                <div class="vis-meta">Scatter Plot</div>
+                <p class="vis-desc">Country profile for issue area.</p>
+                <a href="{% url 'sov_by_state_scatter' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Sovereignty: EU States to EU Comparison</h3>
+                <div class="vis-meta">Table</div>
+                <p class="vis-desc">Comparison of how the EU responses compare to its member states.</p>
+                <a href="{% url 'sov_eu_states_to_eu' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card">
+                <h3 class="vis-title">Sovereignty: EU States to NON-EU Comparison</h3>
+                <div class="vis-meta">Table</div>
+                <p class="vis-desc">Comparison of how the EU responses compare to non-member states.</p>
+                <a href="{% url 'sov_non_eu_states_to_eu' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <!-- Vis 1 -->
+            <div class="vis-card">
+                <h3 class="vis-title">Non-Intervention</h3>
+                <div class="vis-meta">Sankey Diagram</div>
+                <p class="vis-desc">The states and their responses to all questions in the issue area.</p>
+                <a href="{% url 'nonintervention_sankey' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <!-- Vis 2 -->
+            <div class="vis-card">
+                <h3 class="vis-title">Non-Intervention and Democracy Index Score</h3>
+                <div class="vis-meta">Sankey Diagram</div>
+                <p class="vis-desc">Relationship democracy index score -> sovereignty responses.</p>
+                <a href="{% url 'nonint_demscore_sankey' %}" class="vis-link">Read more →</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .home-intro-section {
+        padding: 55px 0 45px;
+        font-family: 'Open Sans', Arial, sans-serif;
+    }
+
+    .home-intro-section .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px;
+        text-align: left;
+    }
+
+    .home-intro-title {
+        color: var(--temple-cherry, #A41E35);
+        font-size: 28px;
+        font-weight: 700;
+        text-align: center;
+        margin: 0 0 22px;
+    }
+
+    .home-intro-text {
+        font-size: 17px;
+        line-height: 1.7;
+        color: #444;
+        margin: 0 0 16px;
+    }
+
+    .home-intro-link {
+        display: block;
+        text-align: center;
+        margin-top: 8px;
+        color: var(--temple-cherry, #A41E35);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 15px;
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .home-intro-link:hover {
+        color: var(--temple-dark-cherry, #7A0A1C);
+        transform: translateX(3px);
+    }
+
+    .home-vis-section {
+        background-color: #f9f9f9;
+        padding: 60px 0;
+        font-family: 'Open Sans', Arial, sans-serif;
+    }
+
+    .home-vis-section .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .home-vis-section .section-title {
+        color: var(--temple-cherry, #A41E35);
+        font-size: 32px;
+        margin-bottom: 40px;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .vis-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+    }
+
+    .vis-card {
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border-radius: 4px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .vis-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+    }
+
+    .vis-title {
+        font-size: 18px;
+        margin: 0 0 10px 0;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #222;
+    }
+
+    .vis-meta {
+        display: inline-block;
+        align-self: flex-start;
+        background-color: #f0f0f0;
+        color: var(--temple-blue, #005CAB);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-bottom: 15px;
+    }
+
+    .vis-desc {
+        flex: 1;
+        color: #555;
+        font-size: 15px;
+        line-height: 1.55;
+        margin-bottom: 20px;
+    }
+
+    .vis-link {
+        align-self: flex-start;
+        color: var(--temple-cherry, #A41E35);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 15px;
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .vis-link:hover {
+        color: var(--temple-dark-cherry, #7A0A1C);
+        transform: translateX(3px);
+    }
+
+    @media (max-width: 768px) {
+        .vis-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .home-vis-section .section-title {
+            font-size: 26px;
+        }
+    }
+</style>
 
 {% endblock content %}

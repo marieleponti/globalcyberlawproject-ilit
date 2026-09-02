@@ -9,6 +9,7 @@ urlpatterns = [
     path('uof', views.use_of_force, name='use_of_force'),
     path('sovereignty', views.sovereignty, name='sovereignty'),
     path('nonintervention', views.nonintervention, name='nonintervention'),
+    path('selfdefense', views.selfdefense, name='selfdefense'),
     path('uof-sankey', views.uof_sankey, name='uof_sankey'),
     path('uof-demscore-sankey', views.uof_demscore_sankey, name='uof_demscore_sankey'),
     path('uof-scatter', views.uof_scatter, name='uof_scatter'),
@@ -24,4 +25,5 @@ urlpatterns = [
     path('nonintervention-sankey', views.nonintervention_sankey, name='nonintervention_sankey'),
     path('nonint-demscore-sankey', views.nonintervention_demscore_sankey, name='nonint_demscore_sankey'),
     path('sov-by-state-scatter', views.sovereignty_by_state_scatter, name='sov_by_state_scatter'),
+    path('selfdefense-sankey', views.selfdefense_sankey, name='selfdefense_sankey'),
 ]

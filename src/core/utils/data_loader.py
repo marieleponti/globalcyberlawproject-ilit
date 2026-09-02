@@ -4,7 +4,7 @@ from django.conf import settings
 
 def load_uof_data():
     """Carga los datos de Use of Force"""
-    uof_data = settings.BASE_DIR / 'data' / 'uof-mar2026.csv'
+    uof_data = settings.BASE_DIR / 'data' / 'uof-aug2026.csv'
     df = pd.read_csv(uof_data)
     df = df.rename(columns={'ISO': 'iso'})
     return df
@@ -39,8 +39,8 @@ def load_sovereignty_citations_data():
     return df
 
 def load_nonintervention_data():
-    """Carga los datos de Sovereignty"""
-    sovereignty_data = settings.BASE_DIR / 'data' / 'nonintervention-mar2026.csv'
+    """Carga los datos de Nonintervention"""
+    sovereignty_data = settings.BASE_DIR / 'data' / 'nonintervention-aug2026.csv'
     df = pd.read_csv(sovereignty_data)
     df = df.rename(columns={'ISO': 'iso'})
     return df
@@ -49,6 +49,20 @@ def load_nonintervention_citations_data():
     """Carga los datos de Sovereignty"""
     sovereignty_data = settings.BASE_DIR / 'data' / 'nonintervention_citations-feb2026.csv'
     df = pd.read_csv(sovereignty_data)
+    df = df.rename(columns={'ISO': 'iso'})
+    return df
+
+def load_selfdefense_data():
+    """Carga los datos de Self defense"""
+    selfdefense_data = settings.BASE_DIR / 'data' / 'selfdefense-aug2026.csv'
+    df = pd.read_csv(selfdefense_data)
+    df = df.rename(columns={'ISO': 'iso'})
+    return df
+
+def load_selfdefense_citations_data():
+    """Carga los datos de Self defense"""
+    selfdefense_citations_data = settings.BASE_DIR / 'data' / 'selfdefense_citations_extracted-aug2026.csv'
+    df = pd.read_csv(selfdefense_citations_data)
     df = df.rename(columns={'ISO': 'iso'})
     return df
 

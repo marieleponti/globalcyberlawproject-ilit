@@ -1,0 +1,224 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="uof-into-header">
+    <div class="header-wrapper">
+        <span class="uof-into-label">Questions</span>
+        <h1>Self Defense</h1>
+
+        <div class="questions">
+            <ol>
+                <li>Does Article 51 of the UN Charter apply in the cyber context?</li>
+                <li>Do States have a right of self-defense in the cyber context as a matter of customary international law independent of the obligations assumed under Article 51 of the UN Charter?</li>
+                <li>Is the scope of any independent right of self-defense co-extensive with the obligations assumed under Article 51 of the UN Charter?</li>
+                <li>Does a State&rsquo;s right of self-defense apply to actions conducted by non-state actors acting without the involvement of another State(s)?</li>
+                <li>Is the right of self-defense triggered solely if an armed attack is attributable to a State according to the applicable rules of customary international law of State responsibility?</li>
+                <li>Can a State exercise self-defense on the basis that the territorial state would be &ldquo;unwilling and unable&rdquo; to repress non-state actors whose cyber operations have extraterritorial effects that would rise to the level of an armed attack if conducted by a State?</li>
+                <li>Is the exercise of the right of self-defense subject to the principle of necessity?</li>
+                <li>Must force be the only option available to successfully repel an armed attack under the right of self-defense?</li>
+                <li>Is the exercise of the right of self-defense subject to the principle of proportionality?</li>
+                <li>Is the exercise of the right of self-defense subject to the principle of imminence?</li>
+                <li>Is the exercise of the right of self-defense subject to the principle of immediacy?</li>
+                <li>Do States have a right of anticipatory or pre-emptive self-defense?</li>
+                <li>Do States have a right to preventative self-defense?</li>
+                <li>Must a cyber operation involve the use of a weapon or weapons to qualify as an armed attack?</li>
+                <li>Can a cyber operation alone constitute an armed attack for purposes of triggering the right of self-defense?</li>
+                <li>Must a decision that a cyber operation constitute an armed attack triggering a right of self-defense be made on a case-by-case basis or by considering all the circumstances?</li>
+                <li>Can a cyber operation qualify as an armed attack under Article 51 of the UN Charter if the effects generated are comparable to effects resulting from an action that would otherwise qualify as an armed attack?</li>
+                <li>Must a cyber operation involve consequences of a certain scale and effects to qualify as an attack?</li>
+                <li>Must a cyber operation cause some level of death or injury to persons, or damage or destruction to property, to qualify as an armed attack?</li>
+                <li>Can any unlawful cyber use of force in violation of Art. 2(4) of the UN Charter trigger a State&rsquo;s right of self-defense?</li>
+                <li>Do only the most grave uses of force qualify a cyber operation as an armed attack triggering a State&rsquo;s right of self-defense?</li>
+                <li>Can losses of functionality from a cyber operation without accompanying death or injury or damage or destruction to property constitute an armed attack?</li>
+                <li>Can cyber operations producing significant economic effects such as the collapse of a State&rsquo;s financial system, or the degradation of parts of its economy or critical infrastructure, qualify as an armed attack?</li>
+                <li>Can cyber operations that individually fall below the threshold of an armed attack aggregate into an armed attack triggering the right of self-defense?</li>
+                <li>Must the State or entity conducting a cyber operation intend to cause harms that qualify the operation as an armed attack to trigger a right of self-defense in the State that is attacked?</li>
+                <li>Must the State or entity conducting a cyber operation produce reasonably foreseeable harms qualifying the operation as an armed attack to trigger a right of self-defense in the State that is attacked?</li>
+                <li>Can cyber operations causing harms sufficient to qualify the operation as an armed attack trigger a third State&rsquo;s right of self-defense if it was not the target of those operations?</li>
+                <li>Can non-affected States exercise collective self-defense in response to a cyber operation or operations constituting an armed attack against an affected State?</li>
+                <li>Must a State exercising collective self-defense in response to a cyber operation(s) constituting an armed attack have the victim state request or consent to such actions?</li>
+                <li>In its response to a cyber operation or operations qualifying as an armed attack, is the injured state limited to cyber means in response?</li>
+                <li>Must a State employing the right of self-defense in response to a cyber operation or operations constituting an armed attack report its actions to the UN Security Council?</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<section class="uof-vis-section">
+    <div class="container">
+        <h2 class="section-title">Visualizations</h2>
+        <div class="vis-grid">
+
+            <div class="vis-card">
+                <h3 class="vis-title">Self Defense</h3>
+                <div class="vis-meta">Sankey Diagram</div>
+                <p class="vis-desc">The states and their responses to all questions in the issue area.</p>
+                <a href="{% url 'selfdefense_sankey' %}" class="vis-link">Read more →</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .uof-into-header {
+        font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+        color: #222;
+        max-width: 1000px;
+        margin: 50px auto;
+        padding: 0 30px;
+    }
+
+    .header-wrapper {
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 35px;
+    }
+
+    .uof-into-label {
+        display: block;
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: #999;
+        margin-bottom: 10px;
+    }
+
+    .uof-into-header h1 {
+        font-size: 42px;
+        font-weight: 500;
+        line-height: 1.15;
+        margin: 0 0 28px 0;
+        color: var(--temple-cherry, #A41E35);
+        text-transform: uppercase;
+    }
+
+    .questions {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        font-size: 17px;
+        color: #444;
+        line-height: 1.7;
+    }
+
+    .questions ol {
+        margin: 0;
+        padding-left: 24px;
+    }
+
+    .questions li {
+        margin-bottom: 14px;
+    }
+
+    @media (max-width: 768px) {
+        .uof-into-header {
+            padding: 0 20px;
+            margin: 40px auto;
+        }
+
+        .uof-into-header h1 {
+            font-size: 32px;
+        }
+
+        .questions {
+            font-size: 16px;
+        }
+    }
+
+    .uof-vis-section {
+        background-color: #f9f9f9;
+        padding: 60px 0;
+        font-family: 'Open Sans', Arial, sans-serif;
+    }
+
+    .uof-vis-section .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .uof-vis-section .section-title {
+        color: var(--temple-cherry, #A41E35);
+        font-size: 32px;
+        margin-bottom: 40px;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .vis-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+    }
+
+    .vis-card {
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border-radius: 4px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .vis-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+    }
+
+    .vis-title {
+        font-size: 18px;
+        margin: 0 0 10px 0;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #222;
+    }
+
+    .vis-meta {
+        display: inline-block;
+        align-self: flex-start;
+        background-color: #f0f0f0;
+        color: var(--temple-blue, #005CAB);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-bottom: 15px;
+    }
+
+    .vis-desc {
+        flex: 1;
+        color: #555;
+        font-size: 15px;
+        line-height: 1.55;
+        margin-bottom: 20px;
+    }
+
+    .vis-link {
+        align-self: flex-start;
+        color: var(--temple-cherry, #A41E35);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 15px;
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .vis-link:hover {
+        color: var(--temple-dark-cherry, #7A0A1C);
+        transform: translateX(3px);
+    }
+
+    @media (max-width: 768px) {
+        .vis-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .uof-vis-section .section-title {
+            font-size: 26px;
+        }
+    }
+</style>
+
+{% endblock content %}

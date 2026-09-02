@@ -400,13 +400,22 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
     return sankey_figs
 
 
+def truncate_label(text, max_length=80):
+    """Shortens a question for display in the dropdown button, so very
+    long questions (e.g. Self Defense) don't force the dropdown box wider
+    than the chart area and get visually clipped."""
+    if len(text) <= max_length:
+        return text
+    return text[:max_length].rstrip() + "..."
+
+
 def create_sankey_dropdown_menu(target_columns):
     """Crea el menú desplegable para los Sankeys"""
     return {
         'buttons': [
             {
                 'args': [{'visible': [j == i for j in range(len(target_columns))]}],
-                'label': target,
+                'label': truncate_label(target),
                 'method': 'update'
             } for i, target in enumerate(target_columns)
         ],
@@ -553,23 +562,36 @@ def create_uof_art51_nato_sankey(df_force, df_nato):
     return fig
 
 
+QUESTION_PREFIX_PATTERN = re.compile(
+    r'^\s*(?:'
+    r'\(\d+(?:\.\d+)*\)'
+    r'|\d+[a-zA-Z]\)'
+    r'|\d+[a-zA-Z]\.'
+    r'|\d+(?:\.\d+)*\.'
+    r'|\d+(?:\.\d+)*\)'
+    r'|\d+(?:\.\d+)*(?=\()'
+    r'|\([a-zA-Z]\)'
+    r'|[a-zA-Z]\)'
+    r'|[a-zA-Z]\.(?=\s|$)'
+    r'|\([ivxlcdmIVXLCDM]+\))'
+    r'\s*'
+)
+
+
 def clean_question(text):
-    """
-    Limpia prefijos
-    """
     if pd.isna(text):
         return text
-    # 1️⃣ eliminar número inicial (incluye 1.1, 2.3.4, etc.)
-    text = re.sub(r'^\s*\d+(?:\.\d+)*\s*', '', text)
-    # 2️⃣ eliminar todos los bloques tipo (algo) al inicio
-    text = re.sub(r'^(\s*\([^)]+\))+', '', text)
-    # 3️⃣ eliminar puntuación residual al inicio
+    text = text.strip()
+    text = re.sub(r'\s+', ' ', text)
+    prev = None
+    while prev != text:
+        prev = text
+        text = QUESTION_PREFIX_PATTERN.sub('', text, count=1)
     text = re.sub(r'^\s*[\.\:\-\–]+\s*', '', text)
+    text = text.rstrip('?. ')
     text = text.strip().lower()
-    # 4️⃣ capitalizar primera letra
     if text:
         text = text[0].upper() + text[1:]
-
     return text
 
 import textwrap

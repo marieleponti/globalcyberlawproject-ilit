@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.js-plotly-plot').forEach(function (plotDiv) {
     plotDiv.on('plotly_click', function (data) {
       const point = data.points[0];
-      const url = point.customdata && point.customdata[1];
+      const url = point.customdata && point.customdata[2];
       if (url) {
         window.open(url, '_blank', 'noopener');
       }

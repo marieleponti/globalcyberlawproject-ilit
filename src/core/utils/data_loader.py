@@ -11,7 +11,7 @@ def load_uof_data():
 
 def load_uof_citations_data():
     """Carga los datos de Use of Force"""
-    uof_data = settings.BASE_DIR / 'data' / 'uof_citations-feb2026.csv'
+    uof_data = settings.BASE_DIR / 'data' / 'uof_citations_extracted-aug2026.csv'
     df = pd.read_csv(uof_data)
     df = df.rename(columns={'ISO': 'iso'})
     return df
@@ -47,7 +47,7 @@ def load_nonintervention_data():
 
 def load_nonintervention_citations_data():
     """Carga los datos de Sovereignty"""
-    sovereignty_data = settings.BASE_DIR / 'data' / 'nonintervention_citations-feb2026.csv'
+    sovereignty_data = settings.BASE_DIR / 'data' / 'nonintervention_citations_extracted-aug2026.csv'
     df = pd.read_csv(sovereignty_data)
     df = df.rename(columns={'ISO': 'iso'})
     return df

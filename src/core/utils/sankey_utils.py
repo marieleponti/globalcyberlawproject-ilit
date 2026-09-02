@@ -62,13 +62,19 @@ def create_sankey_data(df_long):
 
         df_grouped.columns = ['source', 'target', 'value', 'citation', 'pincite', 'url']
 
-        # Only show the "Source:" label when there's an actual source --
-        # keeps the tooltip clean instead of showing an empty/placeholder label.
+        # Only show each label when there's real content -- keeps the
+        # tooltip clean instead of showing empty/placeholder labels.
+        def format_citation(c):
+            if c and c != 'No citation available':
+                return f"<br><br><b>Citation:</b><br>{c}"
+            return ""
+
         def format_pincite(p):
             if p and p != 'No source available':
                 return f"<br><br><b>Source:</b><br>{p}"
             return ""
 
+        df_grouped['citation_display'] = df_grouped['citation'].apply(format_citation)
         df_grouped['pincite_display'] = df_grouped['pincite'].apply(format_pincite)
 
         unique_labels = pd.unique(
@@ -90,11 +96,11 @@ def create_sankey_data(df_long):
             'target': df_grouped['target'].map(mapping_dict),
             'value': df_grouped['value'],
             'color': 'rgba(150,150,150,0.3)',
-            'customdata': df_grouped[['pincite_display', 'url']].values,
+            'customdata': df_grouped[['citation_display', 'pincite_display', 'url']].values,
             'hovertemplate': (
-                '<b>%{source.label} → %{target.label}</b><br><br>'
-                '<b>Responses:</b> %{value}'
+                '<b>%{source.label} → %{target.label}</b>'
                 '%{customdata[0]}'
+                '%{customdata[1]}'
                 '<extra></extra>'
             )
         }
@@ -233,6 +239,9 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
             'Citation': lambda x: '; '.join(
                 sorted(set(str(i) for i in x if pd.notna(i)))
             ),
+            'Pincite_Text': lambda x: '; '.join(
+                sorted(set(str(i) for i in x if pd.notna(i)))
+            ),
             'Source_URL': lambda x: next((u for u in x if pd.notna(u) and u), "")
         })
     )
@@ -254,7 +263,8 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
 
         # 🔹 Merge con citas
         question_clean = clean_question(question)
-        citations_filtered = df_citations[df_citations['Question_clean'] == question_clean][['iso','Answer','Citation','Source_URL']]
+        citations_filtered = df_citations[df_citations['Question_clean'] == question_clean][
+            ['iso', 'Answer', 'Citation', 'Pincite_Text', 'Source_URL']]
 
         merged_df = merged_df.merge(
             citations_filtered,
@@ -264,6 +274,7 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
         )
 
         merged_df['Citation'] = merged_df['Citation'].fillna("No citation available")
+        merged_df['Pincite_Text'] = merged_df['Pincite_Text'].fillna("No source available")
         merged_df['Source_URL'] = merged_df['Source_URL'].fillna("")
         merged_df['iso'] = merged_df['iso'].astype(str)
 
@@ -305,6 +316,9 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
                 citation=('Citation', lambda x: wrap_text(
                     '; '.join(sorted(set(str(i) for i in x if pd.notna(i)))), 60
                 )),
+                pincite=('Pincite_Text', lambda x: wrap_text(
+                    '; '.join(sorted(set(str(i) for i in x if pd.notna(i)))), 60
+                )),
                 url=('Source_URL', lambda x: next((u for u in x if u), ""))
             )
             .reset_index()
@@ -316,13 +330,16 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
                 'target': node_indices[row['score_range']],
                 'value': row['count']
             })
-            # Only show the "Citation:" label when there's an actual citation --
-            # keeps the tooltip clean instead of showing an empty label.
+            # Only show each label when there's real content.
             if row['citation'] and row['citation'] != 'No citation available':
-                citation_display = f"<b>Citation:</b><br>{row['citation']}"
+                citation_display = f"<br><br><b>Citation:</b><br>{row['citation']}"
             else:
                 citation_display = ""
-            customdata.append([citation_display, row['url']])
+            if row['pincite'] and row['pincite'] != 'No source available':
+                pincite_display = f"<br><br><b>Source:</b><br>{row['pincite']}"
+            else:
+                pincite_display = ""
+            customdata.append([citation_display, pincite_display, row['url']])
 
         # ==============================
         # 🔹 Stage 2: score_range → response (solo valores)
@@ -340,7 +357,7 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
                 'target': node_indices[row[question]],
                 'value': row['count']
             })
-            customdata.append(["", ""])  # no citation for this stage
+            customdata.append(["", "", ""])  # no citation for this stage
 
         # ==============================
         # 🔹 Crear la figura Sankey
@@ -363,9 +380,9 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
                 color='rgba(150,150,150,0.3)',
                 customdata=customdata,
                 hovertemplate=(
-                    '<b>%{source.label} → %{target.label}</b><br><br>'
-                    '<b>Count:</b> %{value}'
+                    '<b>%{source.label} → %{target.label}</b>'
                     '%{customdata[0]}'
+                    '%{customdata[1]}'
                     '<extra></extra>'
                 )
             ),

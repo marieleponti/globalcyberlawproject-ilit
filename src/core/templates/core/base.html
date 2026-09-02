@@ -258,10 +258,11 @@
             <li class="dropdown">
                 <a href="">Issues</a>
                 <ul class="dropdown-menu">
-                    <li><a href="{% url 'use_of_force' %}">Use of Force</a></li>
                     <li><a href="{% url 'sovereignty' %}">Sovereignty</a></li>
                     <li><a href="{% url 'nonintervention' %}">Nonintervention</a></li>
-                    <li><a href="">Countermeasures</a></li>
+                    <li><a href="{% url 'use_of_force' %}">Use of Force</a></li>
+                    <li><a href="{% url 'selfdefense' %}">Self Defense</a></li>
+
                 </ul>
             </li>
             <li><a href="{% url 'source_docs' %}">Source Material</a></li>

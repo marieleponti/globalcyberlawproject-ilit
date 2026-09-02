@@ -15,78 +15,89 @@
 <section class="home-vis-section">
     <div class="container">
         <h2 class="section-title">Visualizations</h2>
+
+        <div class="vis-toggle-group" role="tablist" aria-label="Filter visualizations by issue area">
+            <button type="button" class="vis-toggle active" data-category="all">All</button>
+            <button type="button" class="vis-toggle" data-category="use-of-force">Use of Force</button>
+            <button type="button" class="vis-toggle" data-category="sovereignty">Sovereignty</button>
+            <button type="button" class="vis-toggle" data-category="non-intervention">Non-Intervention</button>
+            <button type="button" class="vis-toggle" data-category="self-defense">Self Defense</button>
+        </div>
+
+        <p class="vis-empty-message" hidden>No visualizations are available for this issue area yet.</p>
+
         <div class="vis-grid">
-            <div class="vis-card">
+            <div class="vis-card" data-category="use-of-force">
                 <h3 class="vis-title">Use of Force</h3>
                 <div class="vis-meta">Sankey Diagram</div>
                 <p class="vis-desc">The states and their responses to all questions in the issue area.</p>
                 <a href="{% url 'uof_sankey' %}" class="vis-link">Read more →</a>
             </div>
 
-            <div class="vis-card">
+            <div class="vis-card" data-category="use-of-force">
                 <h3 class="vis-title">Use of Force and Democracy Index Score</h3>
                 <div class="vis-meta">Sankey Diagram</div>
                 <p class="vis-desc">Relationship democracy index score -> use of force responses.</p>
                 <a href="{% url 'uof_demscore_sankey' %}" class="vis-link">Read more →</a>
             </div>
 
-            <div class="vis-card">
+            <div class="vis-card" data-category="use-of-force">
                 <h3 class="vis-title">Use of Force</h3>
                 <div class="vis-meta">Scatter Plot</div>
                 <p class="vis-desc">Overall responses to issue area.</p>
                 <a href="{% url 'uof_scatter' %}" class="vis-link">Read more →</a>
             </div>
 
-            <div class="vis-card">
+            <div class="vis-card" data-category="use-of-force">
                 <h3 class="vis-title">Use of Force: By Country</h3>
                 <div class="vis-meta">Scatter Plot</div>
                 <p class="vis-desc">Country profile for issue area.</p>
                 <a href="{% url 'uof_by_state_scatter' %}" class="vis-link">Read more →</a>
             </div>
 
-            <div class="vis-card">
+            <div class="vis-card" data-category="use-of-force">
                 <h3 class="vis-title">Use of Force: Article 51 and NATO membership</h3>
                 <div class="vis-meta">Sankey Diagram</div>
                 <p class="vis-desc">Does the State consider a use of force to be the equivalent of an armed attack (per Article 51 of the UN Charter) subject to the same threshold?</p>
                 <a href="{% url 'uof_q8_nato_sankey' %}" class="vis-link">Read more →</a>
             </div>
 
-            <div class="vis-card">
+            <div class="vis-card" data-category="use-of-force">
                 <h3 class="vis-title">Use of Force: EU States to EU Comparison</h3>
                 <div class="vis-meta">Table</div>
                 <p class="vis-desc">Comparison of how the EU responses compare to its member states.</p>
                 <a href="{% url 'uof_eu_states_to_eu' %}" class="vis-link">Read more →</a>
             </div>
 
-            <div class="vis-card">
+            <div class="vis-card" data-category="sovereignty">
                 <h3 class="vis-title">Sovereignty</h3>
                 <div class="vis-meta">Sankey Diagram</div>
                 <p class="vis-desc">The states and their responses to all questions in the issue area.</p>
                 <a href="{% url 'sovereignty_sankey' %}" class="vis-link">Read more →</a>
             </div>
 
-            <div class="vis-card">
+            <div class="vis-card" data-category="sovereignty">
                 <h3 class="vis-title">Sovereignty and Democracy Index Score</h3>
                 <div class="vis-meta">Sankey Diagram</div>
                 <p class="vis-desc">Relationship democracy index score -> sovereignty responses.</p>
                 <a href="{% url 'sov_demscore_sankey' %}" class="vis-link">Read more →</a>
             </div>
 
-            <div class="vis-card">
+            <div class="vis-card" data-category="sovereignty">
                 <h3 class="vis-title">Sovereignty: By Country</h3>
                 <div class="vis-meta">Scatter Plot</div>
                 <p class="vis-desc">Country profile for issue area.</p>
                 <a href="{% url 'sov_by_state_scatter' %}" class="vis-link">Read more →</a>
             </div>
 
-            <div class="vis-card">
+            <div class="vis-card" data-category="sovereignty">
                 <h3 class="vis-title">Sovereignty: EU States to EU Comparison</h3>
                 <div class="vis-meta">Table</div>
                 <p class="vis-desc">Comparison of how the EU responses compare to its member states.</p>
                 <a href="{% url 'sov_eu_states_to_eu' %}" class="vis-link">Read more →</a>
             </div>
 
-            <div class="vis-card">
+            <div class="vis-card" data-category="sovereignty">
                 <h3 class="vis-title">Sovereignty: EU States to NON-EU Comparison</h3>
                 <div class="vis-meta">Table</div>
                 <p class="vis-desc">Comparison of how the EU responses compare to non-member states.</p>
@@ -94,7 +105,7 @@
             </div>
 
             <!-- Vis 1 -->
-            <div class="vis-card">
+            <div class="vis-card" data-category="non-intervention">
                 <h3 class="vis-title">Non-Intervention</h3>
                 <div class="vis-meta">Sankey Diagram</div>
                 <p class="vis-desc">The states and their responses to all questions in the issue area.</p>
@@ -102,11 +113,18 @@
             </div>
 
             <!-- Vis 2 -->
-            <div class="vis-card">
+            <div class="vis-card" data-category="non-intervention">
                 <h3 class="vis-title">Non-Intervention and Democracy Index Score</h3>
                 <div class="vis-meta">Sankey Diagram</div>
                 <p class="vis-desc">Relationship democracy index score -> sovereignty responses.</p>
                 <a href="{% url 'nonint_demscore_sankey' %}" class="vis-link">Read more →</a>
+            </div>
+
+            <div class="vis-card" data-category="self-defense">
+                <h3 class="vis-title">Self Defense</h3>
+                <div class="vis-meta">Sankey Diagram</div>
+                <p class="vis-desc">The states and their responses to all questions in the issue area.</p>
+                <a href="{% url 'selfdefense_sankey' %}" class="vis-link">Read more →</a>
             </div>
         </div>
     </div>
@@ -171,9 +189,48 @@
     .home-vis-section .section-title {
         color: var(--temple-cherry, #A41E35);
         font-size: 32px;
-        margin-bottom: 40px;
+        margin-bottom: 30px;
         text-align: center;
         font-weight: 700;
+    }
+
+    .vis-toggle-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 40px;
+    }
+
+    .vis-toggle {
+        font-family: 'Open Sans', Arial, sans-serif;
+        background: #fff;
+        border: 2px solid var(--temple-cherry, #A41E35);
+        color: var(--temple-cherry, #A41E35);
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding: 9px 20px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    }
+
+    .vis-toggle:hover {
+        transform: translateY(-2px);
+    }
+
+    .vis-toggle.active {
+        background-color: var(--temple-cherry, #A41E35);
+        color: #fff;
+    }
+
+    .vis-empty-message {
+        text-align: center;
+        color: #777;
+        font-size: 15px;
+        margin: 0 0 30px;
     }
 
     .vis-grid {
@@ -190,6 +247,10 @@
         padding: 25px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .vis-card.is-hidden {
+        display: none;
     }
 
     .vis-card:hover {
@@ -251,5 +312,32 @@
         }
     }
 </style>
+
+<script>
+    (function () {
+        var toggles = document.querySelectorAll('.vis-toggle');
+        var cards = document.querySelectorAll('.vis-card');
+        var emptyMessage = document.querySelector('.vis-empty-message');
+
+        toggles.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                toggles.forEach(function (b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+
+                var category = btn.getAttribute('data-category');
+                var visibleCount = 0;
+
+                cards.forEach(function (card) {
+                    var cardCategories = (card.getAttribute('data-category') || '').split(' ');
+                    var show = category === 'all' || cardCategories.indexOf(category) !== -1;
+                    card.classList.toggle('is-hidden', !show);
+                    if (show) visibleCount++;
+                });
+
+                emptyMessage.hidden = visibleCount !== 0;
+            });
+        });
+    })();
+</script>
 
 {% endblock content %}

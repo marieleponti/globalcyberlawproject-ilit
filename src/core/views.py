@@ -3,7 +3,8 @@ import plotly.offline as opy
 from nat_state_vis_app import settings
 from django.shortcuts import render
 from core.utils.data_loader import load_uof_data, load_sovereignty_data, load_sovereignty_citations_data, \
-    load_democracy_data, get_questions, load_uof_citations_data, load_nonintervention_citations_data
+    load_democracy_data, get_questions, load_uof_citations_data, load_nonintervention_citations_data, \
+    load_selfdefense_data, load_selfdefense_citations_data
 from core.utils.sankey_utils import create_sankey_figure, create_issue_demscore_sankey_figure
 from core.utils.scatter_utils import create_uof_scatter_figure, create_by_state_scatter_figure
 from core.utils.html_utils import generate_sankey_html, generate_plot_html, generate_error_html
@@ -42,6 +43,8 @@ def sovereignty(request):
 def nonintervention(request):
     return render(request, 'core/nonintervention.html')
 
+def selfdefense(request):
+    return render(request, 'core/selfdefense.html')
 
 def uof_sankey(request):
     try:
@@ -258,4 +261,16 @@ def sovereignty_by_state_scatter(request):
     except Exception as e:
         return render(request, 'core/sov_by_state_scatter.html', {
             'sov_by_state_scatter': generate_error_html(str(e))
+        })
+
+def selfdefense_sankey(request):
+    try:
+        df = load_selfdefense_data()
+        df_citations = load_selfdefense_citations_data()
+        fig = create_sankey_figure(df, df_citations, title="STATE RESPONSES ON SELF DEFENSE")
+        sankey_html = generate_sankey_html(fig)
+        return render(request, 'core/selfdefense_sankey.html', {'selfdefense_sankey': sankey_html})
+    except Exception as e:
+        return render(request, 'core/selfdefense_sankey.html', {
+            'selfdefense_sankey': generate_error_html(str(e))
         })

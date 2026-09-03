@@ -1,0 +1,118 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Contact Us — Global Cyber Law Resource Project{% endblock %}
+
+{% block content %}
+<style>
+    .contact-wrap {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    .contact-wrap h2 {
+        color: var(--temple-cherry);
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: var(--temple-dark-gray);
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: 'Open Sans', Arial, sans-serif;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
+    .form-group textarea {
+        resize: vertical;
+    }
+    .form-errors {
+        color: var(--temple-dark-cherry);
+        font-size: 13px;
+        margin-top: 4px;
+    }
+    .submit-btn {
+        background-color: var(--temple-cherry);
+        color: var(--temple-white);
+        border: none;
+        padding: 12px 28px;
+        font-weight: 600;
+        font-size: 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .submit-btn:hover {
+        background-color: var(--temple-dark-cherry);
+    }
+    .alert {
+        padding: 14px 18px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        font-size: 15px;
+    }
+    .alert-success {
+        background-color: #e6f4ea;
+        border-left: 4px solid #2e7d32;
+        color: #1b4d1b;
+    }
+    .alert-error {
+        background-color: #fbe4e4;
+        border-left: 4px solid #c0392b;
+        color: #922b21;
+    }
+</style>
+
+<div class="contact-wrap">
+    <h2>Contact Us</h2>
+    <p>Have a question, correction, or want to collaborate? Send us a message below.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.name.id_for_label }}">Name</label>
+            {{ form.name }}
+            {% if form.name.errors %}<div class="form-errors">{{ form.name.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email }}
+            {% if form.email.errors %}<div class="form-errors">{{ form.email.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.topic.id_for_label }}">Subject</label>
+            {{ form.topic }}
+            {% if form.topic.errors %}<div class="form-errors">{{ form.topic.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.message.id_for_label }}">Message</label>
+            {{ form.message }}
+            {% if form.message.errors %}<div class="form-errors">{{ form.message.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <button type="submit" class="submit-btn">Send Message</button>
+    </form>
+</div>
+{% endblock %}

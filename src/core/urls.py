@@ -26,4 +26,5 @@ urlpatterns = [
     path('nonint-demscore-sankey', views.nonintervention_demscore_sankey, name='nonint_demscore_sankey'),
     path('sov-by-state-scatter', views.sovereignty_by_state_scatter, name='sov_by_state_scatter'),
     path('selfdefense-sankey', views.selfdefense_sankey, name='selfdefense_sankey'),
+    path('contact', views.contact, name='contact'),
 ]

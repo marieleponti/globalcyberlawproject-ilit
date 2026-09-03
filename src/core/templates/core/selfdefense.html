@@ -6,7 +6,8 @@
 <div class="uof-into-header">
     <div class="header-wrapper">
         <span class="uof-into-label">Questions</span>
-        <div class="questions">
+        <button type="button" class="questions-toggle" aria-expanded="false">Show Questions</button>
+        <div class="questions" hidden>
             <strong>
                 <ol>
                     <ul>
@@ -189,6 +190,25 @@
         color: #444;
         text-transform: uppercase;
     }
+    .questions-toggle {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        background: #fff;
+        border: 2px solid #A41E35;
+        color: #A41E35;
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding: 9px 20px;
+        border-radius: 999px;
+        cursor: pointer;
+        margin-bottom: 24px;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .questions-toggle:hover {
+        background-color: #A41E35;
+        color: #fff;
+    }
     .questions {
         font-family: 'Helvetica Neue', Arial, sans-serif;
         font-size: 17px;
@@ -278,4 +298,24 @@
         }
     }
 </style>
+
+<script>
+    (function () {
+        var toggleBtn = document.querySelector('.questions-toggle');
+        var questions = document.querySelector('.questions');
+
+        toggleBtn.addEventListener('click', function () {
+            var isHidden = questions.hasAttribute('hidden');
+            if (isHidden) {
+                questions.removeAttribute('hidden');
+                toggleBtn.textContent = 'Hide Questions';
+                toggleBtn.setAttribute('aria-expanded', 'true');
+            } else {
+                questions.setAttribute('hidden', '');
+                toggleBtn.textContent = 'Show Questions';
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    })();
+</script>
 {% endblock content %}

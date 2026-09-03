@@ -19,6 +19,9 @@ from core.utils.data_loader import load_nonintervention_data
 # from core.utils.state_comparison_utils import create_state_comparison_table
 from core.utils.data_loader import load_uof_transposed_data
 from core.utils.members_comparison_utils import create_eu_non_members_comparison_table
+from django.contrib import messages
+from django.core.mail import EmailMessage
+from core.forms import ContactForm, TOPIC_CHOICES
 
 
 # Create your views here.
@@ -274,3 +277,40 @@ def selfdefense_sankey(request):
         return render(request, 'core/selfdefense_sankey.html', {
             'selfdefense_sankey': generate_error_html(str(e))
         })
+
+
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            topic = form.cleaned_data['topic']
+            message = form.cleaned_data['message']
+            topic_display = dict(TOPIC_CHOICES).get(topic, topic)
+
+            subject = f"[GCRP Contact Form] {topic_display} — {name}"
+            body = (
+                f"Name: {name}\n"
+                f"Email: {email}\n"
+                f"Topic: {topic_display}\n\n"
+                f"Message:\n{message}"
+            )
+
+            try:
+                email_msg = EmailMessage(
+                    subject=subject,
+                    body=body,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[settings.CONTACT_RECIPIENT_EMAIL],
+                    reply_to=[email],
+                )
+                email_msg.send(fail_silently=False)
+                messages.success(request, "Thanks for reaching out — we've received your message and will respond soon.")
+                return redirect('contact')
+            except Exception:
+                messages.error(request, "Something went wrong sending your message. Please try again later or email us directly.")
+    else:
+        form = ContactForm()
+
+    return render(request, 'core/contact.html', {'form': form})

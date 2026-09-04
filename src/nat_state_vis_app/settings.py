@@ -180,6 +180,7 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 CONTACT_RECIPIENT_EMAIL = os.environ.get("CONTACT_RECIPIENT_EMAIL", EMAIL_HOST_USER)
+EMAIL_TIMEOUT = 10
 
 #To allow contact form submission on Render
 CSRF_TRUSTED_ORIGINS = ['https://globalcyberlaw.onrender.com']

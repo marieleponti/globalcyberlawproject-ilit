@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 import plotly.offline as opy
 from nat_state_vis_app import settings
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from core.utils.data_loader import load_uof_data, load_sovereignty_data, load_sovereignty_citations_data, \
     load_democracy_data, get_questions, load_uof_citations_data, load_nonintervention_citations_data, \
     load_selfdefense_data, load_selfdefense_citations_data
@@ -308,7 +308,8 @@ def contact(request):
                 email_msg.send(fail_silently=False)
                 messages.success(request, "Thanks for reaching out — we've received your message and will respond soon.")
                 return redirect('contact')
-            except Exception:
+            except Exception as e:
+                print(f"EMAIL ERROR: {e}")
                 messages.error(request, "Something went wrong sending your message. Please try again later or email us directly.")
     else:
         form = ContactForm()

@@ -16,7 +16,6 @@ from core.utils.data_loader import load_nato_data
 from core.utils.sankey_utils import create_uof_art51_nato_sankey
 from core.utils.html_utils import generate_sunburst_html
 from core.utils.data_loader import load_nonintervention_data
-# from core.utils.state_comparison_utils import create_state_comparison_table
 from core.utils.data_loader import load_uof_transposed_data
 from core.utils.members_comparison_utils import create_eu_non_members_comparison_table
 from django.contrib import messages
@@ -81,8 +80,9 @@ def uof_demscore_sankey(request):
 def uof_scatter(request):
     try:
         df = load_uof_data()
+        df_citations = load_uof_citations_data()
         preguntas = get_questions(df)
-        fig = create_uof_scatter_figure(df, preguntas)
+        fig = create_uof_scatter_figure(df, preguntas, df_citations)
         plot_div = fig.to_html(full_html=False, config={'responsive': True})
         return render(request, 'core/uof_scatter.html', {'uof_scatter': plot_div})
     except Exception as e:
@@ -93,10 +93,11 @@ def uof_scatter(request):
 
 def uof_by_state_scatter(request):
     try:
-        df_uof = load_uof_data()
+        df_uof = load_sovereignty_data()
+        df_citations = load_sovereignty_citations_data()
         preguntas_uof = get_questions(df_uof)
         estados = df_uof['State'].unique()
-        fig = create_by_state_scatter_figure(df_uof, preguntas_uof, estados)
+        fig = create_by_state_scatter_figure(df_uof, preguntas_uof, estados, df_citations)
         plot_div = fig.to_html(full_html=False, config={'responsive': True})
         return render(request, 'core/uof_by_state_scatter.html', {
             'uof_by_state_scatter': plot_div,
@@ -130,52 +131,37 @@ def eu_comparison_uof_view(request):
     # Cargar datos
     df_uof = load_uof_data()
     df_membresia = load_membership_data()
+    df_citations = load_uof_citations_data()
     questions_uof = get_questions(df_uof)
 
-    # Crear la tabla
-    tabla_fig = create_eu_comparison_table(df_uof, questions_uof, df_membresia)
-    tabla_fig = opy.plot(tabla_fig, output_type='div', include_plotlyjs=False)
+    # Crear la tabla (ya viene como HTML listo, no necesita opy.plot)
+    tabla_html = create_eu_comparison_table(df_uof, questions_uof, df_membresia, df_citations)
 
     return render(request, 'core/uof_eu_members.html', {
-        'uof_eu_members_table': tabla_fig})
+        'uof_eu_members_table': tabla_html})
 
 def eu_comparison_sov_view(request):
     # Cargar datos
     df_sov = load_sovereignty_data()
     df_membresia = load_membership_data()
+    df_citations = load_sovereignty_citations_data()
     questions_sov = get_questions(df_sov)
 
-    # Crear la tabla
-    tabla_fig = create_eu_comparison_table(df_sov, questions_sov, df_membresia)
-    tabla_fig = opy.plot(tabla_fig, output_type='div', include_plotlyjs=False)
+    tabla_html = create_eu_comparison_table(df_sov, questions_sov, df_membresia, df_citations)
 
     return render(request, 'core/sov_eu_members.html', {
-        'sov_eu_members_table': tabla_fig})
+        'sov_eu_members_table': tabla_html})
 
 def eu_non_eu_comparison_sov_view(request):
-    # Cargar datos
     df_sov = load_sovereignty_data()
     df_membresia = load_membership_data()
+    df_citations = load_sovereignty_citations_data()
     questions_sov = get_questions(df_sov)
 
-    # Crear la tabla
-    tabla_fig = create_eu_non_members_comparison_table(df_sov, questions_sov, df_membresia)
-    tabla_fig = opy.plot(tabla_fig, output_type='div', include_plotlyjs=False)
+    tabla_html = create_eu_non_members_comparison_table(df_sov, questions_sov, df_membresia, df_citations)
 
     return render(request, 'core/sov_eu_non_eu_members.html', {
-        'sov_eu_non_eu_members_table': tabla_fig})
-
-def state_comparison_view(request):
-    # Cargar datos
-    df_uof = load_uof_transposed_data()
-    questions_uof = get_questions(df_uof)
-    # Crear la tabla
-    tabla_fig = create_state_comparison_table(df_uof, questions_uof)
-    tabla_fig = opy.plot(tabla_fig, output_type='div', include_plotlyjs=False)
-
-    return render(request, 'core/uof_state_comparison.html', {
-        'uof_state_comparison': tabla_fig})
-
+        'sov_eu_non_eu_members_table': tabla_html})
 
 def uof_q8_nato_sankey(request):
     try:
@@ -252,9 +238,10 @@ def nonintervention_demscore_sankey(request):
 def sovereignty_by_state_scatter(request):
     try:
         df_sov = load_sovereignty_data()
+        df_citations = load_sovereignty_citations_data()
         preguntas_sov = get_questions(df_sov)
         estados = df_sov['State'].unique()
-        fig = create_by_state_scatter_figure(df_sov, preguntas_sov, estados)
+        fig = create_by_state_scatter_figure(df_sov, preguntas_sov, estados, df_citations)
         plot_div = fig.to_html(full_html=False, config={'responsive': True})
         return render(request, 'core/sov_by_state_scatter.html', {
             'sov_by_state_scatter': plot_div,
@@ -294,30 +281,44 @@ def selfdefense_demscore_sankey(request):
         })
 
 def eu_comparison_selfdefense_view(request):
-    # Cargar datos
-    df_sd = load_selfdefense_data()
+    df_selfdefense = load_selfdefense_data()
     df_membresia = load_membership_data()
-    questions_sd = get_questions(df_sd)
+    df_citations = load_selfdefense_citations_data()
+    questions_selfdefense = get_questions(df_selfdefense)
 
-    # Crear la tabla
-    tabla_fig = create_eu_comparison_table(df_sd, questions_sd, df_membresia)
-    tabla_fig = opy.plot(tabla_fig, output_type='div', include_plotlyjs=False)
+    tabla_html = create_eu_comparison_table(df_selfdefense, questions_selfdefense, df_membresia, df_citations)
 
     return render(request, 'core/selfdefense_eu_members.html', {
-        'selfdefense_eu_members_table': tabla_fig})
+        'selfdefense_eu_members_table': tabla_html})
 
 def eu_non_eu_comparison_selfdefense_view(request):
-    # Cargar datos
-    df_sd = load_selfdefense_data()
+    df_selfdefense = load_selfdefense_data()
     df_membresia = load_membership_data()
-    questions_sov = get_questions(df_sd)
+    df_citations = load_selfdefense_citations_data()
+    questions_selfdefense = get_questions(df_selfdefense)
 
-    # Crear la tabla
-    tabla_fig = create_eu_non_members_comparison_table(df_sd, questions_sov, df_membresia)
-    tabla_fig = opy.plot(tabla_fig, output_type='div', include_plotlyjs=False)
+    tabla_html = create_eu_comparison_table(df_selfdefense, questions_selfdefense, df_membresia, df_citations)
 
     return render(request, 'core/selfdefense_eu_non_eu_members.html', {
-        'selfdefense_eu_non_eu_members_table': tabla_fig})
+        'selfdefense_eu_non_eu_members_table': tabla_html})
+
+def selfdefense_by_state_scatter(request):
+    try:
+        df_sd = load_sovereignty_data()
+        df_citations = load_sovereignty_citations_data()
+        preguntas_uof = get_questions(df_sd)
+        estados = df_sd['State'].unique()
+        fig = create_by_state_scatter_figure(df_sd, preguntas_uof, estados, df_citations)
+        plot_div = fig.to_html(full_html=False, config={'responsive': True})
+        return render(request, 'core/selfdefense_by_state_scatter.html', {
+            'selfdefense_by_state_scatter': plot_div,
+            'states_count': len(estados),
+            'questions_count': len(preguntas_uof)
+        })
+    except Exception as e:
+        return render(request, 'core/selfdefense_by_state_scatter.html', {
+            'selfdefense_by_state_scatter': generate_error_html(str(e))
+        })
 
 def contact(request):
     if request.method == 'POST':

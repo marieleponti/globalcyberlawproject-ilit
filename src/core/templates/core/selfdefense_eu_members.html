@@ -1,7 +1,7 @@
 {% extends 'core/base.html' %}
 {% block content %}
 <div class="container">
-    <h1>SOVEREIGNTY — EU and EU Member States' Responses</h1>
+    <h1>SELF DEFENSE — EU and EU Member States' Responses</h1>
 
     <!-- Color Legend -->
     <div style="display: flex; gap: 24px; align-items: center; margin: 16px 0 20px 0; flex-wrap: wrap;">
@@ -25,8 +25,8 @@
     </div>
 
     <div class="chart-container" style="width: 100%; height: auto;">
-        {% if sov_eu_members_table %}
-        {{ sov_eu_members_table|safe }}
+        {% if selfdefense_eu_members_table %}
+        {{ selfdefense_eu_members_table|safe }}
         {% else %}
         <p>No hay datos disponibles para mostrar.</p>
         {% endif %}

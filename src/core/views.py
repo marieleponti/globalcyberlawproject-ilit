@@ -278,6 +278,46 @@ def selfdefense_sankey(request):
             'selfdefense_sankey': generate_error_html(str(e))
         })
 
+def selfdefense_demscore_sankey(request):
+    try:
+        df = load_selfdefense_data()
+        df_dem = load_democracy_data()
+        df_citations = load_selfdefense_citations_data()
+        fig = create_issue_demscore_sankey_figure(df, df_dem, df_citations)
+        sankey_html = generate_plot_html(fig)
+        return render(request, 'core/selfdefense_demscore_sankey.html', {
+            'selfdefense_demscore_sankey': sankey_html
+        })
+    except Exception as e:
+        return render(request, 'core/selfdefense_demscore_sankey.html', {
+            'selfdefense_demscore_sankey': generate_error_html(str(e))
+        })
+
+def eu_comparison_selfdefense_view(request):
+    # Cargar datos
+    df_sd = load_selfdefense_data()
+    df_membresia = load_membership_data()
+    questions_sd = get_questions(df_sd)
+
+    # Crear la tabla
+    tabla_fig = create_eu_comparison_table(df_sd, questions_sd, df_membresia)
+    tabla_fig = opy.plot(tabla_fig, output_type='div', include_plotlyjs=False)
+
+    return render(request, 'core/selfdefense_eu_members.html', {
+        'selfdefense_eu_members_table': tabla_fig})
+
+def eu_non_eu_comparison_selfdefense_view(request):
+    # Cargar datos
+    df_sd = load_selfdefense_data()
+    df_membresia = load_membership_data()
+    questions_sov = get_questions(df_sd)
+
+    # Crear la tabla
+    tabla_fig = create_eu_non_members_comparison_table(df_sd, questions_sov, df_membresia)
+    tabla_fig = opy.plot(tabla_fig, output_type='div', include_plotlyjs=False)
+
+    return render(request, 'core/selfdefense_eu_non_eu_members.html', {
+        'selfdefense_eu_non_eu_members_table': tabla_fig})
 
 def contact(request):
     if request.method == 'POST':

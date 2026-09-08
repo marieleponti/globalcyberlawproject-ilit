@@ -310,7 +310,7 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
         # ==============================
         stage1_counts = (
             merged_df
-            .groupby(['iso', 'score_range'])
+            .groupby(['iso', 'score_range'], observed=True)
             .agg(
                 count=('iso', 'size'),
                 citation=('Citation', lambda x: wrap_text(
@@ -346,7 +346,7 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
         # ==============================
         stage2_counts = (
             merged_df
-            .groupby(['score_range', question])
+            .groupby(['score_range', question], observed=True)
             .agg(count=('iso','size'))
             .reset_index()
         )
@@ -400,7 +400,7 @@ def create_issue_demscore_sankey_data(df_issue, df_dem, df_citations, target_col
     return sankey_figs
 
 
-def truncate_label(text, max_length=80):
+def truncate_label(text, max_length=100):
     """Shortens a question for display in the dropdown button, so very
     long questions (e.g. Self Defense) don't force the dropdown box wider
     than the chart area and get visually clipped."""
@@ -439,7 +439,7 @@ def create_demscore_sankey_buttons(target_columns):
         visibility[i] = True
         buttons.append(dict(
             args=[{'visible': visibility}],
-            label=question,
+            label=truncate_label(question),
             method="update"
         ))
     return buttons

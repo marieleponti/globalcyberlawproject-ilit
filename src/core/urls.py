@@ -23,6 +23,7 @@ urlpatterns = [
     path('sov-eu-states-to-eu-sov', views.eu_comparison_sov_view, name='sov_eu_states_to_eu'),
     path('sov-non-eu-states-to-eu-sov', views.eu_non_eu_comparison_sov_view, name='sov_non_eu_states_to_eu'),
     path('uof-art51-nato-sankey', views.uof_q8_nato_sankey, name='uof_q8_nato_sankey'),
+    path('uof-q8-sunburst/', views.uof_q8_sunburst, name='uof_q8_sunburst'),
     path('sovereignty-sankey', views.sovereignty_sankey, name='sovereignty_sankey'),
     path('sov-demscore-sankey', views.sov_demscore_sankey, name='sov_demscore_sankey'),
     path('nonintervention-sankey', views.nonintervention_sankey, name='nonintervention_sankey'),
@@ -33,5 +34,6 @@ urlpatterns = [
     path('nonint-by-state-scatter', views.nonint_by_state_scatter, name='nonint_by_state_scatter'),
     path('sov-by-state-scatter', views.sovereignty_by_state_scatter, name='sov_by_state_scatter'),
     path('selfdefense-sankey', views.selfdefense_sankey, name='selfdefense_sankey'),
+    path('statements-choropleth/', views.statements_choropleth, name='statements_choropleth'),
     path('contact', views.contact, name='contact'),
 ]

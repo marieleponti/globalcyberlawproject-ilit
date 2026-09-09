@@ -1,9 +1,9 @@
 {% extends 'core/base.html' %}
 {% block content %}
 <div class="container">
-    <h2>Article 51 Responses — NATO Breakdown</h2>
+    <h2>Cumulative State Statements by Year</h2>
     <div class="plot-container">
-        {{ uof_q8_sunburst|safe }}
+        {{ statements_choropleth|safe }}
     </div>
 </div>
 {% endblock %}

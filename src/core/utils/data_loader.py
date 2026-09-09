@@ -95,3 +95,9 @@ def get_questions(df):
     last_index = num_col + 1
     return list(df.columns[2:last_index])
 
+def load_statements_by_year_data():
+    """Loads the national statements by year data (for the choropleth)"""
+    statements_data = settings.BASE_DIR / 'data' / 'statements_by_year_choropleth.csv'
+    df = pd.read_csv(statements_data)
+    return df
+

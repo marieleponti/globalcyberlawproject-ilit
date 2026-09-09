@@ -1,5 +1,3 @@
-import plotly.graph_objects as go
-import plotly.offline as opy
 from nat_state_vis_app import settings
 from django.shortcuts import render, redirect
 from core.utils.data_loader import load_uof_data, load_sovereignty_data, load_sovereignty_citations_data, \
@@ -12,16 +10,16 @@ from core.utils.parallel_categories_utils import create_parallel_categories_figu
 from core.utils.data_loader import load_membership_data
 from core.utils.members_comparison_utils import create_eu_comparison_table
 from core.utils.sunburst_utils import create_uofq8_sunburst_figure
-from core.utils.data_loader import load_nato_data
 from core.utils.sankey_utils import create_uof_art51_nato_sankey
 from core.utils.html_utils import generate_sunburst_html
 from core.utils.data_loader import load_nonintervention_data
-from core.utils.data_loader import load_uof_transposed_data
 from core.utils.members_comparison_utils import create_eu_non_members_comparison_table
 from django.contrib import messages
 from django.core.mail import EmailMessage
 from core.forms import ContactForm, TOPIC_CHOICES
-
+from core.utils.data_loader import load_nato_data
+from core.utils.choropleth_utils import create_statements_choropleth_figure
+from core.utils.data_loader import load_statements_by_year_data
 
 # Create your views here.
 def home(request):
@@ -135,6 +133,20 @@ def uof_q8_nato_sankey(request):
     except Exception as e:
         return render(request, 'core/uof_q8_nato_sankey.html', {
             'uof_q8_sankey': generate_error_html(str(e))
+        })
+
+def uof_q8_sunburst(request):
+    try:
+        df_force = load_uof_data()
+        df_nato = load_nato_data()
+        fig = create_uofq8_sunburst_figure(df_force, df_nato)  # sin column_index, tu función no lo acepta
+        sunburst_html = generate_sunburst_html(fig)
+        return render(request, 'core/uof_q8_sunburst.html', {
+            'uof_q8_sunburst': sunburst_html
+        })
+    except Exception as e:
+        return render(request, 'core/uof_q8_sunburst.html', {
+            'uof_q8_sunburst': generate_error_html(str(e))
         })
 # /************************* END USE OF FORCE ***************************/
 
@@ -375,6 +387,19 @@ def selfdefense_by_state_scatter(request):
             'selfdefense_by_state_scatter': generate_error_html(str(e))
         })
 # /************************* END SELF DEFENSE ***************************/
+
+def statements_choropleth(request):
+    try:
+        df = load_statements_by_year_data()
+        fig = create_statements_choropleth_figure(df)
+        choropleth_html = generate_plot_html(fig)
+        return render(request, 'core/statements_choropleth.html', {
+            'statements_choropleth': choropleth_html
+        })
+    except Exception as e:
+        return render(request, 'core/statements_choropleth.html', {
+            'statements_choropleth': generate_error_html(str(e))
+        })
 
 def contact(request):
     if request.method == 'POST':

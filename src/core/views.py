@@ -296,25 +296,19 @@ def eu_comparison_nonint_view(request):
     tabla_html = create_eu_comparison_table(df_nonint, questions, df_membresia, df_citations)
 
     return render(request, 'core/nonint_eu_members.html', {
-        'nonint_eu_members': tabla_html})
+        'nonint_eu_members_table': tabla_html})
 
 def eu_non_eu_comparison_nonint_view(request):
-    try:
-        df_nonint = load_nonintervention_data()
-        df_citations = load_nonintervention_citations_data()
-        questions = get_questions(df_nonint)
-        estados = df_nonint['State'].unique()
-        fig = create_by_state_scatter_figure(df_nonint, questions, estados, df_citations)
-        plot_div = fig.to_html(full_html=False, config={'responsive': True})
-        return render(request, 'core/nonint_eu_non_eu_members.html', {
-            'nonint_eu_non_eu_members': plot_div,
-            'states_count': len(estados),
-            'questions_count': len(questions)
-        })
-    except Exception as e:
-        return render(request, 'core/nonint_eu_non_eu_members.html', {
-            'nonint_eu_non_eu_members': generate_error_html(str(e))
-        })
+    df_nonint = load_nonintervention_data()
+    df_membresia = load_membership_data()
+    df_citations = load_nonintervention_citations_data()
+    questions = get_questions(df_nonint)
+
+    tabla_html = create_eu_comparison_table(df_nonint, questions, df_membresia, df_citations)
+
+    return render(request, 'core/nonint_eu_non_eu_members.html', {
+        'nonint_eu_non_eu_members_table': tabla_html})
+
 # /************************* END NONINTERVENTION ***************************/
 
 

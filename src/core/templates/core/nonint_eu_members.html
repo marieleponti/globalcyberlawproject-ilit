@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container">
+    <h1>NONINTERVENTION — EU and EU Member States' Responses</h1>
+
+    <!-- Color Legend -->
+    <div style="display: flex; gap: 24px; align-items: center; margin: 16px 0 20px 0; flex-wrap: wrap;">
+        <strong style="font-size: 14px;">Legend:</strong>
+        <span style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 20px; height: 20px; background-color: lightblue; border: 1px solid #aaa; display: inline-block; border-radius: 3px;"></span>
+            <span style="font-size: 13px;">EU institutional response (reference)</span>
+        </span>
+        <span style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 20px; height: 20px; background-color: lightgreen; border: 1px solid #aaa; display: inline-block; border-radius: 3px;"></span>
+            <span style="font-size: 13px;">State response matches EU</span>
+        </span>
+        <span style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 20px; height: 20px; background-color: lightcoral; border: 1px solid #aaa; display: inline-block; border-radius: 3px;"></span>
+            <span style="font-size: 13px;">State response differs from EU</span>
+        </span>
+        <span style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 20px; height: 20px; background-color: lightgrey; border: 1px solid #aaa; display: inline-block; border-radius: 3px;"></span>
+            <span style="font-size: 13px;">Question label</span>
+        </span>
+    </div>
+
+    <div class="chart-container" style="width: 100%; height: auto;">
+        {% if nonint_eu_members_table %}
+        {{ nonint_eu_members_table|safe }}
+        {% else %}
+        <p>No hay datos disponibles para mostrar.</p>
+        {% endif %}
+    </div>
+</div>
+<style>
+    /* This page needs more horizontal width for the comparison table,
+       while staying centered on the page */
+    .main-content {
+        max-width: 95vw;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+{% endblock %}

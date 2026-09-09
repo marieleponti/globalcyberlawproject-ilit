@@ -41,15 +41,23 @@ def create_statements_choropleth_figure(df, year_start=2016, year_end=2027):
     )
 
     # outline the countries included in the CSV
-    # all countries must be included in Python, otherwise boundaries look sparse
     fig.update_traces(marker_line_color='black', marker_line_width=0.5)
 
-    # choropleth layout
+    # fixed size -- more reliable than responsive for animated maps
     fig.update_layout(
+        width=1100,
+        height=750,
         geo=dict(
             showframe=False,
             showcoastlines=True
         )
     )
+
+    # keep the map static on first load -- start at first frame, not playing
+    fig.layout.sliders[0].active = 0
+
+    # slow down the animation speed when the user clicks Play
+    fig.layout.updatemenus[0].buttons[0].args[1]['frame']['duration'] = 1200
+    fig.layout.updatemenus[0].buttons[0].args[1]['transition']['duration'] = 600
 
     return fig

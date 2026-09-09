@@ -392,7 +392,7 @@ def statements_choropleth(request):
     try:
         df = load_statements_by_year_data()
         fig = create_statements_choropleth_figure(df)
-        choropleth_html = generate_plot_html(fig)
+        choropleth_html = generate_plot_html(fig, responsive=False)
         return render(request, 'core/statements_choropleth.html', {
             'statements_choropleth': choropleth_html
         })

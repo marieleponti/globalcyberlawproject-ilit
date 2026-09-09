@@ -21,11 +21,12 @@ def generate_sankey_html(fig):
     """
 
 
-def generate_plot_html(fig):
-    """Genera HTML con estilos para gráficos generales"""
+def generate_plot_html(fig, responsive=True):
+    config = {'responsive': True, 'displayModeBar': True} if responsive else {'displayModeBar': True}
+
     plot_html = fig.to_html(
         full_html=False,
-        config={'responsive': True, 'displayModeBar': True},
+        config=config,
         include_plotlyjs='cdn'
     )
 

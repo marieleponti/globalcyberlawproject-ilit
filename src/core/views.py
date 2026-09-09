@@ -48,6 +48,7 @@ def nonintervention(request):
 def selfdefense(request):
     return render(request, 'core/selfdefense.html')
 
+# /************************* USE OF FORCE ***************************/
 def uof_sankey(request):
     try:
         df = load_uof_data()
@@ -109,7 +110,35 @@ def uof_by_state_scatter(request):
             'uof_by_state_scatter': generate_error_html(str(e))
         })
 
+def eu_comparison_uof_view(request):
+    # Cargar datos
+    df_uof = load_uof_data()
+    df_membresia = load_membership_data()
+    df_citations = load_uof_citations_data()
+    questions_uof = get_questions(df_uof)
 
+    # Crear la tabla (ya viene como HTML listo, no necesita opy.plot)
+    tabla_html = create_eu_comparison_table(df_uof, questions_uof, df_membresia, df_citations)
+
+    return render(request, 'core/uof_eu_members.html', {
+        'uof_eu_members_table': tabla_html})
+
+def uof_q8_nato_sankey(request):
+    try:
+        df_uof = load_uof_data()
+        df_nato = load_nato_data()
+        fig = create_uof_art51_nato_sankey(df_uof, df_nato)
+        sankey_html = generate_plot_html(fig)
+        return render(request, 'core/uof_q8_nato_sankey.html', {
+            'uof_q8_sankey': sankey_html
+        })
+    except Exception as e:
+        return render(request, 'core/uof_q8_nato_sankey.html', {
+            'uof_q8_sankey': generate_error_html(str(e))
+        })
+# /************************* END USE OF FORCE ***************************/
+
+# /************************* SOVEREIGNTY ***************************/
 def uof_sov_parallel_categories(request):
     try:
         df_uof = load_uof_data()
@@ -126,19 +155,6 @@ def uof_sov_parallel_categories(request):
             'uof_sov_parallel_categories': generate_error_html(str(e))
         })
 
-
-def eu_comparison_uof_view(request):
-    # Cargar datos
-    df_uof = load_uof_data()
-    df_membresia = load_membership_data()
-    df_citations = load_uof_citations_data()
-    questions_uof = get_questions(df_uof)
-
-    # Crear la tabla (ya viene como HTML listo, no necesita opy.plot)
-    tabla_html = create_eu_comparison_table(df_uof, questions_uof, df_membresia, df_citations)
-
-    return render(request, 'core/uof_eu_members.html', {
-        'uof_eu_members_table': tabla_html})
 
 def eu_comparison_sov_view(request):
     # Cargar datos
@@ -162,21 +178,6 @@ def eu_non_eu_comparison_sov_view(request):
 
     return render(request, 'core/sov_eu_non_eu_members.html', {
         'sov_eu_non_eu_members_table': tabla_html})
-
-def uof_q8_nato_sankey(request):
-    try:
-        df_uof = load_uof_data()
-        df_nato = load_nato_data()
-        fig = create_uof_art51_nato_sankey(df_uof, df_nato)
-        sankey_html = generate_plot_html(fig)
-        return render(request, 'core/uof_q8_nato_sankey.html', {
-            'uof_q8_sankey': sankey_html
-        })
-    except Exception as e:
-        return render(request, 'core/uof_q8_nato_sankey.html', {
-            'uof_q8_sankey': generate_error_html(str(e))
-        })
-
 
 def sovereignty_sankey(request):
     try:
@@ -205,36 +206,6 @@ def sov_demscore_sankey(request):
             'sov_demscore_sankey': generate_error_html(str(e))
         })
 
-
-def nonintervention_sankey(request):
-    try:
-        df = load_nonintervention_data()
-        df_citations = load_nonintervention_citations_data()
-        fig = create_sankey_figure(df, df_citations, title="STATE RESPONSES ON NON-INTERVENTION")
-        sankey_html = generate_sankey_html(fig)
-        return render(request, 'core/nonintervention_sankey.html', {'nonintervention_sankey': sankey_html})
-    except Exception as e:
-        return render(request, 'core/nonintervention_sankey.html', {
-            'nonintervention_sankey': generate_error_html(str(e))
-        })
-
-
-def nonintervention_demscore_sankey(request):
-    try:
-        df_uof = load_nonintervention_data()
-        df_dem = load_democracy_data()
-        df_citations = load_nonintervention_citations_data()
-        fig = create_issue_demscore_sankey_figure(df_uof, df_dem, df_citations)
-        sankey_html = generate_plot_html(fig)
-        return render(request, 'core/nonint_demscore_sankey.html', {
-            'nonint_demscore_sankey': sankey_html
-        })
-    except Exception as e:
-        return render(request, 'core/nonint_demscore_sankey.html', {
-            'nonint_demscore_sankey': generate_error_html(str(e))
-        })
-
-
 def sovereignty_by_state_scatter(request):
     try:
         df_sov = load_sovereignty_data()
@@ -252,6 +223,90 @@ def sovereignty_by_state_scatter(request):
         return render(request, 'core/sov_by_state_scatter.html', {
             'sov_by_state_scatter': generate_error_html(str(e))
         })
+# /************************* END SOVEREIGNTY ***************************/
+
+
+
+# /************************* NONINTERVENTION ***************************/
+
+def nonintervention_sankey(request):
+    try:
+        df = load_nonintervention_data()
+        df_citations = load_nonintervention_citations_data()
+        fig = create_sankey_figure(df, df_citations, title="STATE RESPONSES ON NON-INTERVENTION")
+        sankey_html = generate_sankey_html(fig)
+        return render(request, 'core/nonintervention_sankey.html', {'nonintervention_sankey': sankey_html})
+    except Exception as e:
+        return render(request, 'core/nonintervention_sankey.html', {
+            'nonintervention_sankey': generate_error_html(str(e))
+        })
+
+
+def nonintervention_demscore_sankey(request):
+    try:
+        df_nonint = load_nonintervention_data()
+        df_dem = load_democracy_data()
+        df_citations = load_nonintervention_citations_data()
+        fig = create_issue_demscore_sankey_figure(df_nonint, df_dem, df_citations)
+        sankey_html = generate_plot_html(fig)
+        return render(request, 'core/nonint_demscore_sankey.html', {
+            'nonint_demscore_sankey': sankey_html
+        })
+    except Exception as e:
+        return render(request, 'core/nonint_demscore_sankey.html', {
+            'nonint_demscore_sankey': generate_error_html(str(e))
+        })
+
+def nonint_by_state_scatter(request):
+    try:
+        df_nonint = load_nonintervention_data()
+        df_citations = load_nonintervention_citations_data()
+        preguntas_uof = get_questions(df_nonint)
+        estados = df_nonint['State'].unique()
+        fig = create_by_state_scatter_figure(df_nonint, preguntas_uof, estados, df_citations)
+        plot_div = fig.to_html(full_html=False, config={'responsive': True})
+        return render(request, 'core/nonint_by_state_scatter.html', {
+            'nonint_by_state_scatter': plot_div,
+            'states_count': len(estados),
+            'questions_count': len(preguntas_uof)
+        })
+    except Exception as e:
+        return render(request, 'core/nonint_by_state_scatter.html', {
+            'nonint_by_state_scatter': generate_error_html(str(e))
+        })
+
+def eu_comparison_nonint_view(request):
+    df_nonint = load_nonintervention_data()
+    df_membresia = load_membership_data()
+    df_citations = load_nonintervention_citations_data()
+    questions = get_questions(df_nonint)
+
+    tabla_html = create_eu_comparison_table(df_nonint, questions, df_membresia, df_citations)
+
+    return render(request, 'core/nonint_eu_non_eu_members.html', {
+        'nonint_eu_non_eu_members_table': tabla_html})
+
+def eu_non_eu_comparison_nonint_view(request):
+    try:
+        df_nonint = load_nonintervention_data()
+        df_citations = load_nonintervention_citations_data()
+        questions = get_questions(df_nonint)
+        estados = df_nonint['State'].unique()
+        fig = create_by_state_scatter_figure(df_nonint, questions, estados, df_citations)
+        plot_div = fig.to_html(full_html=False, config={'responsive': True})
+        return render(request, 'core/nonint_by_state_scatter.html', {
+            'nonint_by_state_scatter': plot_div,
+            'states_count': len(estados),
+            'questions_count': len(questions)
+        })
+    except Exception as e:
+        return render(request, 'core/nonint_by_state_scatter.html', {
+            'nonint_by_state_scatter': generate_error_html(str(e))
+        })
+# /************************* END NONINTERVENTION ***************************/
+
+
+# /************************* SELF DEFENSE ***************************/
 
 def selfdefense_sankey(request):
     try:
@@ -319,6 +374,7 @@ def selfdefense_by_state_scatter(request):
         return render(request, 'core/selfdefense_by_state_scatter.html', {
             'selfdefense_by_state_scatter': generate_error_html(str(e))
         })
+# /************************* END SELF DEFENSE ***************************/
 
 def contact(request):
     if request.method == 'POST':

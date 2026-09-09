@@ -44,8 +44,12 @@ def generate_plot_html(fig):
     """
 
 def generate_sunburst_html(fig):
-    """Convierte una figura de Plotly a HTML"""
-    return fig.to_html(include_plotlyjs='cdn', full_html=False)
+    """Genera el HTML embebible para figuras de tipo sunburst (px.sunburst)."""
+    return fig.to_html(
+        full_html=False,
+        config={'responsive': True},
+        include_plotlyjs='cdn'
+    )
 
 
 def generate_error_html(error_message):

@@ -64,6 +64,8 @@
 <section class="uof-vis-section">
     <div class="container">
         <h2 class="section-title">Visualizations</h2>
+
+        {% if vis_ready.use_of_force %}
         <div class="vis-grid">
             <div class="vis-card">
                 <h3 class="vis-title">Use of Force</h3>
@@ -117,6 +119,12 @@
             </div>
 
         </div>
+        {% else %}
+        <div class="vis-under-construction">
+            <p>Visualizations for this issue area are under construction. Check back soon.</p>
+        </div>
+        {% endif %}
+
     </div>
 </section>
 
@@ -235,6 +243,23 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 30px;
+    }
+
+    .vis-under-construction {
+        background-color: #fff;
+        border: 2px dashed #ddd;
+        border-radius: 6px;
+        padding: 50px 30px;
+        text-align: center;
+    }
+
+    .vis-under-construction p {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
 
     .vis-card {

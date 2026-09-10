@@ -72,6 +72,13 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'nat_state_vis_app.urls'
 
+VISUALIZATIONS_READY = {
+    'use_of_force': False,     # oculto -> "Under Construction"
+    'sovereignty': True,
+    'nonintervention': True,
+    'self_defense': False,     # oculto -> "Under Construction"
+}
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

@@ -36,6 +36,7 @@
                 <a href="{% url 'statements_choropleth' %}" class="vis-link">Read more →</a>
             </div>
 
+            {% if vis_ready.use_of_force %}
             <div class="vis-card" data-category="use-of-force">
                 <h3 class="vis-title">Use of Force</h3>
                 <div class="vis-meta">Sankey Diagram</div>
@@ -78,13 +79,13 @@
                 <a href="{% url 'uof_eu_states_to_eu' %}" class="vis-link">Read more →</a>
             </div>
 
-
             <div class="vis-card" data-category="use-of-force">
                 <h3 class="vis-title">Use of Force and Article 51 Responses — NATO Breakdown</h3>
                 <div class="vis-meta">Sunburst chart</div>
                 <p class="vis-desc">Relationship Article 51 Responses — NATO Breakdown</p>
                 <a href="{% url 'uof_q8_sunburst' %}" class="vis-link">Read more →</a>
             </div>
+            {% endif %}
 
             <div class="vis-card" data-category="sovereignty">
                 <h3 class="vis-title">Sovereignty</h3>
@@ -137,13 +138,6 @@
             </div>
 
             <div class="vis-card" data-category="non-intervention">
-                <h3 class="vis-title">Non-Intervention and Democracy Index Score</h3>
-                <div class="vis-meta">Sankey Diagram</div>
-                <p class="vis-desc">Relationship democracy index score -> sovereignty responses.</p>
-                <a href="{% url 'nonint_demscore_sankey' %}" class="vis-link">Read more →</a>
-            </div>
-
-            <div class="vis-card" data-category="non-intervention">
                 <h3 class="vis-title">Nonintervention: EU States to EU Comparison</h3>
                 <div class="vis-meta">Table</div>
                 <p class="vis-desc">Comparison of how the EU responses compare to its member states</p>
@@ -157,13 +151,14 @@
                 <a href="{% url 'nonint_non_eu_states_to_eu' %}" class="vis-link">Read more →</a>
             </div>
 
-            <div class="vis-card">
+            <div class="vis-card" data-category="non-intervention">
                 <h3 class="vis-title">Nonintervention: By Country</h3>
                 <div class="vis-meta">Scatter Plot</div>
                 <p class="vis-desc">Country profile for issue area.</p>
                 <a href="{% url 'nonint_by_state_scatter' %}" class="vis-link">Read more →</a>
             </div>
 
+            {% if vis_ready.self_defense %}
             <div class="vis-card" data-category="self-defense">
                 <h3 class="vis-title">Self Defense</h3>
                 <div class="vis-meta">Sankey Diagram</div>
@@ -177,25 +172,28 @@
                 <p class="vis-desc">Relationship democracy index score -> self defense responses.</p>
                 <a href="{% url 'selfdefense_demscore_sankey' %}" class="vis-link">Read more →</a>
             </div>
+
             <div class="vis-card" data-category="self-defense">
                 <h3 class="vis-title">Self defense: EU States to EU Comparison</h3>
                 <div class="vis-meta">Table</div>
                 <p class="vis-desc">Comparison of how the EU responses compare to its member states</p>
                 <a href="{% url 'selfdefense_eu_states_to_eu' %}" class="vis-link">Read more →</a>
             </div>
-              <div class="vis-card" data-category="self-defense">
+
+            <div class="vis-card" data-category="self-defense">
                 <h3 class="vis-title">Self defense: EU States to NON-EU Comparison</h3>
                 <div class="vis-meta">Table</div>
                 <p class="vis-desc">Comparison of how the EU responses compare to non-member states</p>
                 <a href="{% url 'selfdefense_non_eu_states_to_eu' %}" class="vis-link">Read more →</a>
             </div>
+
             <div class="vis-card" data-category="self-defense">
                 <h3 class="vis-title">Self defense: By Country</h3>
                 <div class="vis-meta">Scatter Plot</div>
                 <p class="vis-desc">Country profile for issue area.</p>
                 <a href="{% url 'selfdefense_by_state_scatter' %}" class="vis-link">Read more →</a>
             </div>
-        </div>
+            {% endif %}
         </div>
     </div>
 </section>
@@ -226,6 +224,15 @@
         line-height: 1.7;
         color: #444;
         margin: 0 0 16px;
+    }
+
+    .home-intro-text a {
+        color: var(--temple-blue, #005CAB);
+        text-decoration: underline;
+    }
+
+    .home-intro-text a:hover {
+        color: var(--temple-cherry, #A41E35);
     }
 
     .home-intro-link {

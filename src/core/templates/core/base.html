@@ -221,6 +221,45 @@
             color: #aaa;
         }
 
+        .footer-license {
+            font-size: 13px;
+            color: #999;
+            margin: 8px 0 0;
+        }
+
+        .footer-license a {
+            color: #ccc;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .footer-license a:hover {
+            color: var(--temple-white);
+        }
+
+        .footer-logos {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 64px;
+            width: fit-content;
+            margin: 0;
+        }
+
+        .footer-logos img {
+            height: 42px;
+            width: auto;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+        }
+
+        .footer-logos img.footer-logo-ilit {
+            filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+        }
+
+        .footer-logos img.footer-logo-au {
+            height: 26px;
+        }
+
 
         /* Responsive styles */
         @media (max-width: 768px) {
@@ -243,6 +282,19 @@
 
             .footer-section {
                 margin-bottom: 20px;
+            }
+
+            .footer-logos {
+                flex-wrap: wrap;
+                gap: 18px;
+            }
+
+            .footer-logos img {
+                height: 32px;
+            }
+
+            .footer-logos img.footer-logo-au {
+                height: 20px;
             }
         }
 
@@ -390,6 +442,47 @@
                 pointer-events: none;
             }
         }
+
+        .scroll-top-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background-color: var(--temple-cherry);
+            color: var(--temple-white);
+            border: none;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.2s ease, visibility 0.25s;
+            z-index: 1000;
+        }
+
+        .scroll-top-btn.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .scroll-top-btn:hover {
+            background-color: var(--temple-dark-cherry);
+        }
+
+        @media (max-width: 480px) {
+            .scroll-top-btn {
+                bottom: 16px;
+                right: 16px;
+                width: 42px;
+                height: 42px;
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -428,7 +521,6 @@
 <header class="header">
     <div class="header-container">
         <div class="logo">
-            <!--                <img src="{% static 'images/temple-logo.png' %}" alt="Temple University Logo">-->
             <div class="logo-text">
                 <h1>Global Cyber Law Project</h1>
                 <p>Institute for Law, Innovation &amp; Technology - Temple University - Beasley School of Law</p>
@@ -449,8 +541,18 @@
 
 <footer class="footer">
     <div class="footer-container">
+        <div class="footer-logos">
+            <img src="{% static 'img/ilit_logo.png' %}" alt="Institute for Law, Innovation & Technology (iLIT) logo" class="footer-logo-ilit">
+            <img src="{% static 'img/au_logo.svg' %}" alt="American University logo" class="footer-logo-au">
+        </div>
         <div class="copyright">
-            &copy; {% now "Y" %} Global Cyber Law Project. All Rights Reserved.
+            {% now "Y" %} Global Cyber Law Project
+            <p class="footer-license">
+                This work is licensed under a
+                <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener noreferrer">
+                    Creative Commons Attribution 4.0 International License
+                </a>.
+            </p>
         </div>
 </footer>
 
@@ -487,6 +589,9 @@
         <button type="button" class="citation-copy" data-target="cite-mla">Copy</button>
     </div>
 </aside>
+
+<!-- Sitewide "Scroll to top" button -->
+<button type="button" class="scroll-top-btn" id="scrollTopBtn" aria-label="Scroll to top">&uarr;</button>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -538,6 +643,23 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(function () { btn.textContent = original; }, 1500);
       });
     });
+  });
+
+  var scrollTopBtn = document.getElementById('scrollTopBtn');
+
+  function toggleScrollTopBtn() {
+    if (window.scrollY > 400) {
+      scrollTopBtn.classList.add('visible');
+    } else {
+      scrollTopBtn.classList.remove('visible');
+    }
+  }
+
+  window.addEventListener('scroll', toggleScrollTopBtn);
+  toggleScrollTopBtn();
+
+  scrollTopBtn.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 });
 </script>

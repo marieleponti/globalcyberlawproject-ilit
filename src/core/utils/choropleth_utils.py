@@ -37,7 +37,7 @@ def create_statements_choropleth_figure(df, year_start=2016, year_end=2027):
         animation_frame="Year",
         color_continuous_scale="Viridis",
         projection="natural earth",
-        title=f"Cumulative State Statements by Year ({year_start}–{year_end})"
+        title=f""
     )
 
     # outline the countries included in the CSV
@@ -57,7 +57,7 @@ def create_statements_choropleth_figure(df, year_start=2016, year_end=2027):
     fig.layout.sliders[0].active = 0
 
     # slow down the animation speed when the user clicks Play
-    fig.layout.updatemenus[0].buttons[0].args[1]['frame']['duration'] = 1200
-    fig.layout.updatemenus[0].buttons[0].args[1]['transition']['duration'] = 600
+    fig.layout.updatemenus[0].buttons[0].args[1]['frame']['duration'] = 2000
+    fig.layout.updatemenus[0].buttons[0].args[1]['transition']['duration'] = 900
 
     return fig

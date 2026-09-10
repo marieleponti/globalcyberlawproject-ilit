@@ -66,7 +66,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.LoginRequiredMiddleware',
+    # commenting out Login Required to make site public
+    # 'core.middleware.LoginRequiredMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 

@@ -77,7 +77,11 @@ if not PUBLIC_HOSTS and not DEBUG:
 # names are not routable from outside the container, so this is not a wildcard.
 ALLOWED_HOSTS = PUBLIC_HOSTS + ["127.0.0.1", "localhost"]
 if DEBUG:
-    ALLOWED_HOSTS.append("0.0.0.0")
+    # bandit flags the literal "0.0.0.0" as binding to every interface (B104).
+    # That rule is about opening a socket. This is Django's Host header
+    # allow-list, it opens nothing, and it only applies when DEBUG is on.
+    # Carried over from the original settings for development parity.
+    ALLOWED_HOSTS.append("0.0.0.0")  # nosec B104
 
 # CSRF trusted origins must carry a scheme. Anything explicitly configured wins;
 # otherwise each public host is trusted over https.
@@ -177,6 +181,11 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Supplies `vis_ready` to the templates. Without this line the
+                # variable is simply undefined, so every
+                # {% if vis_ready.<area> %} block evaluates false and the
+                # VISUALIZATIONS_READY switches above do nothing at all.
+                'core.context_processors.visualizations_ready',
             ],
         },
     },

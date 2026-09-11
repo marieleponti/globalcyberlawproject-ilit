@@ -9,7 +9,11 @@ comm==0.2.2
 dash==3.2.0
 dash-bootstrap-components==2.0.3
 decorator==5.2.1
-Django==5.2.5
+# 5.2 is the LTS line. Patch releases on it carry security fixes only, so
+# moving along it is the conservative choice. 5.2.5 carries 32 known
+# vulnerabilities, several of them SQL injection; every one is fixed at or
+# before 5.2.17. See ops/reports/ for the scan this came from.
+Django==5.2.17
 django-environ==0.12.0
 django-extensions==3.1.5
 django-plotly-dash==2.5.0

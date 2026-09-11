@@ -27,8 +27,11 @@ map $host $is_canonical {
 # Port 80: ACME challenge and the redirect to https.
 # ---------------------------------------------------------------------------
 server {
+    # IPv4 only, on purpose. Docker does not enable IPv6 inside containers by
+    # default, and "listen [::]:80" then aborts the whole nginx start with
+    # "Address family not supported by protocol". Nothing is lost: Docker
+    # publishes the port on both stacks and forwards IPv6 traffic here.
     listen 80;
-    listen [::]:80;
     server_name ${DOMAIN} ${WWW_DOMAIN};
 
     # Certbot's HTTP-01 challenge must stay on plain http and must not redirect.
@@ -47,7 +50,6 @@ server {
 # ---------------------------------------------------------------------------
 server {
     listen 443 ssl;
-    listen [::]:443 ssl;
     http2 on;
     server_name ${DOMAIN} ${WWW_DOMAIN};
 

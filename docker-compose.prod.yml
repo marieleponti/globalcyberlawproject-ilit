@@ -1,0 +1,148 @@
+# Production stack for the DigitalOcean Droplet.
+#
+#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+#
+# Differences from the development docker-compose.yml:
+#   - no source bind mount; the image is the unit of deployment
+#   - neither web nor db publishes a port to the host; only nginx does
+#   - Postgres data lives on a named volume that survives container rebuilds
+#   - log rotation is capped so a Droplet disk cannot fill up
+#
+# See DEPLOY_DIGITALOCEAN.md for the full runbook.
+
+services:
+  db:
+    image: postgres:17
+    container_name: gclp_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # Scrypt password hashing and checksums on every page read.
+      POSTGRES_INITDB_ARGS: "--data-checksums --auth-host=scram-sha-256"
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gclp-web:latest
+    container_name: gclp_web
+    restart: always
+    env_file:
+      - .env.production
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      PORT: "8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+    expose:
+      - "8000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: gclp_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+      WWW_DOMAIN: ${WWW_DOMAIN}
+      HSTS_MAX_AGE: ${HSTS_MAX_AGE:-0}
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates:ro
+      - certbot_conf:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+    depends_on:
+      - web
+    networks:
+      - frontend
+    healthcheck:
+      test: ["CMD-SHELL", "nginx -t || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+    # Pick up renewed certificates without a restart.
+    command: >
+      /bin/sh -c "
+        /docker-entrypoint.sh nginx -g 'daemon off;' &
+        NGINX_PID=$$!;
+        while :; do sleep 12h; nginx -s reload 2>/dev/null || true; done &
+        wait $$NGINX_PID
+      "
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: gclp_certbot
+    restart: unless-stopped
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Attempt renewal twice a day, as Let's Encrypt recommends. Renewal is a
+    # no-op until the certificate is inside its 30-day window.
+    entrypoint: >
+      /bin/sh -c "
+        trap exit TERM;
+        while :; do
+          certbot renew --webroot -w /var/www/certbot --quiet;
+          sleep 12h & wait $${!};
+        done
+      "
+
+networks:
+  # db is reachable only from web; nginx has no route to it at all.
+  backend:
+    driver: bridge
+    internal: true
+  frontend:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  certbot_conf:
+  certbot_www:

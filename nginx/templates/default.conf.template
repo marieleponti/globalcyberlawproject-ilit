@@ -1,0 +1,159 @@
+# Reverse proxy for the National Statements Visualizations app.
+#
+# Rendered at container start by the official nginx image, which runs envsubst
+# over every *.template in /etc/nginx/templates and writes the result to
+# /etc/nginx/conf.d/. ${DOMAIN} and ${WWW_DOMAIN} come from the environment.
+#
+# Certificates live on a shared volume written by Certbot. ops/init-letsencrypt.sh
+# seeds a self-signed placeholder first, so nginx can always start.
+
+upstream django {
+    server web:8000;
+    keepalive 32;
+}
+
+# Throttle login and contact-form POSTs. 10MB holds roughly 160k addresses.
+limit_req_zone $binary_remote_addr zone=login_limit:10m rate=5r/m;
+limit_req_zone $binary_remote_addr zone=general_limit:10m rate=60r/m;
+
+# Map the requested host to a canonical redirect target. Any name other than the
+# apex is sent to the apex so the site has exactly one public URL.
+map $host $is_canonical {
+    default            0;
+    "${DOMAIN}"        1;
+}
+
+# ---------------------------------------------------------------------------
+# Port 80: ACME challenge and the redirect to https.
+# ---------------------------------------------------------------------------
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${DOMAIN} ${WWW_DOMAIN};
+
+    # Certbot's HTTP-01 challenge must stay on plain http and must not redirect.
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    location / {
+        return 301 https://${DOMAIN}$request_uri;
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Port 443: the application.
+# ---------------------------------------------------------------------------
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name ${DOMAIN} ${WWW_DOMAIN};
+
+    ssl_certificate     /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+
+    # TLS 1.2 and 1.3 only, as required by the Temple vendor questionnaire.
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    # OCSP stapling. Requires a real certificate chain; harmless before then.
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_trusted_certificate /etc/letsencrypt/live/${DOMAIN}/chain.pem;
+    resolver 1.1.1.1 8.8.8.8 valid=300s;
+    resolver_timeout 5s;
+
+    # Send www (and any other alias) to the apex.
+    if ($is_canonical = 0) {
+        return 301 https://${DOMAIN}$request_uri;
+    }
+
+    # Security headers. HSTS is emitted here rather than by Django so it covers
+    # static responses too. Raise max-age only once TLS is confirmed working.
+    add_header Strict-Transport-Security "max-age=${HSTS_MAX_AGE}" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "same-origin" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    server_tokens off;
+
+    client_max_body_size 10M;
+    client_body_timeout 30s;
+    client_header_timeout 30s;
+
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_types text/plain text/css text/javascript application/javascript
+               application/json application/xml image/svg+xml;
+
+    # Keep serving the ACME challenge over https too, for renewals.
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    # Static assets are collected into the image by collectstatic and served by
+    # WhiteNoise. They are hashed and immutable, so cache them hard at the edge.
+    location /static/ {
+        proxy_pass http://django;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_valid 200 30d;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    # Health endpoints: reachable, never logged, never cached.
+    location ~ ^/(healthz|readyz)$ {
+        proxy_pass http://django;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        access_log off;
+    }
+
+    # Login and admin: tight rate limit, since these are the credential-guessing
+    # surface. burst=5 with nodelay absorbs a legitimate retry.
+    location ~ ^/(login|admin)/ {
+        limit_req zone=login_limit burst=5 nodelay;
+
+        proxy_pass http://django;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_redirect off;
+    }
+
+    location / {
+        limit_req zone=general_limit burst=40 nodelay;
+
+        proxy_pass http://django;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header Connection "";
+        proxy_redirect off;
+
+        # Plotly figures take a while to render on first hit.
+        proxy_connect_timeout 10s;
+        proxy_send_timeout 120s;
+        proxy_read_timeout 120s;
+        proxy_buffering on;
+        proxy_buffers 16 16k;
+        proxy_busy_buffers_size 32k;
+    }
+}

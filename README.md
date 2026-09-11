@@ -29,6 +29,15 @@
 
 ---
 
+> **Deployment note.** The Render deployment described below is the current
+> production environment. The migration to DigitalOcean is documented separately
+> in [DEPLOY_DIGITALOCEAN.md](DEPLOY_DIGITALOCEAN.md), with the cutover strategy
+> in `Plan_Migracion_Cutover_NatStateVis.md`. The application runs on either
+> provider from the same commit; which one it is comes from environment
+> variables, not from the code.
+
+---
+
 ## Project Phase 1: Low/No-Code Visualizations
 
 This phase of the project consisted of creating initial visualizations using low- or no-code tools. Of the tools tested, the best results came from **Flourish** and **Datawrapper**.

@@ -1,0 +1,100 @@
+name: Deploy to DigitalOcean
+
+# Fires on every push to main, which includes merges. The CI workflow must pass
+# first.
+#
+# The SSH key this uses is restricted on the Droplet side to a single forced
+# command, so it can trigger a deploy and nothing else. It cannot open a shell,
+# read files, or forward ports. Run ops/setup-github-deploy.sh on the Droplet to
+# set that up; it prints the exact secrets to paste into GitHub.
+#
+# Required repository secrets (Settings > Secrets and variables > Actions):
+#   DEPLOY_SSH_KEY        private key, the whole PEM block including headers
+#   DEPLOY_HOST           the Droplet's IP or hostname
+#   DEPLOY_USER           usually "deploy"
+#   DEPLOY_KNOWN_HOSTS    output of ssh-keyscan for the Droplet
+#   SMOKE_URL             public URL to verify after deploying
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_smoke_test:
+        description: "Skip the post-deploy smoke test"
+        type: boolean
+        default: false
+
+# Never let two deploys touch the Droplet at once. Unlike CI, an in-flight
+# deploy is allowed to finish: cancelling mid-migration is worse than queueing.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Attach this job to a GitHub Environment named "production". Secrets live
+    # there rather than at repository level, and you can add required reviewers
+    # so a merge pauses for approval before touching the live site.
+    #
+    # No `url:` here on purpose. That field does not accept a secret, and the
+    # site address is already in SMOKE_URL.
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # Pinning the host key. Without this, StrictHostKeyChecking would have
+          # to be disabled, and the runner would trust whatever answers on that
+          # address.
+          printf '%s\n' "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Trigger the deployment
+        # The Droplet decides what this does, not us. The key is pinned to a
+        # forced command in authorized_keys, so whatever is sent here is ignored
+        # and ops/deploy.sh runs instead.
+        run: |
+          ssh -o StrictHostKeyChecking=yes \
+              -o BatchMode=yes \
+              -o ConnectTimeout=30 \
+              "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+              deploy 2>&1 | tee deploy.log
+
+      - name: Smoke test the live site
+        if: ${{ !inputs.skip_smoke_test }}
+        run: |
+          chmod +x ops/smoke-test.sh
+          ./ops/smoke-test.sh "${{ secrets.SMOKE_URL }}"
+
+      - name: Clean up the key
+        if: always()
+        run: rm -f ~/.ssh/id_ed25519
+
+      - name: Report failure
+        if: failure()
+        run: |
+          echo "::error::Deployment failed. The Droplet keeps the previous"
+          echo "::error::version running, and ops/deploy.sh took a database"
+          echo "::error::backup before starting. To roll back by hand:"
+          echo "::error::  ssh <user>@<droplet>"
+          echo "::error::  cd /opt/globalcyberlawproject-ilit"
+          echo "::error::  git reset --hard <previous-commit> && ./ops/deploy.sh"

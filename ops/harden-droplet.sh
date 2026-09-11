@@ -94,6 +94,21 @@ if ! id -u "$DEPLOY_USER" >/dev/null 2>&1; then
 fi
 usermod -aG sudo "$DEPLOY_USER"
 
+# The account is created with no password, so membership of the sudo group
+# alone is useless: sudo prompts for a password that does not exist, and with
+# root SSH disabled the only way left to administer the host is the provider's
+# web console.
+#
+# Granting NOPASSWD is not the escalation it looks like. This user is added to
+# the docker group further down, and the docker group is already equivalent to
+# root: anyone who can talk to the daemon can bind-mount / into a container.
+# The real barriers are key-only SSH, a passphrase on that key, no root login,
+# and fail2ban.
+install -m 0440 /dev/stdin "/etc/sudoers.d/90-${DEPLOY_USER}" <<EOF
+${DEPLOY_USER} ALL=(ALL) NOPASSWD:ALL
+EOF
+visudo -c >/dev/null && echo "    Passwordless sudo configured for ${DEPLOY_USER}."
+
 # Copy root's authorized keys so the same SSH key works for the new user.
 if [[ -f /root/.ssh/authorized_keys ]]; then
     mkdir -p "/home/${DEPLOY_USER}/.ssh"

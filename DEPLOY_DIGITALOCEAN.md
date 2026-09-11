@@ -34,8 +34,17 @@ needs no environment changes and keeps working unmodified.
 
 ## Prerequisites
 
-- A Droplet: Ubuntu 24.04 LTS, NYC region, 2 GB RAM minimum. Plotly figure
-  rendering is memory-hungry, and 1 GB will have Gunicorn workers killed.
+- A Droplet: Ubuntu 24.04 LTS, a United States region, 2 GB RAM minimum. Plotly
+  figure rendering is memory-hungry, and 1 GB will have Gunicorn workers killed.
+
+  The running Droplet is in **San Francisco (sfo2)**, not the NYC region named in
+  `Plan_Migracion_Cutover_NatStateVis.md`. Both are United States soil, so the
+  data residency commitment to Temple holds either way. What changes is latency:
+  Temple is in Philadelphia, and East Coast visitors pay roughly 60ms more per
+  request than they would from NYC. Tell the client the region, since the plan
+  document they were shown says otherwise.
+
+  A Droplet cannot change region. Moving one means snapshotting and rebuilding.
 
   `s-1vcpu-2gb` is enough to launch on. Set `GUNICORN_WORKERS=2` for it, since
   figure rendering is CPU-bound and extra workers on one core only add memory

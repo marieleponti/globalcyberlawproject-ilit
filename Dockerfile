@@ -17,8 +17,10 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY src/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip install --no-cache-dir gunicorn matplotlib
+# gunicorn and matplotlib are both declared in requirements.txt now. Installing
+# them here as well meant the file did not describe a working environment, and
+# anything built from it alone crashed on the first import of sankey_utils.
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src/ .
 

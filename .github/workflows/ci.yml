@@ -97,5 +97,13 @@ jobs:
 
       - name: Validate the compose files
         run: |
-          docker compose -f docker-compose.yml config --quiet
-          docker compose -f docker-compose.prod.yml --env-file .env.production.example config --quiet
+          # Both stacks declare an env_file that holds real credentials and is
+          # therefore never committed: .env for development, .env.production for
+          # the Droplet. Compose refuses to parse a file it cannot find, so the
+          # example stands in for both here. That also checks the example stays
+          # complete enough to satisfy every variable the stacks reference.
+          cp .env.production.example .env.production
+          cp .env.production.example .env
+          docker compose -f docker-compose.yml --env-file .env config --quiet
+          docker compose -f docker-compose.prod.yml --env-file .env.production config --quiet
+          rm -f .env .env.production

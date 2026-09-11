@@ -23,10 +23,39 @@ fi
 
 DEPLOY_USER="${DEPLOY_USER:-deploy}"
 SSH_PORT="${SSH_PORT:-22}"
+SWAP_SIZE="${SWAP_SIZE:-2G}"
 
 echo "=============================================================="
 echo " Droplet hardening"
 echo "=============================================================="
+
+# --- 0. Swap ----------------------------------------------------------------
+# DigitalOcean Droplets ship without swap. On a 2 GB box that means a memory
+# spike while rendering a large figure gets resolved by the OOM killer, which
+# picks whatever looks expensive. That is usually Postgres, and the site goes
+# down hard instead of getting briefly slow.
+#
+# Swap is not a substitute for memory. It is a shock absorber.
+echo
+echo ">>> [0/7] Configuring swap..."
+if swapon --show | grep -q .; then
+    echo "    Swap already active:"
+    swapon --show | sed 's/^/      /'
+else
+    fallocate -l "$SWAP_SIZE" /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile >/dev/null
+    swapon /swapfile
+    if ! grep -q '/swapfile' /etc/fstab; then
+        echo '/swapfile none swap sw 0 0' >> /etc/fstab
+    fi
+    # Prefer RAM strongly; only reach for swap under real pressure. The default
+    # of 60 would push a busy worker to disk while memory is still available.
+    sysctl -qw vm.swappiness=10
+    sysctl -qw vm.vfs_cache_pressure=50
+    printf 'vm.swappiness=10\nvm.vfs_cache_pressure=50\n' > /etc/sysctl.d/99-swap.conf
+    echo "    Created ${SWAP_SIZE} of swap at /swapfile."
+fi
 
 # --- 1. Updates -------------------------------------------------------------
 echo

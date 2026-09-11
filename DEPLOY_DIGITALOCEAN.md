@@ -36,6 +36,16 @@ needs no environment changes and keeps working unmodified.
 
 - A Droplet: Ubuntu 24.04 LTS, NYC region, 2 GB RAM minimum. Plotly figure
   rendering is memory-hungry, and 1 GB will have Gunicorn workers killed.
+
+  `s-1vcpu-2gb` is enough to launch on. Set `GUNICORN_WORKERS=2` for it, since
+  figure rendering is CPU-bound and extra workers on one core only add memory
+  pressure. The hardening script also adds swap, which DigitalOcean does not
+  provide by default, so a spike degrades into slowness instead of the OOM
+  killer terminating Postgres.
+
+  If it turns out to need more, resize later in the DigitalOcean panel and
+  choose the **CPU and RAM only** option. That one is reversible. The variant
+  that also grows the disk cannot be undone.
 - A domain you can edit DNS for.
 - An SSH key uploaded to DigitalOcean.
 - Render's External Database URL, from the Render dashboard.

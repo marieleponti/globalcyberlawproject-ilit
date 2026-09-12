@@ -33,16 +33,29 @@ logger = logging.getLogger(__name__)
 API_URL = "https://api.resend.com/emails"
 TIMEOUT = 15
 
+# Cloudflare sits in front of the Resend API and answers "error code: 1010" to
+# requests whose client signature it considers a bot. urllib identifies itself
+# as "Python-urllib/3.12" by default, which is on that list, so the request is
+# refused before Resend ever sees it. Identifying the application honestly gets
+# through and is the polite thing to send anyway.
+USER_AGENT = "globalcyberlawproject/1.0 (+https://globalcyberlawproject.org)"
+
 
 class ResendAPIBackend(BaseEmailBackend):
     """Django email backend that posts to the Resend REST API."""
 
     def __init__(self, fail_silently=False, **kwargs):
         super().__init__(fail_silently=fail_silently, **kwargs)
-        self.api_key = (
+        key = (
             getattr(settings, "RESEND_API_KEY", None)
             or getattr(settings, "EMAIL_HOST_PASSWORD", None)
+            or ""
         )
+        # Strip whitespace and the invisible characters that ride along when a
+        # value is copied between Windows and Linux. A byte order mark at the
+        # front of the key made urllib refuse to build the Authorization header
+        # at all, with an error that pointed at latin-1 rather than at the key.
+        self.api_key = key.strip().lstrip("﻿​").strip()
 
     def send_messages(self, email_messages):
         if not email_messages:
@@ -96,6 +109,8 @@ class ResendAPIBackend(BaseEmailBackend):
             headers={
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
+                "Accept": "application/json",
+                "User-Agent": USER_AGENT,
             },
             method="POST",
         )

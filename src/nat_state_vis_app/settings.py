@@ -300,7 +300,18 @@ CACHES = {
 }
 
 # Email (contact form)
+#
+# On the DigitalOcean Droplet the SMTP backend cannot work: outbound ports 25,
+# 465 and 587 are blocked by the provider on new accounts, so every send times
+# out. Set EMAIL_BACKEND=core.email_backends.ResendAPIBackend there, which
+# reaches Resend over https instead. Render does not block those ports, so it
+# keeps using SMTP unless told otherwise.
 EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+
+# Used by core.email_backends.ResendAPIBackend. Resend issues one string that
+# serves as both the API key and the SMTP password, so this falls back to
+# EMAIL_HOST_PASSWORD rather than storing the same secret twice.
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.resend.com")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"

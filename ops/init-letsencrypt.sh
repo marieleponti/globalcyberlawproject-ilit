@@ -27,10 +27,9 @@ if [[ ! -f "$ENV_FILE" ]]; then
     exit 1
 fi
 
-set -a
-# shellcheck disable=SC1090
-source "$ENV_FILE"
-set +a
+# shellcheck source=ops/load-env.sh
+. "$(dirname "$0")/load-env.sh"
+load_env "$ENV_FILE"
 
 : "${DOMAIN:?DOMAIN must be set in $ENV_FILE}"
 : "${CERTBOT_EMAIL:?CERTBOT_EMAIL must be set in $ENV_FILE}"

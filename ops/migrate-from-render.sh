@@ -26,10 +26,9 @@ DUMP_DIR="${DUMP_DIR:-./backups}"
 
 : "${RENDER_DATABASE_URL:?Set RENDER_DATABASE_URL to the External Database URL from the Render dashboard}"
 
-set -a
-# shellcheck disable=SC1090
-source "$ENV_FILE"
-set +a
+# shellcheck source=ops/load-env.sh
+. "$(dirname "$0")/load-env.sh"
+load_env "$ENV_FILE"
 
 : "${POSTGRES_USER:?POSTGRES_USER must be set}"
 : "${POSTGRES_DB:?POSTGRES_DB must be set}"

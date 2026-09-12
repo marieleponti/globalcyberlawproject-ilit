@@ -82,10 +82,9 @@ if docker compose -f docker-compose.prod.yml --env-file .env.production \
         | tee "${REPORT_DIR}/django-check-${TIMESTAMP}.txt" || FAILED=1
 elif command -v python >/dev/null 2>&1; then
     if [[ -f .env.production ]]; then
-        set -a
-        # shellcheck disable=SC1091
-        source .env.production
-        set +a
+        # shellcheck source=ops/load-env.sh
+        . "$(dirname "$0")/load-env.sh"
+        load_env .env.production
     fi
     (cd src && DEBUG=False python manage.py check --deploy) 2>&1 \
         | tee "${REPORT_DIR}/django-check-${TIMESTAMP}.txt" || FAILED=1

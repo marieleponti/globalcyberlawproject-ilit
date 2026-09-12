@@ -31,10 +31,9 @@ fi
 ENV_FILE="${ENV_FILE:-.env.production}"
 COMPOSE="docker compose -f docker-compose.prod.yml --env-file ${ENV_FILE}"
 
-set -a
-# shellcheck disable=SC1090
-source "$ENV_FILE"
-set +a
+# shellcheck source=ops/load-env.sh
+. "$(dirname "$0")/load-env.sh"
+load_env "$ENV_FILE"
 
 : "${POSTGRES_USER:?POSTGRES_USER must be set}"
 : "${POSTGRES_DB:?POSTGRES_DB must be set}"

@@ -108,9 +108,19 @@ server {
         proxy_pass http://django;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_valid 200 30d;
         expires 30d;
-        add_header Cache-Control "public, immutable";
+
+        # A single add_header in a location block cancels inheritance of every
+        # add_header set at server level, so all the security headers above
+        # would silently vanish from static responses. They have to be repeated
+        # here in full alongside the caching one.
+        add_header Cache-Control "public, immutable" always;
+        add_header Strict-Transport-Security "max-age=${HSTS_MAX_AGE}" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header Referrer-Policy "same-origin" always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+
         access_log off;
     }
 
@@ -124,7 +134,11 @@ server {
 
     # Login and admin: tight rate limit, since these are the credential-guessing
     # surface. burst=5 with nodelay absorbs a legitimate retry.
-    location ~ ^/(login|admin)/ {
+    #
+    # ADMIN_PATH_RE must track DJANGO_ADMIN_URL. Moving the admin off /admin/
+    # without updating it would silently drop the admin login back to the
+    # general 60r/m limit, which is the opposite of what moving it is for.
+    location ~ ^/(login|${ADMIN_PATH_RE})/ {
         limit_req zone=login_limit burst=5 nodelay;
 
         proxy_pass http://django;

@@ -77,10 +77,24 @@ echo "    Wrote ${DUMP_FILE} ($(du -h "$DUMP_FILE" | cut -f1))"
 echo
 echo ">>> [2/4] Snapshotting the current Droplet database first..."
 SAFETY_FILE="${DUMP_DIR}/droplet-pre-import-${TIMESTAMP}.sql"
-$COMPOSE exec -T db pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
-    --no-owner --no-privileges --clean --if-exists > "$SAFETY_FILE" || true
+if ! $COMPOSE exec -T db pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+        --no-owner --no-privileges --clean --if-exists > "$SAFETY_FILE"; then
+    echo "ERROR: could not snapshot the Droplet database." >&2
+    echo "       Refusing to destroy it without a way back." >&2
+    exit 1
+fi
 chmod 600 "$SAFETY_FILE"
-echo "    Wrote ${SAFETY_FILE}"
+
+# This snapshot is the only rollback for the import below, which drops every
+# table. An empty or truncated file looks exactly like a good one right up to
+# the moment it is needed, so it is checked before anything is destroyed.
+SAFETY_BYTES="$(stat -c %s "$SAFETY_FILE")"
+if [[ "$SAFETY_BYTES" -lt 1024 ]]; then
+    echo "ERROR: the rollback snapshot is only ${SAFETY_BYTES} bytes." >&2
+    echo "       It would not restore anything. Stopping before the import." >&2
+    exit 1
+fi
+echo "    Wrote ${SAFETY_FILE} ($(du -h "$SAFETY_FILE" | cut -f1))"
 
 # --- 3. Import -------------------------------------------------------------
 echo

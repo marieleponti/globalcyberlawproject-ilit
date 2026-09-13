@@ -131,6 +131,11 @@ SECURE_REDIRECT_EXEMPT = [
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
+# Deployment checks that are deferred on purpose, listed one by one so the
+# entrypoint can fail the boot on every other warning instead of ignoring them
+# all. While HSTS is still being raised in steps this holds security.W004.
+SILENCED_SYSTEM_CHECKS = env_list("SILENCED_SYSTEM_CHECKS")
+
 # Application definition
 
 INSTALLED_APPS = [

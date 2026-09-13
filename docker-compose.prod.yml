@@ -81,6 +81,9 @@ services:
       DOMAIN: ${DOMAIN}
       WWW_DOMAIN: ${WWW_DOMAIN}
       HSTS_MAX_AGE: ${HSTS_MAX_AGE:-0}
+      # Must match DJANGO_ADMIN_URL without its trailing slash, so the strict
+      # rate limit follows the admin when it is moved off /admin/.
+      ADMIN_PATH_RE: ${ADMIN_PATH_RE:-admin}
     volumes:
       - ./nginx/templates:/etc/nginx/templates:ro
       - certbot_conf:/etc/letsencrypt:ro
@@ -102,12 +105,15 @@ services:
         max-file: "3"
     security_opt:
       - no-new-privileges:true
-    # Pick up renewed certificates without a restart.
+    # Reload every 12h so renewed certificates are picked up without a restart.
+    # The TERM trap matters: without it `docker stop` kills the shell and nginx
+    # is SIGKILLed a moment later instead of draining its connections.
     command: >
       /bin/sh -c "
+        trap 'nginx -s quit 2>/dev/null; exit 0' TERM INT;
         /docker-entrypoint.sh nginx -g 'daemon off;' &
         NGINX_PID=$$!;
-        while :; do sleep 12h; nginx -s reload 2>/dev/null || true; done &
+        while :; do sleep 12h & wait $$!; nginx -s reload 2>/dev/null || true; done &
         wait $$NGINX_PID
       "
 

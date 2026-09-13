@@ -10,8 +10,11 @@
 # visualization broke in the move, since a Plotly failure surfaces as a 500 on
 # one route while everything else stays green.
 #
-# If the site is still login-gated, pass credentials so the session cookie is
-# carried through:
+# A redirect is NOT counted as a pass. With REQUIRE_LOGIN on, every route
+# answers 302 to /login/, and treating that as success would report a fully
+# green run for a site that rendered nothing at all. To actually exercise the
+# pages, pass credentials:
+#
 #   USERNAME=admin PASSWORD=secret ./ops/smoke-test.sh https://test.example.org
 
 set -uo pipefail
@@ -23,7 +26,14 @@ trap 'rm -f "$COOKIE_JAR"' EXIT
 
 PASS=0
 FAIL=0
+REDIR=0
 FAILED_ROUTES=()
+REDIR_ROUTES=()
+LOGIN_OK=0
+
+# Routes that legitimately answer with a redirect even when authenticated.
+# Anything beyond these redirecting means the site is gated.
+EXPECTED_REDIRECTS=2
 
 # Every route in src/core/urls.py, plus the health endpoints.
 ROUTES=(
@@ -79,13 +89,17 @@ if [[ -n "${USERNAME:-}" && -n "${PASSWORD:-}" ]]; then
     if [[ -z "$CSRF" ]]; then
         echo "    Could not read a CSRF token from the login page." >&2
     else
-        curl -fsS -o /dev/null -b "$COOKIE_JAR" -c "$COOKIE_JAR" \
+        if curl -fsS -o /dev/null -b "$COOKIE_JAR" -c "$COOKIE_JAR" \
             -e "${BASE_URL}/login/" \
             -d "csrfmiddlewaretoken=${CSRF}" \
             -d "username=${USERNAME}" \
             -d "password=${PASSWORD}" \
-            "${BASE_URL}/login/" && echo "    Logged in." \
-            || echo "    Login failed; routes will be tested anonymously." >&2
+            "${BASE_URL}/login/"; then
+            echo "    Logged in."
+            LOGIN_OK=1
+        else
+            echo "    Login failed; routes will be tested anonymously." >&2
+        fi
     fi
 fi
 
@@ -100,9 +114,14 @@ for route in "${ROUTES[@]}"; do
     MS=$(( ($(date +%s%N) - START) / 1000000 ))
 
     case "$CODE" in
-        200|301|302)
+        200)
             printf '  %-6s %-45s %sms\n' "OK" "$route" "$MS"
             PASS=$((PASS + 1))
+            ;;
+        301|302)
+            printf '  %-6s %-45s %sms  -> HTTP %s\n' "REDIR" "$route" "$MS" "$CODE"
+            REDIR=$((REDIR + 1))
+            REDIR_ROUTES+=("${route} (HTTP ${CODE})")
             ;;
         *)
             printf '  %-6s %-45s %sms  <-- HTTP %s\n' "FAIL" "$route" "$MS" "$CODE"
@@ -126,12 +145,30 @@ fi
 
 echo
 echo "=============================================================="
-echo " Passed: ${PASS}    Failed: ${FAIL}"
+echo " Rendered: ${PASS}    Redirected: ${REDIR}    Failed: ${FAIL}"
+
+STATUS=0
+
 if [[ "$FAIL" -gt 0 ]]; then
     echo
     echo " Failing routes:"
     printf '   - %s\n' "${FAILED_ROUTES[@]}"
-    echo "=============================================================="
-    exit 1
+    STATUS=1
 fi
+
+if [[ "$REDIR" -gt "$EXPECTED_REDIRECTS" ]]; then
+    echo
+    echo " ${REDIR} routes only redirected, so their pages were never rendered."
+    if [[ "$LOGIN_OK" -eq 1 ]]; then
+        echo " Credentials were accepted, so the session is not being carried."
+        echo " Check SESSION_COOKIE_SECURE, CSRF_TRUSTED_ORIGINS and the scheme."
+    else
+        echo " The site is behind login. Re-run with credentials:"
+        echo "   USERNAME=... PASSWORD=... $0 ${BASE_URL}"
+    fi
+    printf '   - %s\n' "${REDIR_ROUTES[@]}"
+    STATUS=1
+fi
+
 echo "=============================================================="
+exit "$STATUS"

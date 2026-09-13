@@ -48,11 +48,16 @@ if [ -n "${DJANGO_SUPERUSER_USERNAME:-}" ] && [ -n "${DJANGO_SUPERUSER_PASSWORD:
 fi
 
 # --- Production checks ------------------------------------------------------
-# `check --deploy` fails the boot on a real misconfiguration (missing SECRET_KEY,
-# insecure cookies, DEBUG left on). Set SKIP_DEPLOY_CHECK=1 to bypass.
+# Django reports every deployment issue as a WARNING, never an ERROR, so
+# --fail-level ERROR would let DEBUG=True, insecure cookies and a missing
+# SECRET_KEY all boot happily. WARNING is the level that actually gates.
+#
+# Checks that are deferred on purpose are listed in SILENCED_SYSTEM_CHECKS
+# rather than by lowering the gate for everything. While HSTS is still 0 that
+# means SILENCED_SYSTEM_CHECKS=security.W004.
 if [ "${DEBUG:-False}" != "True" ] && [ "${SKIP_DEPLOY_CHECK:-0}" != "1" ]; then
     echo "Running deployment checks..."
-    python manage.py check --deploy --fail-level ERROR
+    python manage.py check --deploy --fail-level WARNING
 fi
 
 # --- Gunicorn ---------------------------------------------------------------

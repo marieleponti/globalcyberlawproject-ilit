@@ -14,10 +14,12 @@ on:
   workflow_call:
   workflow_dispatch:
 
-# A newer push supersedes an in-flight run on the same branch.
+# A newer push supersedes an in-flight run on the same branch, except when this
+# workflow was called by deploy.yml: cancelling there would kill the gate of a
+# deployment that deliberately refuses to be cancelled.
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_call' }}
 
 permissions:
   contents: read
@@ -36,6 +38,9 @@ jobs:
       ALLOWED_HOSTS: example.org
       POSTGRES_DB: ci
       POSTGRES_USER: ci
+      # CI has no TLS, so the HSTS warning always fires. Silenced explicitly so
+      # every other deployment warning still fails the job.
+      SILENCED_SYSTEM_CHECKS: security.W004
 
     steps:
       - uses: actions/checkout@v4
@@ -54,7 +59,7 @@ jobs:
 
       - name: Django deployment checklist
         working-directory: src
-        run: python manage.py check --deploy
+        run: python manage.py check --deploy --fail-level WARNING
 
       - name: Confirm no migrations are missing
         working-directory: src

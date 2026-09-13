@@ -16,7 +16,10 @@ set -euo pipefail
 # non-login shell. Set PATH explicitly so git and docker resolve there too.
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH:-}"
 
-cd "$(dirname "$0")/.."
+# Resolve to an absolute path before changing directory: the re-exec below
+# reuses $0, and a relative one stops resolving once we have moved.
+SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+cd "$(dirname "$SCRIPT_PATH")/.."
 
 ENV_FILE="${ENV_FILE:-.env.production}"
 COMPOSE="docker compose -f docker-compose.prod.yml --env-file ${ENV_FILE}"
@@ -34,7 +37,7 @@ mkdir -p "$LOG_DIR"
 if [[ -z "${_DEPLOY_LOGGING:-}" ]]; then
     export _DEPLOY_LOGGING=1
     set +e
-    "$0" "$@" 2>&1 | tee -a "${LOG_DIR}/deploy.log"
+    "$SCRIPT_PATH" "$@" 2>&1 | tee -a "${LOG_DIR}/deploy.log"
     exit "${PIPESTATUS[0]}"
 fi
 

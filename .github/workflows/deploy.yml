@@ -72,7 +72,11 @@ jobs:
         # The Droplet decides what this does, not us. The key is pinned to a
         # forced command in authorized_keys, so whatever is sent here is ignored
         # and ops/deploy.sh runs instead.
+        # `set -o pipefail` matters: without it the pipe into tee returns tee's
+        # status, so a failed deploy on the Droplet reports as a green run.
+        shell: bash
         run: |
+          set -euo pipefail
           ssh -o StrictHostKeyChecking=yes \
               -o BatchMode=yes \
               -o ConnectTimeout=30 \

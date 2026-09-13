@@ -55,7 +55,9 @@ class ResendAPIBackend(BaseEmailBackend):
         # value is copied between Windows and Linux. A byte order mark at the
         # front of the key made urllib refuse to build the Authorization header
         # at all, with an error that pointed at latin-1 rather than at the key.
-        self.api_key = key.strip().lstrip("﻿​").strip()
+        # Stripped from both ends: a trailing one breaks the header just as
+        # thoroughly as a leading one, and is even harder to notice.
+        self.api_key = key.strip().strip('\ufeff\u200b\r\n\t ')
 
     def send_messages(self, email_messages):
         if not email_messages:

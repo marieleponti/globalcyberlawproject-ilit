@@ -54,9 +54,18 @@ $COMPOSE exec -T db pg_dump \
   | gzip -9 \
   | openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt \
       -pass env:BACKUP_PASSPHRASE \
-      -out "$OUTFILE"
+      -out "$OUTFILE" || PIPE_STATUS=$?
 
-chmod 600 "$OUTFILE"
+# With `set -e` and pipefail, a failure anywhere in that pipeline would abort
+# the script before the checks below, leaving a truncated and world-readable
+# file that still looks like a valid backup. Tighten permissions, then judge.
+chmod 600 "$OUTFILE" 2>/dev/null || true
+
+if [[ -n "${PIPE_STATUS:-}" ]]; then
+    echo "[$(date -u +%FT%TZ)] ERROR: dump pipeline failed (${PIPE_STATUS})." >&2
+    rm -f "$OUTFILE"
+    exit 1
+fi
 SIZE="$(du -h "$OUTFILE" | cut -f1)"
 
 # A dump of an empty or failed database is a few hundred bytes. Catch that here

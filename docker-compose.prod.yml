@@ -84,6 +84,15 @@ services:
       # Must match DJANGO_ADMIN_URL without its trailing slash, so the strict
       # rate limit follows the admin when it is moved off /admin/.
       ADMIN_PATH_RE: ${ADMIN_PATH_RE:-admin}
+      # Consumed by nginx/templates/eb-site.conf.template. REQUIRED once that
+      # template is in place: an empty value renders `server_name ;` with no
+      # argument, which fails `nginx -t` and stops nginx from starting AT
+      # ALL — taking the Django site down too, since they share this same
+      # container. Do not merge this branch (or add real values to
+      # .env.production) until EB_FRONTEND_DOMAIN and EB_WP_DOMAIN are both
+      # set to real, DNS-resolvable domains.
+      EB_FRONTEND_DOMAIN: ${EB_FRONTEND_DOMAIN}
+      EB_WP_DOMAIN: ${EB_WP_DOMAIN}
     volumes:
       - ./nginx/templates:/etc/nginx/templates:ro
       - certbot_conf:/etc/letsencrypt:ro
@@ -92,6 +101,11 @@ services:
       - web
     networks:
       - frontend
+      # Shared only with the EB site's docker-compose stack (see
+      # eb-site-migracion/infra), so this nginx can reach eb_frontend and
+      # eb_wp_nginx by name. Created once with `docker network create
+      # eb_shared_edge` before either stack is brought up.
+      - eb_shared_edge
     healthcheck:
       test: ["CMD-SHELL", "nginx -t || exit 1"]
       interval: 30s
@@ -147,6 +161,12 @@ networks:
     internal: true
   frontend:
     driver: bridge
+  # Created once on the Droplet with `docker network create eb_shared_edge`,
+  # before this stack or the EB site's stack is started. Not managed here
+  # (external: true) because it's shared across two separate compose
+  # projects and must outlive either one being brought down individually.
+  eb_shared_edge:
+    external: true
 
 volumes:
   postgres_data:

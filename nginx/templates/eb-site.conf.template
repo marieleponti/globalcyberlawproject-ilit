@@ -1,0 +1,127 @@
+# Reverse proxy for the EB site (everywhereborder.org), which runs in its
+# own docker-compose stack (see the sibling `eb-site-migracion/infra`
+# project) but shares this Droplet's nginx for ports 80/443 the same way
+# default.conf.template does for the Django app.
+#
+# Does NOT redeclare `map $host $is_canonical` or a `limit_req_zone` with
+# the same name as default.conf.template — nginx errors on a duplicate
+# name in the same http context, since every *.template here is rendered
+# into the same conf.d/ and loaded together.
+#
+# ${EB_FRONTEND_DOMAIN} / ${EB_WP_DOMAIN} come from this container's
+# environment (see docker-compose.prod.yml's nginx service), same envsubst
+# mechanism as ${DOMAIN} in default.conf.template.
+#
+# eb_frontend and eb_wp_nginx are containers from the EB site's own
+# docker-compose stack, reachable here only because both compose files
+# share the eb_shared_edge external network.
+
+limit_req_zone $binary_remote_addr zone=eb_general_limit:10m rate=60r/m;
+
+# ---------------------------------------------------------------------------
+# Frontend: everywhereborder.org
+# ---------------------------------------------------------------------------
+server {
+    listen 80;
+    server_name ${EB_FRONTEND_DOMAIN};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    location / {
+        return 301 https://${EB_FRONTEND_DOMAIN}$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name ${EB_FRONTEND_DOMAIN};
+
+    ssl_certificate     /etc/letsencrypt/live/${EB_FRONTEND_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${EB_FRONTEND_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;
+    ssl_prefer_server_ciphers off;
+
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "same-origin" always;
+    server_tokens off;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    location / {
+        limit_req zone=eb_general_limit burst=40 nodelay;
+        proxy_pass http://eb_frontend:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Backend: admin.everywhereborder.org (WordPress)
+# ---------------------------------------------------------------------------
+server {
+    listen 80;
+    server_name ${EB_WP_DOMAIN};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    location / {
+        return 301 https://${EB_WP_DOMAIN}$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name ${EB_WP_DOMAIN};
+
+    ssl_certificate     /etc/letsencrypt/live/${EB_WP_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${EB_WP_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;
+    ssl_prefer_server_ciphers off;
+
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    server_tokens off;
+
+    client_max_body_size 100M;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    # Login/admin screens: tighter burst than the rest, same reasoning as
+    # the Django project's /admin/ block (credential-guessing surface).
+    location ~ ^/(wp-login\.php|wp-admin/) {
+        limit_req zone=eb_general_limit burst=10 nodelay;
+        proxy_pass http://eb_wp_nginx:80;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
+    location / {
+        limit_req zone=eb_general_limit burst=40 nodelay;
+        proxy_pass http://eb_wp_nginx:80;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+}

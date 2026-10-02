@@ -1,1 +1,49 @@
+# Secrets. Never commit any of these.
+#
+# The *.env line matters: a file named like globalcyberlaw-onrender.env does not
+# match ".env" or ".env.*", and was sitting untracked in this working tree with
+# live production credentials in it. Only the example template is allowed.
 .env
+.env.*
+*.env
+!.env.production.example
+
+# Database dumps, including the encrypted nightly backups. These contain user
+# accounts and password hashes. The directory itself is kept so the compose
+# bind mount has somewhere to land.
+backups/*
+!backups/.gitkeep
+*.sql
+*.sql.gz
+*.sql.gz.enc
+*.dump
+
+# TLS material, if anything is ever written outside the Docker volume.
+*.pem
+*.key
+certbot/
+
+# Security scan output.
+ops/reports/*
+!ops/reports/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Django
+src/staticfiles/
+src/db.sqlite3
+*.log
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

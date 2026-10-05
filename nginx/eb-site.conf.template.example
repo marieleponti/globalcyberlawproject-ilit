@@ -1,9 +1,33 @@
-# Reverse proxy for the EB site (everywhereborder.org), which runs in its
-# own docker-compose stack (see the sibling `eb-site-migracion/infra`
-# project) but shares this Droplet's nginx for ports 80/443 the same way
-# default.conf.template does for the Django app.
+# Reverse proxy for the EB site (everywhereborder.org), which runs in its own
+# docker-compose stack (the sibling `eb-site-migracion/infra` project) but shares
+# this Droplet's nginx for ports 80/443, the same way default.conf.template does
+# for the Django app.
 #
-# Does NOT redeclare `map $host $is_canonical` or a `limit_req_zone` with
+# OFF BY DEFAULT. nginx only loads *.template files from nginx/templates/, and
+# this one lives outside it with an .example suffix, so merging it changes
+# nothing for the Django site. To switch the EB site on, on the Droplet:
+#
+#   1. set EB_FRONTEND_DOMAIN and EB_WP_DOMAIN in .env.production (real,
+#      non-empty, DNS already pointing here)
+#   2. ./ops/issue-cert.sh <each domain>   (writes a placeholder certificate
+#      first, so step 3 can never leave nginx without a file it needs)
+#   3. cp nginx/eb-site.conf.template.example nginx/templates/eb-site.conf.template
+#   4. docker compose -f docker-compose.prod.yml --env-file .env.production up -d nginx
+#
+# The copy in step 3 is git-ignored, so a Django deploy (git reset --hard) never
+# removes it. To switch it off again, delete that copy and redo step 4.
+#
+# Does NOT redeclare `map $host $is_canonical` or a `limit_req_zone` with the
+# same name as default.conf.template: nginx errors on a duplicate name in the
+# same http context, since every *.template is rendered into the same conf.d/.
+#
+# ${EB_FRONTEND_DOMAIN} / ${EB_WP_DOMAIN} come from this container's environment
+# (docker-compose.prod.yml), same envsubst mechanism as ${DOMAIN}.
+#
+# eb_frontend and eb_wp_nginx are containers of the EB site's own compose stack,
+# reachable here because both attach to the eb_shared_edge network.
+
+limit_req_zone` with
 # the same name as default.conf.template — nginx errors on a duplicate
 # name in the same http context, since every *.template here is rendered
 # into the same conf.d/ and loaded together.

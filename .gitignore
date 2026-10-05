@@ -47,3 +47,7 @@ src/db.sqlite3
 .vscode/
 .DS_Store
 Thumbs.db
+
+# EB site: the enabled copy of nginx/eb-site.conf.template.example, made on the
+# Droplet. Untracked on purpose so `git reset --hard` in a deploy leaves it alone.
+nginx/templates/eb-site.conf.template

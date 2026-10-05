@@ -27,7 +27,11 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-DOMAIN="${1:?Usage: ops/issue-cert.sh <domain>}"
+# Named CERT_DOMAIN, not DOMAIN: load_env below exports every variable in
+# .env.production, and that file defines DOMAIN for the Django site. Reading the
+# argument into DOMAIN let it be silently overwritten, so the script acted on
+# the Django domain (and, with FORCE=1, would have deleted its live certificate).
+CERT_DOMAIN="${1:?Usage: ops/issue-cert.sh <domain>}"
 ENV_FILE="${ENV_FILE:-.env.production}"
 COMPOSE="docker compose -f docker-compose.prod.yml --env-file ${ENV_FILE}"
 
@@ -42,7 +46,21 @@ load_env "$ENV_FILE"
 
 : "${CERTBOT_EMAIL:?CERTBOT_EMAIL must be set in $ENV_FILE}"
 
-CERT_PATH="/etc/letsencrypt/live/${DOMAIN}"
+# This script is for ADDITIONAL domains. Refuse the Django site's own names:
+# those have init-letsencrypt.sh, and replacing their certificate here would
+# take the live site down.
+for own in "${DOMAIN:-}" "${WWW_DOMAIN:-}"; do
+    if [[ -n "$own" && "$CERT_DOMAIN" == "$own" ]]; then
+        echo "ERROR: ${CERT_DOMAIN} is this repo's own domain. Use ops/init-letsencrypt.sh." >&2
+        exit 1
+    fi
+done
+case "$CERT_DOMAIN" in
+    *[!A-Za-z0-9.-]*|"") echo "ERROR: '${CERT_DOMAIN}' is not a valid hostname." >&2; exit 1 ;;
+esac
+
+
+CERT_PATH="/etc/letsencrypt/live/${CERT_DOMAIN}"
 CERTBOT_SH() { $COMPOSE run --rm --entrypoint sh certbot -c "$1"; }
 
 make_placeholder() {
@@ -63,28 +81,28 @@ reload_nginx() {
 
 # A real, certbot-managed certificate leaves a renewal config behind.
 HAS_REAL=0
-CERTBOT_SH "[ -f /etc/letsencrypt/renewal/${DOMAIN}.conf ]" 2>/dev/null && HAS_REAL=1
+CERTBOT_SH "[ -f /etc/letsencrypt/renewal/${CERT_DOMAIN}.conf ]" 2>/dev/null && HAS_REAL=1
 
 if [[ "${PLACEHOLDER_ONLY:-0}" == "1" ]]; then
     if CERTBOT_SH "[ -f ${CERT_PATH}/fullchain.pem ]" 2>/dev/null; then
-        echo ">>> A certificate (placeholder or real) already exists for ${DOMAIN}, nothing to do."
+        echo ">>> A certificate (placeholder or real) already exists for ${CERT_DOMAIN}, nothing to do."
     else
-        echo ">>> Writing a self-signed placeholder for ${DOMAIN}..."
+        echo ">>> Writing a self-signed placeholder for ${CERT_DOMAIN}..."
         make_placeholder
     fi
     exit 0
 fi
 
 if [[ "$HAS_REAL" == "1" && "${FORCE:-0}" != "1" ]]; then
-    echo ">>> ${DOMAIN} already has a real certificate. Set FORCE=1 to request it again."
+    echo ">>> ${CERT_DOMAIN} already has a real certificate. Set FORCE=1 to request it again."
     exit 0
 fi
 
-echo ">>> Checking DNS for ${DOMAIN}..."
-RESOLVED="$(getent hosts "$DOMAIN" | awk '{print $1}' | head -1 || true)"
+echo ">>> Checking DNS for ${CERT_DOMAIN}..."
+RESOLVED="$(getent hosts "$CERT_DOMAIN" | awk '{print $1}' | head -1 || true)"
 PUBLIC_IP="$(curl -fsS --max-time 10 https://api.ipify.org || true)"
 if [[ -n "$RESOLVED" && -n "$PUBLIC_IP" && "$RESOLVED" != "$PUBLIC_IP" ]]; then
-    echo "    WARNING: ${DOMAIN} resolves to ${RESOLVED}, this host is ${PUBLIC_IP}."
+    echo "    WARNING: ${CERT_DOMAIN} resolves to ${RESOLVED}, this host is ${PUBLIC_IP}."
     echo "    HTTP-01 validation will fail until DNS points here (grey cloud on Cloudflare)."
     read -r -p "    Continue anyway? [y/N] " reply
     [[ "$reply" == "y" || "$reply" == "Y" ]] || exit 1
@@ -102,14 +120,14 @@ fi
 
 # certbot refuses to write into a live/<domain> directory it does not manage,
 # so the placeholder has to go first. It is restored if the request fails.
-echo ">>> Replacing the placeholder with a real certificate for ${DOMAIN}..."
-CERTBOT_SH "rm -rf ${CERT_PATH} /etc/letsencrypt/archive/${DOMAIN} /etc/letsencrypt/renewal/${DOMAIN}.conf"
+echo ">>> Replacing the placeholder with a real certificate for ${CERT_DOMAIN}..."
+CERTBOT_SH "rm -rf ${CERT_PATH} /etc/letsencrypt/archive/${CERT_DOMAIN} /etc/letsencrypt/renewal/${CERT_DOMAIN}.conf"
 
 if ! $COMPOSE run --rm --entrypoint certbot certbot \
         certonly --webroot -w /var/www/certbot \
         "${STAGING_ARG[@]}" \
         --email "${CERTBOT_EMAIL}" \
-        -d "${DOMAIN}" \
+        -d "${CERT_DOMAIN}" \
         --rsa-key-size 4096 \
         --agree-tos \
         --no-eff-email \
@@ -124,7 +142,7 @@ reload_nginx
 
 echo
 echo ">>> Done. Verify with:"
-echo "      curl -I https://${DOMAIN}/"
+echo "      curl -I https://${CERT_DOMAIN}/"
 if [[ "${STAGING:-0}" == "1" ]]; then
     echo ">>> That was a STAGING certificate. Run again with FORCE=1 and without STAGING for the real one."
 fi

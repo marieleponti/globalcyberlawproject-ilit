@@ -17,30 +17,11 @@
 # The copy in step 3 is git-ignored, so a Django deploy (git reset --hard) never
 # removes it. To switch it off again, delete that copy and redo step 4.
 #
-# Does NOT redeclare `map $host $is_canonical` or a `limit_req_zone` with the
-# same name as default.conf.template: nginx errors on a duplicate name in the
-# same http context, since every *.template is rendered into the same conf.d/.
-#
-# ${EB_FRONTEND_DOMAIN} / ${EB_WP_DOMAIN} come from this container's environment
-# (docker-compose.prod.yml), same envsubst mechanism as ${DOMAIN}.
-#
-# eb_frontend and eb_wp_nginx are containers of the EB site's own compose stack,
-# reachable here because both attach to the eb_shared_edge network.
-
-limit_req_zone` with
-# the same name as default.conf.template — nginx errors on a duplicate
-# name in the same http context, since every *.template here is rendered
-# into the same conf.d/ and loaded together.
-#
-# ${EB_FRONTEND_DOMAIN} / ${EB_WP_DOMAIN} come from this container's
-# environment (see docker-compose.prod.yml's nginx service), same envsubst
-# mechanism as ${DOMAIN} in default.conf.template.
-#
-# eb_frontend and eb_wp_nginx are containers from the EB site's own
-# docker-compose stack, reachable here only because both compose files
-# share the eb_shared_edge external network.
-
-limit_req_zone $binary_remote_addr zone=eb_general_limit:10m rate=60r/m;
+# Does NOT redeclare `map $host $is_canonical` or a `# 10 requests/second per address for the app itself. A single-page app loads a
+# few dozen files per visit, so the 60/minute used for the Django site would
+# return 503 to ordinary visitors. Logins get their own, much tighter zone.
+limit_req_zone $binary_remote_addr zone=eb_general_limit:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=eb_login_limit:10m rate=5r/m;
 
 # ---------------------------------------------------------------------------
 # Frontend: everywhereborder.org
@@ -75,14 +56,31 @@ server {
     add_header Referrer-Policy "same-origin" always;
     server_tokens off;
 
+    # The Node server does not compress; the JS/CSS bundles are large.
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_types text/plain text/css text/javascript application/javascript
+               application/json application/xml image/svg+xml;
+
+    # Docker's embedded DNS, asked at request time. A literal hostname in
+    # proxy_pass is resolved once at nginx START, and if the EB containers are
+    # not up yet nginx refuses to start ("host not found in upstream") — for
+    # every site on this nginx, the Django one included. Going through a
+    # variable defers the lookup to the first request instead.
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $eb_frontend http://eb_frontend:3000;
+
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
         default_type "text/plain";
     }
 
     location / {
-        limit_req zone=eb_general_limit burst=40 nodelay;
-        proxy_pass http://eb_frontend:3000;
+        limit_req zone=eb_general_limit burst=100 nodelay;
+        # No URI after the variable: nginx forwards the original request URI.
+        proxy_pass $eb_frontend;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -126,24 +124,33 @@ server {
 
     client_max_body_size 100M;
 
+    # Same lazy lookup as the frontend block above.
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $eb_wp http://eb_wp_nginx:80;
+
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
         default_type "text/plain";
     }
 
-    # Login/admin screens: tighter burst than the rest, same reasoning as
-    # the Django project's /admin/ block (credential-guessing surface).
-    location ~ ^/(wp-login\.php|wp-admin/) {
-        limit_req zone=eb_general_limit burst=10 nodelay;
-        proxy_pass http://eb_wp_nginx:80;
+    # Nothing in this stack uses XML-RPC, and it is a classic brute-force path.
+    location = /xmlrpc.php {
+        return 403;
+    }
+
+    # Only the login form is on the tight limit. wp-admin pages load dozens of
+    # assets and must stay on the general one.
+    location = /wp-login.php {
+        limit_req zone=eb_login_limit burst=5 nodelay;
+        proxy_pass $eb_wp;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_redirect off;
     }
 
     location / {
-        limit_req zone=eb_general_limit burst=40 nodelay;
-        proxy_pass http://eb_wp_nginx:80;
+        limit_req zone=eb_general_limit burst=100 nodelay;
+        proxy_pass $eb_wp;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_redirect off;

@@ -1,34 +1,44 @@
-services:
+# Development stack. Source is bind-mounted so edits are picked up on reload,
+# and Postgres is published on localhost so a GUI client can attach.
+#
+# Production uses docker-compose.prod.yml instead. Do not deploy this file.
 
-    web:
-      build: .
-      container_name: django_app
-      ports:
-        - "8000:8000"
-      volumes:
-        - ./src:/app/src
-#        - ./src/data:/app/src/data
-      depends_on:
-        db:
-          condition: service_healthy
-      restart: unless-stopped
-      env_file:
-        - .env
-    db:
-      image: postgres:17
-      container_name: postgres_db
-      volumes:
-        - postgres_db:/var/lib/postgresql/data
-      environment:
-        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-        - POSTGRES_DB=${POSTGRES_DB}
-        - POSTGRES_USER=${POSTGRES_USER}
-      healthcheck:
-        test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-        interval: 10s
-        retries: 5
-        start_period: 30s
-        timeout: 10s
+services:
+  web:
+    build: .
+    container_name: django_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    env_file:
+      - .env
+
+  db:
+    image: postgres:17
+    container_name: postgres_db
+    ports:
+      # Localhost only. Never bind 0.0.0.0 for a database.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
 volumes:
   postgres_db:

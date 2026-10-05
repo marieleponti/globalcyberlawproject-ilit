@@ -13,36 +13,128 @@ from pathlib import Path
 import os
 import dj_database_url
 
-from django.conf.global_settings import LOGIN_URL
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+
+def env_bool(name, default=False):
+    """Read a boolean from the environment. Accepts 1/true/yes/on (any case)."""
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in ("1", "true", "yes", "on")
+
+
+def env_list(name, default=None):
+    """Read a comma-separated list from the environment, ignoring blanks."""
+    raw = os.environ.get(name, "")
+    values = [item.strip() for item in raw.split(",") if item.strip()]
+    return values if values else list(default or [])
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False") == "True"
+DEBUG = env_bool("DEBUG", False)
 
-# SECURITY SETTINGS
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    if DEBUG:
+        # Development-only fallback so `manage.py` works without a .env file.
+        SECRET_KEY = "django-insecure-local-development-key-do-not-use-in-production"
+    else:
+        raise RuntimeError(
+            "SECRET_KEY environment variable is required when DEBUG is off. "
+            "Generate one with: python -c \"from django.core.management.utils import "
+            "get_random_secret_key as k; print(k())\""
+        )
+
+# ---------------------------------------------------------------------------
+# Hosts / origins
+#
+# Hosts come from the ALLOWED_HOSTS env var (comma-separated). Render injects
+# RENDER_EXTERNAL_HOSTNAME on its own, so it is appended automatically and the
+# same image keeps working on Render until the DNS cutover to DigitalOcean.
+# ---------------------------------------------------------------------------
 RENDER_HOST = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+
+# PUBLIC_HOSTS are the names the site is actually served under. They drive both
+# ALLOWED_HOSTS and the default CSRF trusted origins.
+PUBLIC_HOSTS = env_list("ALLOWED_HOSTS")
+if RENDER_HOST and RENDER_HOST not in PUBLIC_HOSTS:
+    PUBLIC_HOSTS.append(RENDER_HOST)
+
+if not PUBLIC_HOSTS and not DEBUG:
+    raise RuntimeError(
+        "ALLOWED_HOSTS is empty. Set it to the public domain(s), for example: "
+        "ALLOWED_HOSTS=nationalstatements.org,www.nationalstatements.org"
+    )
+
+# Loopback is always allowed: the container HEALTHCHECK and the nginx upstream
+# probe reach Gunicorn on 127.0.0.1, before any public hostname resolves. These
+# names are not routable from outside the container, so this is not a wildcard.
+ALLOWED_HOSTS = PUBLIC_HOSTS + ["127.0.0.1", "localhost"]
 if DEBUG:
-    ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0',  '142.93.95.52']
-else:
-    ALLOWED_HOSTS = ['142.93.95.52', RENDER_HOST]
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    # bandit flags the literal "0.0.0.0" as binding to every interface (B104).
+    # That rule is about opening a socket. This is Django's Host header
+    # allow-list, it opens nothing, and it only applies when DEBUG is on.
+    # Carried over from the original settings for development parity.
+    ALLOWED_HOSTS.append("0.0.0.0")  # nosec B104
 
-SECURE_BROWSER_XSS_FILTER = True
+# CSRF trusted origins must carry a scheme. Anything explicitly configured wins;
+# otherwise each public host is trusted over https.
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
+if not CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = [
+        f"https://{host}" for host in PUBLIC_HOSTS if not host.startswith(".")
+    ]
+    if DEBUG:
+        CSRF_TRUSTED_ORIGINS += ["http://127.0.0.1:8000", "http://localhost:8000"]
+
+# ---------------------------------------------------------------------------
+# TLS / transport security
+#
+# Nginx terminates TLS on the Droplet and forwards X-Forwarded-Proto, so Django
+# must trust that header to know a request arrived over https.
+# ---------------------------------------------------------------------------
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = env_bool("USE_X_FORWARDED_HOST", not DEBUG)
+
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", not DEBUG)
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", not DEBUG)
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", not DEBUG)
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # the contact form posts the token from templates
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+
+# HSTS. Start at 0, raise to 3600, then to a year once TLS is proven on the
+# real domain. Setting it too early on a domain without a valid certificate
+# locks browsers out of the site.
+SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "0"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", False)
+SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", False)
+
 SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
-CSRF_TRUSTED_ORIGINS = ['142.93.95.52', f'https://{RENDER_HOST}']
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# Health-check and ACME paths must never be forced to https, or Certbot's
+# HTTP-01 challenge and the Droplet's local probe both fail.
+SECURE_REDIRECT_EXEMPT = [
+    r"^healthz/?$",
+    r"^readyz/?$",
+    r"^\.well-known/acme-challenge/",
+]
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+
+# Deployment checks that are deferred on purpose, listed one by one so the
+# entrypoint can fail the boot on every other warning instead of ignoring them
+# all. While HSTS is still being raised in steps this holds security.W004.
+SILENCED_SYSTEM_CHECKS = env_list("SILENCED_SYSTEM_CHECKS")
 
 # Application definition
 
@@ -58,16 +150,21 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise must sit immediately after SecurityMiddleware so static files
+    # are served without running the rest of the stack.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # commenting out Login Required to make site public
-    # 'core.middleware.LoginRequiredMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
+
+# The site is login-gated until the public launch. Flip REQUIRE_LOGIN to False
+# (env var) on launch day instead of editing this list.
+if env_bool("REQUIRE_LOGIN", False):
+    MIDDLEWARE.append('core.middleware.LoginRequiredMiddleware')
 
 ROOT_URLCONF = 'nat_state_vis_app.urls'
 
@@ -89,6 +186,11 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Supplies `vis_ready` to the templates. Without this line the
+                # variable is simply undefined, so every
+                # {% if vis_ready.<area> %} block evaluates false and the
+                # VISUALIZATIONS_READY switches above do nothing at all.
+                'core.context_processors.visualizations_ready',
             ],
         },
     },
@@ -101,18 +203,27 @@ WSGI_APPLICATION = 'nat_state_vis_app.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 if os.getenv("DATABASE_URL"):
-    # Cualquier proveedor con Postgres administrado (Railway, Render, etc.)
-    DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=True)}
+    # Managed Postgres reached over the network (Render, Railway, DO Managed DB).
+    # SSL is required by default there; set DATABASE_SSL_REQUIRE=False only when
+    # DATABASE_URL points at a Postgres container on the same private network.
+    DATABASES = {
+        "default": dj_database_url.config(
+            conn_max_age=int(os.getenv("DB_CONN_MAX_AGE", "600")),
+            ssl_require=env_bool("DATABASE_SSL_REQUIRE", True),
+        )
+    }
 else:
-    # Local development
+    # Postgres container on the same Docker network (DigitalOcean Droplet), or
+    # a local development database.
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
             "NAME": os.getenv("POSTGRES_DB", "postgres"),
             "USER": os.getenv("POSTGRES_USER", "postgres"),
             "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
-            "HOST": os.getenv("DB_HOST", "postgres_db"),
+            "HOST": os.getenv("DB_HOST", "db"),
             "PORT": os.getenv("DB_PORT", "5432"),
+            "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "600")),
         }
     }
 
@@ -158,7 +269,20 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Django 5 storage API. STATICFILES_STORAGE was the Django 4 spelling and is
+# deprecated; WhiteNoise reads this one.
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# Cache immutable hashed static assets hard; nginx also sets headers for these.
+WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
@@ -181,7 +305,18 @@ CACHES = {
 }
 
 # Email (contact form)
+#
+# On the DigitalOcean Droplet the SMTP backend cannot work: outbound ports 25,
+# 465 and 587 are blocked by the provider on new accounts, so every send times
+# out. Set EMAIL_BACKEND=core.email_backends.ResendAPIBackend there, which
+# reaches Resend over https instead. Render does not block those ports, so it
+# keeps using SMTP unless told otherwise.
 EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+
+# Used by core.email_backends.ResendAPIBackend. Resend issues one string that
+# serves as both the API key and the SMTP password, so this falls back to
+# EMAIL_HOST_PASSWORD rather than storing the same secret twice.
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.resend.com")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
@@ -191,6 +326,46 @@ DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 CONTACT_RECIPIENT_EMAIL = os.environ.get("CONTACT_RECIPIENT_EMAIL", EMAIL_HOST_USER)
 EMAIL_TIMEOUT = 10
 
-#To allow contact form submission on Render
-CSRF_TRUSTED_ORIGINS = ['https://globalcyberlaw.onrender.com']
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# NOTE: CSRF_TRUSTED_ORIGINS and SECURE_PROXY_SSL_HEADER used to be re-declared
+# here with the Render hostname hardcoded, which silently overrode the values
+# computed above. Both are now set once, from the environment, near the top of
+# this file. Do not re-assign them here.
+
+# ---------------------------------------------------------------------------
+# Logging: everything to stdout/stderr so `docker compose logs` and the Droplet's
+# journald both capture it. No log files inside the container.
+# ---------------------------------------------------------------------------
+LOG_LEVEL = os.environ.get("DJANGO_LOG_LEVEL", "INFO").upper()
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {name} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": LOG_LEVEL,
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "django.security.DisallowedHost": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}

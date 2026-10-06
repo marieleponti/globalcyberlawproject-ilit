@@ -118,7 +118,9 @@ class ResendAPIBackend(BaseEmailBackend):
         )
 
         try:
-            with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
+            # API_URL is a fixed https:// constant, so urlopen cannot be steered
+            # to file: or a custom scheme.
+            with urllib.request.urlopen(request, timeout=TIMEOUT) as response:  # nosec B310
                 result = json.loads(response.read().decode("utf-8") or "{}")
             logger.info("Resend accepted the message, id=%s", result.get("id"))
             return True

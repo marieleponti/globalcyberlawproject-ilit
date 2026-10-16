@@ -48,6 +48,15 @@ def create_sankey_data(df_long):
 
         df_filtered = df_long[df_long['Question_clean'] == target]
 
+
+        # Excluir filas sin respuesta (NaN real o texto tipo "nan", "<nan>", "<NA>", "None", vacío).
+        # Solo afecta a esta pregunta: el país sigue apareciendo en las demás.
+        valores_nulos = {'nan', '<nan>', '<na>', 'none', 'null', ''}
+        df_filtered = df_filtered[
+            df_filtered['Answer'].notna()
+            & ~df_filtered['Answer'].astype(str).str.strip().str.lower().isin(valores_nulos)
+        ]
+
         df_grouped = (
             df_filtered
             .groupby([origin_state, 'Answer'])

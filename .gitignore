@@ -51,3 +51,7 @@ Thumbs.db
 # EB site: the enabled copy of nginx/eb-site.conf.template.example, made on the
 # Droplet. Untracked on purpose so `git reset --hard` in a deploy leaves it alone.
 nginx/templates/eb-site.conf.template
+
+# Umami analytics: the enabled copy of nginx/umami-site.conf.template.example.
+# Same reasoning as the EB site above.
+nginx/templates/umami-site.conf.template

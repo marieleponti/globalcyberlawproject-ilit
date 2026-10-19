@@ -99,6 +99,7 @@ services:
       UMAMI_DOMAIN: ${UMAMI_DOMAIN:-umami-disabled.invalid}
     volumes:
       - ./nginx/templates:/etc/nginx/templates:ro
+      - ./nginx/snippets:/etc/nginx/snippets:ro
       - certbot_conf:/etc/letsencrypt:ro
       - certbot_www:/var/www/certbot:ro
     depends_on:
@@ -115,11 +116,13 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    # The access log goes to stdout, so this is also how long traffic history
+    # is kept: 6 x 50MB, which is months at current volumes.
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: "50m"
+        max-file: "6"
     security_opt:
       - no-new-privileges:true
     # Reload every 12h so renewed certificates are picked up without a restart.

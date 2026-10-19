@@ -1,0 +1,78 @@
+# Reverse proxy for Umami web analytics (e.g. stats.globalcyberlawproject.org),
+# which runs as the `umami` service in docker-compose.prod.yml behind the
+# `analytics` profile and shares this Droplet's nginx for ports 80/443.
+#
+# OFF BY DEFAULT, exactly like eb-site.conf.template.example: nginx only loads
+# *.template files from nginx/templates/, and this one lives outside it with an
+# .example suffix, so merging it changes nothing. A template that names a
+# missing certificate stops nginx for EVERY site on it, so the order matters:
+#
+#   1. set UMAMI_DOMAIN, UMAMI_DB_PASSWORD and UMAMI_APP_SECRET in
+#      .env.production; DNS for UMAMI_DOMAIN must already point at the Droplet
+#      (DNS-only / grey cloud while the certificate is issued)
+#   2. PLACEHOLDER_ONLY=1 ./ops/issue-cert.sh <UMAMI_DOMAIN>
+#   3. cp nginx/umami-site.conf.template.example nginx/templates/umami-site.conf.template
+#   4. docker compose -f docker-compose.prod.yml --env-file .env.production \
+#          --profile analytics up -d umami
+#      docker compose -f docker-compose.prod.yml --env-file .env.production up -d nginx
+#   5. STAGING=1 ./ops/issue-cert.sh <UMAMI_DOMAIN>, then FORCE=1 for the real one
+#
+# The copy in step 3 is git-ignored, so a Django deploy never removes it. See
+# ANALYTICS_UMAMI.md for the full runbook, including the first login.
+
+limit_req_zone $binary_remote_addr zone=umami_limit:10m rate=20r/s;
+
+server {
+    listen 80;
+    server_name ${UMAMI_DOMAIN};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    location / {
+        return 301 https://${UMAMI_DOMAIN}$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name ${UMAMI_DOMAIN};
+
+    ssl_certificate     /etc/letsencrypt/live/${UMAMI_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${UMAMI_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;
+    ssl_prefer_server_ciphers off;
+
+    add_header X-Content-Type-Options "nosniff" always;
+    server_tokens off;
+
+    # Docker's embedded DNS, asked at request time. A literal hostname in
+    # proxy_pass is resolved once at nginx START, and if the umami container is
+    # not up yet nginx refuses to start, for every site on this nginx. A
+    # variable defers the lookup to the first request (same trick as the EB
+    # template).
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $umami http://umami:3000;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+    }
+
+    # Every page view on every tracked site POSTs to /api/send, so this zone
+    # has to allow bursts; it only stops one address from hammering it.
+    location / {
+        limit_req zone=umami_limit burst=100 nodelay;
+        proxy_pass $umami;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+}

@@ -191,10 +191,17 @@ TEMPLATES = [
                 # {% if vis_ready.<area> %} block evaluates false and the
                 # VISUALIZATIONS_READY switches above do nothing at all.
                 'core.context_processors.visualizations_ready',
+                # Supplies the Umami tag settings; renders nothing unless
+                # UMAMI_SCRIPT_URL and UMAMI_WEBSITE_ID are set.
+                'core.context_processors.analytics',
             ],
         },
     },
 ]
+
+# Umami analytics tag (see ANALYTICS_UMAMI.md). Unset means no tag is rendered.
+UMAMI_SCRIPT_URL = os.environ.get("UMAMI_SCRIPT_URL", "")
+UMAMI_WEBSITE_ID = os.environ.get("UMAMI_WEBSITE_ID", "")
 
 WSGI_APPLICATION = 'nat_state_vis_app.wsgi.application'
 

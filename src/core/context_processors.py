@@ -18,3 +18,15 @@ def visualizations_ready(request):
     return {
         'vis_ready': getattr(settings, 'VISUALIZATIONS_READY', {})
     }
+
+
+def analytics(request):
+    """
+    Supplies the Umami tracking tag settings to base.html. Both are empty
+    unless UMAMI_SCRIPT_URL and UMAMI_WEBSITE_ID are set in the environment,
+    and base.html renders nothing in that case.
+    """
+    return {
+        'umami_script_url': getattr(settings, 'UMAMI_SCRIPT_URL', ''),
+        'umami_website_id': getattr(settings, 'UMAMI_WEBSITE_ID', ''),
+    }

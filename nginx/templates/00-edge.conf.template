@@ -1,0 +1,41 @@
+# Settings shared by every site this nginx serves (the Django app and, when it
+# is switched on, the EB site). Loaded at http level, so it must contain no
+# server or location blocks. The `00-` prefix makes it load before the others.
+
+# Same as nginx's "combined" format with the requested host appended, so one
+# log can be split per site. GoAccess reads it with:
+#   --log-format='%h %^[%d:%t %^] "%r" %s %b "%R" "%u" %v' \
+#   --date-format=%d/%b/%Y --time-format=%T
+log_format gclp_host '$remote_addr - $remote_user [$time_local] '
+                     '"$request" $status $body_bytes_sent '
+                     '"$http_referer" "$http_user_agent" $host';
+
+# Some domains sit behind Cloudflare, which makes $remote_addr a Cloudflare
+# address for every visitor. That collapses the visitor count and also makes
+# the per-address rate limits treat all of a site's visitors as one client.
+# Cloudflare sends the real address in CF-Connecting-IP; it is trusted only when
+# the connection really comes from a Cloudflare range, so nobody can forge it.
+# Ranges: https://www.cloudflare.com/ips-v4 and /ips-v6 (change rarely).
+real_ip_header CF-Connecting-IP;
+set_real_ip_from 173.245.48.0/20;
+set_real_ip_from 103.21.244.0/22;
+set_real_ip_from 103.22.200.0/22;
+set_real_ip_from 103.31.4.0/22;
+set_real_ip_from 141.101.64.0/18;
+set_real_ip_from 108.162.192.0/18;
+set_real_ip_from 190.93.240.0/20;
+set_real_ip_from 188.114.96.0/20;
+set_real_ip_from 197.234.240.0/22;
+set_real_ip_from 198.41.128.0/17;
+set_real_ip_from 162.158.0.0/15;
+set_real_ip_from 104.16.0.0/13;
+set_real_ip_from 104.24.0.0/14;
+set_real_ip_from 172.64.0.0/13;
+set_real_ip_from 131.0.72.0/22;
+set_real_ip_from 2400:cb00::/32;
+set_real_ip_from 2606:4700::/32;
+set_real_ip_from 2803:f800::/32;
+set_real_ip_from 2405:b500::/32;
+set_real_ip_from 2405:8100::/32;
+set_real_ip_from 2a06:98c0::/29;
+set_real_ip_from 2c0f:f248::/32;

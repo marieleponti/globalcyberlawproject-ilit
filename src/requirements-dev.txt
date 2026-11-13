@@ -1,0 +1,17 @@
+# Development and security tooling. Not installed into the production image.
+#
+#   pip install -r src/requirements-dev.txt
+#
+# Used by ops/security-scan.sh, which produces the vulnerability scan evidence
+# the Temple vendor security questionnaire asks for.
+
+-r requirements.txt
+
+# Known-CVE scanning of the pinned dependencies.
+pip-audit==2.7.3
+
+# Static analysis for insecure patterns in our own code.
+bandit==1.7.9
+
+# Linting and formatting.
+ruff==0.6.9

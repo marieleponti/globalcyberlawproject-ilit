@@ -35,6 +35,19 @@ else:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    # Django security checks requires secure hsts security setting. Will use Environment variable, or 3600s (1 hr)
+    # If hsts checks don't pass, browser won't be able to access site during this time period.
+    SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "3600"))  # 1 hora
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+
+# HSTS: subdomains and preload intentionally disabled.
+# We don't control/know all subdomains of the domain, and preload is hard to undo.
+# Revisit once the domain setup is confirmed with the hosting team.
+SILENCED_SYSTEM_CHECKS = [
+    "security.W005",  # SECURE_HSTS_INCLUDE_SUBDOMAINS
+    "security.W021",  # SECURE_HSTS_PRELOAD
+]
 
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -192,3 +205,4 @@ EMAIL_TIMEOUT = 10
 
 #To allow contact form submission
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+

@@ -110,7 +110,7 @@ def _render_comparison_table(preguntas_list, eu_row, respuestas_paises, title, l
     """
 
 
-def create_eu_comparison_table(df_issue, preguntas, df_membership, df_citations=None):
+def create_eu_comparison_table(df_issue, preguntas  , df_membership, df_citations=None):
     """Crea una tabla comparativa entre respuestas de la UE y países miembros"""
     try:
         df_merged = pd.merge(

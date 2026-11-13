@@ -28,10 +28,11 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 # SECURITY SETTINGS
+RENDER_HOST = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if DEBUG:
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0',  '142.93.95.52']
 else:
-    ALLOWED_HOSTS = ['142.93.95.52']
+    ALLOWED_HOSTS = ['142.93.95.52', RENDER_HOST]
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -39,7 +40,7 @@ else:
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
-CSRF_TRUSTED_ORIGINS = ['http://142.93.95.52']
+CSRF_TRUSTED_ORIGINS = ['142.93.95.52', f'https://{RENDER_HOST}']
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
@@ -190,5 +191,6 @@ DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 CONTACT_RECIPIENT_EMAIL = os.environ.get("CONTACT_RECIPIENT_EMAIL", EMAIL_HOST_USER)
 EMAIL_TIMEOUT = 10
 
-#To allow contact form submission
+#To allow contact form submission on Render
+CSRF_TRUSTED_ORIGINS = ['https://globalcyberlaw.onrender.com']
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

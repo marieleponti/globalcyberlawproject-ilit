@@ -1,0 +1,31 @@
+# Line endings.
+#
+# Development happens on Windows, deployment runs on Linux. A shell script that
+# reaches the Droplet with CRLF endings fails at the shebang with
+# "bad interpreter: /usr/bin/env bash^M", which is a confusing way to discover
+# a whitespace problem.
+#
+# These rules force LF for everything executed on the server, regardless of any
+# individual developer's core.autocrlf setting.
+
+* text=auto
+
+*.sh            text eol=lf
+entrypoint.sh   text eol=lf
+Dockerfile      text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+*.template      text eol=lf
+*.py            text eol=lf
+.env.*          text eol=lf
+.gitignore      text eol=lf
+.dockerignore   text eol=lf
+
+# Data and documents are binary or must not be touched.
+*.csv           text eol=lf
+*.pdf           binary
+*.docx          binary
+*.odt           binary
+*.png           binary
+*.jpg           binary
+*.ico           binary

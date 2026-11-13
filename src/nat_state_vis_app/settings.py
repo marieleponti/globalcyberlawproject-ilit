@@ -41,6 +41,14 @@ else:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = False
     SECURE_HSTS_PRELOAD = False
 
+# HSTS: subdomains and preload intentionally disabled.
+# We don't control/know all subdomains of the domain, and preload is hard to undo.
+# Revisit once the domain setup is confirmed with the hosting team.
+SILENCED_SYSTEM_CHECKS = [
+    "security.W005",  # SECURE_HSTS_INCLUDE_SUBDOMAINS
+    "security.W021",  # SECURE_HSTS_PRELOAD
+]
+
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"

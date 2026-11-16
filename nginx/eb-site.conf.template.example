@@ -153,6 +153,23 @@ server {
         proxy_redirect off;
     }
 
+    # Media library files (PDFs above all) are shown inside the frontend in an
+    # <iframe> on the resource pages, so the frontend's origin must be allowed
+    # to frame them. X-Frame-Options cannot name another origin, so it is left
+    # out here and CSP frame-ancestors does the job. Defining add_header in this
+    # location drops the server-level ones, hence nosniff is repeated. A plain
+    # prefix (not ^~) keeps the scanner-probe regexes from edge-common.conf in
+    # force for this path.
+    location /wp-content/uploads/ {
+        limit_req zone=eb_general_limit burst=100 nodelay;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Content-Security-Policy "frame-ancestors 'self' https://${EB_FRONTEND_DOMAIN}" always;
+        proxy_pass $eb_wp;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
     location / {
         limit_req zone=eb_general_limit burst=100 nodelay;
         proxy_pass $eb_wp;

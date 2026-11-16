@@ -29,7 +29,7 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 # SECURITY SETTINGS
 if DEBUG:
-    ALLOWED_HOSTS = ['127.0.0.1', 'localhost',  '142.93.95.52']
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0',  '142.93.95.52']
 else:
     ALLOWED_HOSTS = ['142.93.95.52']
     SECURE_SSL_REDIRECT = True

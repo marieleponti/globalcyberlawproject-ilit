@@ -74,25 +74,46 @@ if not PUBLIC_HOSTS and not DEBUG:
 # names are not routable from outside the container, so this is not a wildcard.
 ALLOWED_HOSTS = PUBLIC_HOSTS + ["127.0.0.1", "localhost"]
 if DEBUG:
-    ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0',  '142.93.95.52'] # nosec B104 - host allowlist, not a socket bind
-else:
-    ALLOWED_HOSTS = ['142.93.95.52']
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    # Django security checks requires secure hsts security setting. Will use Environment variable, or 3600s (1 hr)
-    # If hsts checks don't pass, browser won't be able to access site during this time period.
-    SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "3600"))  # 1 hora
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-    SECURE_HSTS_PRELOAD = False
+    # bandit flags the literal "0.0.0.0" as binding to every interface (B104).
+    # That rule is about opening a socket. This is Django's Host header
+    # allow-list, it opens nothing, and it only applies when DEBUG is on.
+    # Carried over from the original settings for development parity.
+    ALLOWED_HOSTS.append("0.0.0.0")  # nosec B104
 
-# HSTS: subdomains and preload intentionally disabled.
-# We don't control/know all subdomains of the domain, and preload is hard to undo.
-# Revisit once the domain setup is confirmed with the hosting team.
-SILENCED_SYSTEM_CHECKS = [
-    "security.W005",  # SECURE_HSTS_INCLUDE_SUBDOMAINS
-    "security.W021",  # SECURE_HSTS_PRELOAD
-]
+# CSRF trusted origins must carry a scheme. Anything explicitly configured wins;
+# otherwise each public host is trusted over https.
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
+if not CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = [
+        f"https://{host}" for host in PUBLIC_HOSTS if not host.startswith(".")
+    ]
+    if DEBUG:
+        CSRF_TRUSTED_ORIGINS += ["http://127.0.0.1:8000", "http://localhost:8000"]
+
+# ---------------------------------------------------------------------------
+# TLS / transport security
+#
+# Nginx terminates TLS on the Droplet and forwards X-Forwarded-Proto, so Django
+# must trust that header to know a request arrived over https.
+# ---------------------------------------------------------------------------
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = env_bool("USE_X_FORWARDED_HOST", not DEBUG)
+
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", not DEBUG)
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", not DEBUG)
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", not DEBUG)
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # the contact form posts the token from templates
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+
+# HSTS. The env var wins; without it production defaults to 3600 (1 hour) so
+# Django's deploy check passes, and development to 0. Raise it to a year once
+# TLS is proven on the real domain. Setting it on a domain without a valid
+# certificate locks browsers out of the site for that long.
+SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "0" if DEBUG else "3600"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", False)
+SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", False)
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
